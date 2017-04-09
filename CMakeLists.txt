@@ -50,6 +50,7 @@ set( GAME_BASE_PATH "${ENGINE_BASE_PATH}/valve" )
 MESSAGE( STATUS "Base Engine Path: ${ENGINE_BASE_PATH}" )
 MESSAGE( STATUS "Base Game Path: ${GAME_BASE_PATH}" )
 
+set( SRC_DIR ${CMAKE_SOURCE_DIR}/src )
 set( EXTERNAL_DIR ${CMAKE_SOURCE_DIR}/external )
 
 #Shared preprocessor definitions

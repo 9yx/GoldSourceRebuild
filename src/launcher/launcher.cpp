@@ -12,6 +12,8 @@
 
 #include <WinSock2.h>
 
+#include "IRegistry.h"
+
 //TODO: refactor - Solokiller
 #ifdef WIN32
 #define DEFAULT_SO_EXT ".dll"
@@ -231,7 +233,11 @@ int CALLBACK WinMain(
 	WSADATA WSAData;
 	WSAStartup( MAKEWORD( 2, 0 ), &WSAData );
 
+	registry->Init();
+
 	//TODO
+
+	registry->Shutdown();
 
 	ReleaseMutex( hMutex );
 	CloseHandle( hMutex );

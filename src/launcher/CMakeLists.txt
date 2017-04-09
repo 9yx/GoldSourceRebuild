@@ -6,6 +6,9 @@ set( PROJECT_NAME hl )
 
 #Add in the directories
 add_sources(
+	${SRC_DIR}/common/IRegistry.h
+	${SRC_DIR}/common/CRegistry.cpp
+	${SRC_DIR}/common/CRegistry.h
 	launcher.cpp
 )
 
@@ -14,6 +17,7 @@ preprocess_sources()
 add_executable( ${PROJECT_NAME} ${PREP_SRCS} )
 
 target_include_directories( ${PROJECT_NAME} PRIVATE
+	${SRC_DIR}/common
 	${SHARED_INCLUDE_PATHS}
 	${SHARED_EXTERNAL_INCLUDE_PATHS}
 )
