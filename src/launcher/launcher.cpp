@@ -12,6 +12,7 @@
 
 #include <WinSock2.h>
 
+#include "ICommandLine.h"
 #include "IRegistry.h"
 
 //TODO: refactor - Solokiller
@@ -234,6 +235,8 @@ int CALLBACK WinMain(
 	WSAStartup( MAKEWORD( 2, 0 ), &WSAData );
 
 	registry->Init();
+
+	cmdline->CreateCmdLine( GetCommandLineA() );
 
 	//TODO
 
