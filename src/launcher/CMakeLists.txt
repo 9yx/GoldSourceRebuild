@@ -12,6 +12,9 @@ add_sources(
 	${SRC_DIR}/common/CCommandLine.cpp
 	${SRC_DIR}/common/CCommandLine.h
 	${SRC_DIR}/common/ICommandLine.h
+	${SRC_DIR}/public/engine_launcher_api.h
+	${SRC_DIR}/public/interface.cpp
+	${SRC_DIR}/public/interface.h
 	launcher.cpp
 )
 
@@ -21,6 +24,7 @@ add_executable( ${PROJECT_NAME} ${PREP_SRCS} )
 
 target_include_directories( ${PROJECT_NAME} PRIVATE
 	${SRC_DIR}/common
+	${SRC_DIR}/public
 	${SHARED_INCLUDE_PATHS}
 	${SHARED_EXTERNAL_INCLUDE_PATHS}
 )

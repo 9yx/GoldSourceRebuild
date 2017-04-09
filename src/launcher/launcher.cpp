@@ -8,12 +8,20 @@
 #include <Windows.h>
 
 #include <direct.h>
+#include <io.h>
 #include <process.h>
 
 #include <WinSock2.h>
 
+#include "engine_launcher_api.h"
+#include "FileSystem.h"
 #include "ICommandLine.h"
+#include "interface.h"
 #include "IRegistry.h"
+
+char com_gamedir[ MAX_PATH ] = {};
+
+IFileSystem* g_pFileSystem = nullptr;
 
 //TODO: refactor - Solokiller
 #ifdef WIN32
@@ -205,6 +213,118 @@ bool LR_VerifySteamStatus( const char* pszCommandLine, const char* pszFileSystem
 #endif
 }
 
+bool Sys_GetExecutableName( char* pszFilename, size_t uiSize )
+{
+	HMODULE hThisModule = GetModuleHandleA( nullptr );
+	//TODO: won't work properly on WinXP, see https://msdn.microsoft.com/en-us/library/windows/desktop/ms683197(v=vs.85).aspx - Solokiller
+	return GetModuleFileNameA( hThisModule, pszFilename, uiSize ) != 0;
+}
+
+CSysModule* LoadFilesystemModule( const char* exename, bool bRunningSteam )
+{
+	auto pModule = Sys_LoadModule( FILESYSTEM_STDIO );
+
+	if( !pModule )
+	{
+		if( strchr( exename, ';' ) )
+		{
+			MessageBoxA( NULL, "Game cannot be run from directories containing the semicolon char", "Fatal Error", MB_ICONERROR );
+			return nullptr;
+		}
+
+		struct _finddata_t find_data;
+
+		auto result = _findfirst( FILESYSTEM_STDIO, &find_data );
+
+		if( result == -1 )
+		{
+			MessageBoxA( NULL, "Could not find filesystem dll to load.", "Fatal Error", MB_ICONERROR );
+		}
+		else
+		{
+			MessageBoxA( NULL, "Could not load filesystem dll.", "Fatal Error", MB_ICONERROR );
+			_findclose( result );
+		}
+	}
+
+	return pModule;
+}
+
+static char szLongPath[ MAX_PATH ] = {};
+
+/**
+*	Gets the directory that this executable is running from.
+*/
+char* UTIL_GetBaseDir()
+{
+	char Filename[ MAX_PATH ];
+
+	if( GetModuleFileNameA( NULL, Filename, sizeof( Filename ) ) )
+	{
+		GetLongPathNameA( Filename, szLongPath, sizeof( szLongPath ) );
+
+		char* pszLastSlash = strrchr( szLongPath, '\\' );
+
+		if( *pszLastSlash )
+			pszLastSlash[ 1 ] = '\0';
+
+		const size_t uiLength = strlen( szLongPath );
+
+		if( uiLength > 0 )
+		{
+			char* pszEnd = &szLongPath[ uiLength - 1 ];
+
+			if( *pszEnd == '\\' || *pszEnd == '/' )
+				*pszEnd = '\0';
+		}
+	}
+
+	return szLongPath;
+}
+
+void SetEngineDLL( const char** ppEngineDLL )
+{
+	*ppEngineDLL = "hw.dll";
+
+	const char* pEngineDLLSetting = registry->ReadString( "EngineDLL", "hw.dll" );
+	if( _stricmp( pEngineDLLSetting, "hw.dll" ) )
+	{
+		if( !_stricmp( pEngineDLLSetting, "sw.dll" ) )
+			*ppEngineDLL = "sw.dll";
+	}
+	else
+	{
+		*ppEngineDLL = "hw.dll";
+	}
+
+	if( cmdline->CheckParm( "-soft", nullptr )
+		|| cmdline->CheckParm( "-software", nullptr ) )
+	{
+		*ppEngineDLL = "sw.dll";
+	}
+	else if( cmdline->CheckParm( "-gl", nullptr )
+			 || cmdline->CheckParm( "-d3d", nullptr ) )
+	{
+		*ppEngineDLL = "hw.dll";
+	}
+
+	registry->WriteString( "EngineDLL", *ppEngineDLL );
+}
+
+bool OnVideoModeFailed()
+{
+	registry->WriteInt( "ScreenBPP", 16 );
+	registry->WriteInt( "ScreenHeight", 640 );
+	registry->WriteInt( "ScreenWidth", 480 );
+
+	registry->WriteString( "EngineDLL", "hw.dll" );
+
+	return MessageBoxA(
+		NULL, 
+		"The specified video mode is not supported.", "Video mode change failure", 
+		MB_OKCANCEL | MB_ICONERROR | MB_ICONQUESTION ) == IDOK;
+}
+
 int CALLBACK WinMain(
 	HINSTANCE hInstance,
 	HINSTANCE hPrevInstance,
@@ -238,7 +358,204 @@ int CALLBACK WinMain(
 
 	cmdline->CreateCmdLine( GetCommandLineA() );
 
-	//TODO
+	char Filename[ 256 ];
+
+	Sys_GetExecutableName( Filename, sizeof( Filename ) );
+
+	//If this isn't hl.exe, force the game to be whichever game this exe is for.
+	{
+		char* pszLastSlash = strrchr( Filename, '\\' ) + 1;
+
+		//E.g. cstrike.exe -> -game cstrike.
+		if( _stricmp( "hl.exe", pszLastSlash ) && !cmdline->CheckParm( "-game", nullptr ) )
+		{
+			//This assumes that the program extension is ".exe" or another 4 character long extension.
+			pszLastSlash[ strlen( pszLastSlash ) - 4 ] = '\0';
+			cmdline->SetParm( "-game", pszLastSlash );
+		}
+	}
+
+	//Set the game name.
+	{
+		//TODO: this is wrong. pszGame will point to the rest of the command line after and including -game.
+		//It should copy the second parameter's result value. - Solokiller
+		const char* pszGame = cmdline->CheckParm( "-game", nullptr );
+
+		//Default to Half-Life.
+		if( !pszGame )
+			pszGame = "valve";
+
+		strncpy( com_gamedir, pszGame, sizeof( com_gamedir ) );
+		com_gamedir[ sizeof( com_gamedir ) - 1 ] = '\0';
+	}
+
+	//TODO: Could be the CRT heap init, but why is this here? - Solokiller
+	//sub_14032FD(0);
+
+	//Remove old libraries distributed with older Half-Life versions.
+	_unlink( "mssv29.asi" );
+	_unlink( "mssv12.asi" );
+	_unlink( "mp3dec.asi" );
+	_unlink( "opengl32.dll" );
+
+	//If the game crashed during video mode initialization, reset video mode to default.
+	if( registry->ReadInt( "CrashInitializingVideoMode", 0 ) )
+	{
+		registry->WriteInt( "CrashInitializingVideoMode", 0 );
+
+		const char* pszEngineDLL = registry->ReadString( "EngineDLL", "hw.dll" );
+
+		if( !_stricmp( pszEngineDLL, "hw.dll" ) )
+		{
+			const char* pszCaption = "Video mode change failure";
+			const char* pszMessage;
+
+			if( registry->ReadInt( "EngineD3D", 0 ) )
+			{
+				registry->WriteInt( "EngineD3D", 0 );
+
+				pszMessage = 
+					"The game has detected that the previous attempt to start in D3D video mode failed.\n"
+					"The game will now run attempt to run in openGL mode.";
+			}
+			else
+			{
+				//TODO: Shouldn't this be sw.dll? - Solokiller
+				registry->WriteString( "EngineDLL", "hw.dll" );
+
+				pszMessage = 
+					"The game has detected that the previous attempt to start in openGL video mode failed.\n"
+					"The game will now run in software mode.";
+			}
+
+			//Ask the user if they want to continue.
+			if( MessageBoxA( NULL, pszMessage, pszCaption, MB_OKCANCEL | MB_ICONERROR | MB_ICONQUESTION ) != IDOK )
+				return EXIT_SUCCESS;
+
+			registry->WriteInt( "ScreenBPP", 16 );
+			registry->WriteInt( "ScreenHeight", 640 );
+			registry->WriteInt( "ScreenWidth", 480 );
+		}
+	}
+
+	static char szNewCommandParams[ 2048 ];
+
+	bool bRestartEngine = false;
+
+	do
+	{
+		//Load and mount the filesystem.
+		auto hModule = LoadFilesystemModule( Filename, cmdline->CheckParm( "-game", nullptr ) != nullptr );
+	
+		if( !hModule )
+			break;
+
+		{
+			auto factoryFn = Sys_GetFactory( hModule );
+
+			g_pFileSystem = static_cast<IFileSystem*>( factoryFn( FILESYSTEM_INTERFACE_VERSION, nullptr ) );
+		}
+
+		g_pFileSystem->Mount();
+
+		g_pFileSystem->AddSearchPath( UTIL_GetBaseDir(), "ROOT" );
+
+		bRestartEngine = false;
+		EngineRunResult runResult = ENGRUN_QUITTING;
+
+		szNewCommandParams[ 0 ] = '\0';
+
+		const char* pszLibFileName;
+		SetEngineDLL( &pszLibFileName );
+
+		auto hLibModule = Sys_LoadModule( pszLibFileName );
+
+		if( hLibModule )
+		{
+			auto factoryFn = Sys_GetFactory( hLibModule );
+
+			if( factoryFn )
+			{
+				auto pEngine = static_cast<IEngineAPI*>( factoryFn( ENGINE_LAUNCHER_INTERFACE_VERSION, nullptr ) );
+			
+				if( pEngine )
+				{
+					runResult = static_cast<EngineRunResult>( 
+						pEngine->Run(
+							hInstance, 
+							UTIL_GetBaseDir(),
+							cmdline->GetCmdLine(), 
+							szNewCommandParams, 
+							Sys_GetFactoryThis(), 
+							Sys_GetFactory( hModule )
+						)
+					);
+				}
+			}
+
+			Sys_UnloadModule( hLibModule );
+		}
+		else
+		{
+			char Text[ 512 ];
+
+			snprintf( Text, sizeof( Text ), "Could not load %s.", pszLibFileName );
+			MessageBoxA( NULL, Text, "Fatal Error", MB_ICONERROR );
+		}
+
+		switch( runResult )
+		{
+		case ENGRUN_QUITTING:
+			bRestartEngine = false;
+			break;
+		case ENGRUN_CHANGED_VIDEOMODE:
+			bRestartEngine = true;
+			break;
+		case ENGRUN_UNSUPPORTED_VIDEOMODE:
+			bRestartEngine = OnVideoModeFailed();
+			break;
+		default:
+			break;
+		}
+
+		//If we're restarting, remove any parameters that could affect video mode changes.
+		//Also remove parameters that trigger events automatically, such as connecting to a server.
+		cmdline->RemoveParm( "-sw" );
+		cmdline->RemoveParm( "-startwindowed" );
+		cmdline->RemoveParm( "-windowed" );
+		cmdline->RemoveParm( "-window" );
+		cmdline->RemoveParm( "-full" );
+		cmdline->RemoveParm( "-fullscreen" );
+		cmdline->RemoveParm( "-soft" );
+		cmdline->RemoveParm( "-software" );
+		cmdline->RemoveParm( "-gl" );
+		cmdline->RemoveParm( "-d3d" );
+		cmdline->RemoveParm( "-w" );
+		cmdline->RemoveParm( "-width" );
+		cmdline->RemoveParm( "-h" );
+		cmdline->RemoveParm( "-height" );
+		cmdline->RemoveParm( "+connect" );
+		cmdline->SetParm( "-novid", nullptr );
+
+		//User changed game.
+		if( strstr( szNewCommandParams, "-game" ) )
+		{
+			cmdline->RemoveParm( "-game" );
+		}
+
+		//Remove saved game load command if new command is present.
+		if( strstr( szNewCommandParams, "+load" ) )
+		{
+			cmdline->RemoveParm( "+load" );
+		}
+
+		//Append new command line to process properly.
+		cmdline->AppendParm( szNewCommandParams, nullptr );
+
+		g_pFileSystem->Unmount();
+		Sys_UnloadModule( hModule );
+	}
+	while( bRestartEngine );
 
 	registry->Shutdown();
 
