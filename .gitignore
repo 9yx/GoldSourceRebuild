@@ -27,3 +27,9 @@
 *.exe
 *.out
 *.app
+
+#CMake build directories
+build*/*
+
+#Tets build output directories
+test_game/*
