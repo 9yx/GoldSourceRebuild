@@ -145,7 +145,7 @@ void CCommandLine::CreateCmdLine( int argc, const char** argv )
 	CreateCmdLine( szFull );
 }
 
-const char* CCommandLine::GetCmdLine()
+char* CCommandLine::GetCmdLine()
 {
 	return m_pszCmdLine;
 }

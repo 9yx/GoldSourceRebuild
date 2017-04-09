@@ -12,7 +12,7 @@ public:
 	void CreateCmdLine( const char* commandline ) override;
 	void CreateCmdLine( int argc, const char** argv ) override;
 
-	const char* GetCmdLine() override;
+	char* GetCmdLine() override;
 
 	char* CheckParm( const char* psz, char** ppszValue ) override;
 

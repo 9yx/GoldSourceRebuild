@@ -10,7 +10,7 @@ public:
 	virtual void CreateCmdLine( const char* commandline ) = 0;
 	virtual void CreateCmdLine( int argc, const char** argv ) = 0;
 
-	virtual const char* GetCmdLine() = 0;
+	virtual char* GetCmdLine() = 0;
 
 	virtual char* CheckParm( const char* psz, char** ppszValue ) = 0;
 
