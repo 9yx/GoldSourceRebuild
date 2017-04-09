@@ -10,6 +10,8 @@
 #include <direct.h>
 #include <process.h>
 
+#include <WinSock2.h>
+
 //TODO: refactor - Solokiller
 #ifdef WIN32
 #define DEFAULT_SO_EXT ".dll"
@@ -226,10 +228,14 @@ int CALLBACK WinMain(
 		return EXIT_SUCCESS;
 	}
 
+	WSADATA WSAData;
+	WSAStartup( MAKEWORD( 2, 0 ), &WSAData );
+
 	//TODO
 
 	ReleaseMutex( hMutex );
 	CloseHandle( hMutex );
+	WSACleanup();
 
 	return EXIT_SUCCESS;
 }

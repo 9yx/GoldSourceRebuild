@@ -23,10 +23,15 @@ target_compile_definitions( ${PROJECT_NAME} PRIVATE
 )
 
 #Find dependencies
+set( PROJECT_LIBS )
+if( WIN32 )
+	set( PROJECT_LIBS ${PROJECT_LIBS} wsock32 ws2_32 )
+endif()
 
 #Link with dependencies
 target_link_libraries( ${PROJECT_NAME} 
 	"${SHARED_DEPENDENCIES}"
+	${PROJECT_LIBS}
 )
 
 #CMake places libraries in /Debug or /Release on Windows, so explicitly set the paths for both.
