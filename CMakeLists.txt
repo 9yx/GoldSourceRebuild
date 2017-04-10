@@ -55,6 +55,7 @@ set( EXTERNAL_DIR ${CMAKE_SOURCE_DIR}/external )
 
 #Shared preprocessor definitions
 set( SHARED_DEFS 
+	NO_MALLOC_OVERRIDE
 )
 
 if( MSVC )
@@ -69,10 +70,13 @@ else()
 	#All non-MSVC targets need this. That includes Cygwin and Mingw.
 	#Match Source 2013 in defining GNUC for UNIX platforms.
 	#Match Source 2013 in defining POSIX for UNIX platforms.
+	#Enable 64 bit fopen functions for use in the filesystem.
 	set( SHARED_DEFS
 		${SHARED_DEFS}
 		GNUC
 		POSIX
+		_LARGEFILE_SOURCE
+		_LARGEFILE64_SOURCE
 	)
 
 	if( APPLE )
@@ -130,5 +134,11 @@ set( SHARED_INCLUDE_PATHS
 #Find shared dependencies
 set( THREADS_PREFER_PTHREAD_FLAG ON )
 find_package( Threads REQUIRED )
+
+if( UNIX )
+	set( UNIX_FS_LIB stdc++fs )
+else()
+	set( UNIX_FS_LIB )
+endif()
 
 add_subdirectory( src )
