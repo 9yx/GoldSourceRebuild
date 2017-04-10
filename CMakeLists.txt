@@ -53,6 +53,21 @@ MESSAGE( STATUS "Base Game Path: ${GAME_BASE_PATH}" )
 set( SRC_DIR ${CMAKE_SOURCE_DIR}/src )
 set( EXTERNAL_DIR ${CMAKE_SOURCE_DIR}/external )
 
+if( WIN32 )
+	set( LIB_DIR ${SRC_DIR}/lib/public )
+	set( BIN_DIR ${SRC_DIR}/bin/public )
+elseif( APPLE )
+	set( LIB_DIR ${SRC_DIR}/lib/osx32 )
+	set( BIN_DIR ${LIB_DIR} )
+elseif( UNIX )
+	set( LIB_DIR ${SRC_DIR}/lib/linux32 )
+	set( BIN_DIR ${LIB_DIR} )
+else()
+	set( LIB_DIR )
+	set( BIN_DIR ${LIB_DIR} )
+	MESSAGE( WARNING "Unknown target platform; cannot determine library directory" )
+endif()
+
 #Shared preprocessor definitions
 set( SHARED_DEFS 
 	NO_MALLOC_OVERRIDE
@@ -140,5 +155,12 @@ if( UNIX )
 else()
 	set( UNIX_FS_LIB )
 endif()
+
+find_library( STEAM_API steam_api PATHS ${LIB_DIR} NO_DEFAULT_PATH )
+
+#Copy the Steamworks library so it can be linked properly.
+set( STEAM_API_SO ${BIN_DIR}/steam_api${CMAKE_SHARED_LIBRARY_SUFFIX} )
+MESSAGE( STATUS "Copying ${STEAM_API_SO}" )
+file( COPY ${STEAM_API_SO} DESTINATION ${ENGINE_BASE_PATH} )
 
 add_subdirectory( src )
