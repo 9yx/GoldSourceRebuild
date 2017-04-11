@@ -596,10 +596,11 @@ protected:
 #elif POSIX
 	pthread_mutex_t	m_Mutex;
 	pthread_cond_t	m_Condition;
-	bool m_bInitalized;
 #else
 #error "Implement me"
 #endif
+
+	bool m_bInitalized;
 
 private:
 	CThreadSyncObject( const CThreadSyncObject & );
@@ -672,6 +673,7 @@ class TT_CLASS CThreadEvent : public CThreadSyncObject
 {
 public:
 	CThreadEvent( bool fManualReset = false );
+	CThreadEvent( void* pEvent, bool fManualReset );
 
 	//-----------------------------------------------------
 	// Set the state to signaled
