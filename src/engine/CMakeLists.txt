@@ -50,6 +50,7 @@ endif()
 target_link_libraries( ${PROJECT_NAME} 
 	"${SHARED_DEPENDENCIES}"
 	${PROJECT_LIBS}
+	tier0
 	tier1
 	${STEAM_API}
 )
