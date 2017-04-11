@@ -20,6 +20,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef ENGINE_SYS_H
 #define ENGINE_SYS_H
 
+#include "quakedef.h"
+
 /**
 *	@file
 *
@@ -38,6 +40,11 @@ using PrintfFunc = void ( * )( const char*, ... );
 *	Send text to the console
 */
 void Sys_Printf( const char* fmt, ... );
+
+/**
+*	An error will cause the entire program to exit
+*/
+void Sys_Error( const char* error, ... );
 
 extern PrintfFunc Launcher_ConsolePrintf;
 
