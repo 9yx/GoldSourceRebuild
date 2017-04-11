@@ -57,12 +57,15 @@ target_include_directories( ${PROJECT_NAME} PRIVATE
 	${SRC_DIR}/public/tier1
 	${SHARED_INCLUDE_PATHS}
 	${EXTERNAL_DIR}/SDL2/include
+	${EXTERNAL_DIR}/GLEW/include
+	${OPENGL_INCLUDE_DIR}
 	${SHARED_EXTERNAL_INCLUDE_PATHS}
 )
 
 target_compile_definitions( ${PROJECT_NAME} PRIVATE
 	${SHARED_DEFS}
 	USE_BREAKPAD_HANDLER
+	GLEW_STATIC
 )
 
 #Find dependencies
@@ -73,12 +76,14 @@ endif()
 
 #Link with dependencies
 target_link_libraries( ${PROJECT_NAME} 
-	"${SHARED_DEPENDENCIES}"
-	${PROJECT_LIBS}
-	tier0
-	tier1
-	${STEAM_API}
 	${SDL2}
+	${GLEW2}
+	${OPENGL_LIBRARIES}
+	tier1
+	tier0
+	${STEAM_API}
+	${PROJECT_LIBS}
+	${SHARED_DEPENDENCIES}
 )
 
 #CMake places libraries in /Debug or /Release on Windows, so explicitly set the paths for both.

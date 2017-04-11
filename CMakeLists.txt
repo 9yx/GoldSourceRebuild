@@ -150,6 +150,14 @@ set( SHARED_INCLUDE_PATHS
 set( THREADS_PREFER_PTHREAD_FLAG ON )
 find_package( Threads REQUIRED )
 
+find_package( OpenGL REQUIRED )
+
+if( NOT OPENGL_FOUND )
+	MESSAGE( FATAL_ERROR "Could not locate OpenGL library" )
+endif()
+
+find_library( GLEW2 glew32s ${CMAKE_SHARED_LIBRARY_PREFIX}GLEW${CMAKE_STATIC_LIBRARY_SUFFIX} PATHS ${EXTERNAL_DIR}/GLEW/lib/ NO_DEFAULT_PATH )
+
 if( UNIX )
 	set( UNIX_FS_LIB stdc++fs )
 else()
