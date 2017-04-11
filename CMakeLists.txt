@@ -51,7 +51,7 @@ MESSAGE( STATUS "Base Engine Path: ${ENGINE_BASE_PATH}" )
 MESSAGE( STATUS "Base Game Path: ${GAME_BASE_PATH}" )
 
 set( SRC_DIR ${CMAKE_SOURCE_DIR}/src )
-set( EXTERNAL_DIR ${CMAKE_SOURCE_DIR}/external )
+set( EXTERNAL_DIR ${SRC_DIR}/external )
 
 if( WIN32 )
 	set( LIB_DIR ${SRC_DIR}/lib/public )
@@ -156,11 +156,34 @@ else()
 	set( UNIX_FS_LIB )
 endif()
 
-find_library( STEAM_API steam_api PATHS ${LIB_DIR} NO_DEFAULT_PATH )
-
-#Copy the Steamworks library so it can be linked properly.
 set( STEAM_API_SO ${BIN_DIR}/steam_api${CMAKE_SHARED_LIBRARY_SUFFIX} )
-MESSAGE( STATUS "Copying ${STEAM_API_SO}" )
-file( COPY ${STEAM_API_SO} DESTINATION ${ENGINE_BASE_PATH} )
+
+if( WIN32 )
+	set( SDL2_NAME SDL2${CMAKE_STATIC_LIBRARY_SUFFIX} )
+	set( SDL2_SO_NAME SDL2${CMAKE_SHARED_LIBRARY_SUFFIX} )
+elseif( APPLE )
+	set( SDL2_NAME libSDL2-2.0.0.dylib )
+	set( SDL2_SO_NAME ${SDL2_NAME} )
+elseif( UNIX )
+	set( SDL2_NAME libSDL2-2.0.so.0 )
+	set( SDL2_SO_NAME ${SDL2_NAME} )
+else()
+	set( SDL2_NAME )
+	set( SDL2_SO_NAME ${SDL2_NAME} )
+endif()
+
+set( SDL2_SO ${EXTERNAL_DIR}/SDL2/lib/${SDL2_SO_NAME} )
+
+#Copy libraries so they can be linked properly.
+set( LIBS_TO_COPY ${STEAM_API_SO} ${SDL2_SO} )
+
+foreach( lib IN LISTS LIBS_TO_COPY )
+	MESSAGE( STATUS "Copying ${lib}" )
+	file( COPY ${lib} DESTINATION ${ENGINE_BASE_PATH} )
+endforeach()
+
+#Link with the library in the deployment directory if present, this is needed to ensure that the correct library file is loaded.
+find_library( STEAM_API steam_api PATHS ${ENGINE_BASE_PATH} ${LIB_DIR} NO_DEFAULT_PATH )
+find_library( SDL2 ${SDL2_NAME} PATHS ${ENGINE_BASE_PATH} ${EXTERNAL_DIR}/SDL2/lib NO_DEFAULT_PATH )
 
 add_subdirectory( src )
