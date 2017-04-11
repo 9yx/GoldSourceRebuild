@@ -1,10 +1,16 @@
+#include <csetjmp>
 #include <cstdarg>
 #include <cstdio>
 #include <cstdlib>
 
+#include <SDL2/SDL.h>
+
+#include "sv_log.h"
 #include "sys.h"
 
 PrintfFunc Launcher_ConsolePrintf = nullptr;
+
+jmp_buf host_abortserver;
 
 void Sys_Printf( const char* fmt, ... )
 {

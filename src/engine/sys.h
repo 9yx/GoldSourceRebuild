@@ -20,6 +20,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef ENGINE_SYS_H
 #define ENGINE_SYS_H
 
+#include <SDL2/SDL.h>
+
 #include "quakedef.h"
 
 /**
@@ -51,5 +53,9 @@ extern PrintfFunc Launcher_ConsolePrintf;
 /** @} */
 
 extern bool g_bIsDedicatedServer;
+
+extern quakeparms_t host_parms;
+
+extern SDL_Window* pmainwindow;
 
 #endif //ENGINE_SYS_H

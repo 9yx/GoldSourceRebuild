@@ -16,11 +16,34 @@ add_sources(
 	buildnum.h
 	common.cpp
 	common.h
+	console.cpp
+	console.h
+	filesystem.cpp
+	filesystem_internal.cpp
+	filesystem.h
+	IEngine.h
+	IGame.h
+	info.cpp
+	info.h
+	net.h
+	qgl.cpp
+	qgl.h
+	quakedef.h
+	sv_log.cpp
+	sv_log.h
+	sv_main.cpp
+	sv_main.h
+	sv_steam3.cpp
+	sv_steam3.h
 	sys.h
 	sys_dll.cpp
 	sys_dll2.cpp
+	sys_engine.cpp
+	sys_sdlwind.cpp
 	traceinit.cpp
 	traceinit.h
+	unicode_strtools.cpp
+	unicode_strtools.h
 )
 
 preprocess_sources()
@@ -28,10 +51,12 @@ preprocess_sources()
 add_library( ${PROJECT_NAME} SHARED ${PREP_SRCS} )
 
 target_include_directories( ${PROJECT_NAME} PRIVATE
+	${SRC_DIR}
 	${SRC_DIR}/common
 	${SRC_DIR}/public
 	${SRC_DIR}/public/tier1
 	${SHARED_INCLUDE_PATHS}
+	${EXTERNAL_DIR}/SDL2/include
 	${SHARED_EXTERNAL_INCLUDE_PATHS}
 )
 
@@ -53,6 +78,7 @@ target_link_libraries( ${PROJECT_NAME}
 	tier0
 	tier1
 	${STEAM_API}
+	${SDL2}
 )
 
 #CMake places libraries in /Debug or /Release on Windows, so explicitly set the paths for both.
