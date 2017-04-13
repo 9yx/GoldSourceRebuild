@@ -51,6 +51,8 @@ add_sources(
 	unicode_strtools.cpp
 	unicode_strtools.h
 	vid.h
+	zone.cpp
+	zone.h
 )
 
 preprocess_sources()
