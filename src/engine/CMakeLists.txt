@@ -47,6 +47,8 @@ add_sources(
 	sys_dll.cpp
 	sys_dll2.cpp
 	sys_engine.cpp
+	sys_getmodes.cpp
+	sys_getmodes.h
 	sys_sdlwind.cpp
 	traceinit.cpp
 	traceinit.h

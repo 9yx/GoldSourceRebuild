@@ -1,5 +1,7 @@
 #include <cstring>
 
+#include "steam/steam_api.h"
+
 #include "common.h"
 #include "buildnum.h"
 #include "engine_launcher_api.h"
@@ -11,8 +13,7 @@
 #include "sv_steam3.h"
 #include "sys.h"
 #include "traceinit.h"
-
-#include "steam/steam_api.h"
+#include "sys_getmodes.h"
 
 char* g_pPostRestartCmdLineArgs = nullptr;
 
@@ -97,14 +98,12 @@ int RunListenServer( void *instance, char *basedir, char *cmdline, char *postRes
 
 	if( FileSystem_Init( basedir, filesystemFactory ) )
 	{
-		//TODO: implement - Solokiller
-		//VideoMode_Create();
+		VideoMode_Create();
 
 		result = 2;
 		registry->WriteInt( "CrashInitializingVideoMode", 1 );
 
-		//TODO: implement - Solokiller
-		if( false /*videomode->Init( instance ) */)
+		if( videomode->Init( instance ) )
 		{
 			result = 0;
 			registry->WriteInt( "CrashInitializingVideoMode", 0 );
@@ -133,8 +132,7 @@ int RunListenServer( void *instance, char *basedir, char *cmdline, char *postRes
 				game->Shutdown();
 			}
 
-			//TODO: implement - Solokiller
-			//videomode->Shutdown();
+			videomode->Shutdown();
 		}
 
 		TraceShutdown( "FileSystem_Shutdown()", 0 );
