@@ -24,8 +24,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "common.h"
 #include "filesystem.h"
 #include "info.h"
+#include "mem.h"
 #include "quakedef.h"
 #include "strtools.h"
+#include "sys.h"
+#include "zone.h"
 
 #define NUM_SAFE_ARGVS  7
 
@@ -239,4 +242,83 @@ char* va( const char* format, ... )
 	va_end( argptr );
 
 	return string;
+}
+
+static cache_user_t* loadcache = nullptr;
+static byte* loadbuf = nullptr;
+static int loadsize = 0;
+
+byte* COM_LoadFile( const char* path, int usehunk, int* pLength )
+{
+	//g_engdstAddrs.COM_LoadFile();
+	if( pLength )
+		*pLength = 0;
+
+	FileHandle_t hFile = FS_Open( path, "rb" );
+
+	if( hFile == FILESYSTEM_INVALID_HANDLE )
+		return nullptr;
+
+	const int iSize = FS_Size( hFile );
+
+	char base[ 4096 ];
+	COM_FileBase( path, base );
+	base[ 32 ] = '\0';
+
+	void* pBuffer = 0;
+
+	if( usehunk == 0 )
+	{
+		pBuffer = Z_Malloc( iSize + 1 );
+	}
+	else if( usehunk == 1 )
+	{
+		pBuffer = Hunk_AllocName( iSize + 1, base );
+	}
+	else if( usehunk == 2 )
+	{
+		pBuffer = Hunk_TempAlloc( iSize + 1 );
+	}
+	else if( usehunk == 3 )
+	{
+		pBuffer = Cache_Alloc( loadcache, iSize + 1, base );
+	}
+	else if( usehunk == 4 )
+	{
+		pBuffer = loadbuf;
+
+		if( iSize >= loadsize )
+		{
+			pBuffer = Hunk_TempAlloc( iSize + 1 );
+		}
+	}
+	else if( usehunk == 5 )
+	{
+		pBuffer = Mem_Malloc( iSize + 1 );
+	}
+	else
+	{
+		Sys_Error( "COM_LoadFile: bad usehunk" );
+	}
+
+	if( !pBuffer )
+		Sys_Error( "COM_LoadFile: not enough space for %s", path );
+
+	*( ( byte* ) pBuffer + iSize ) = '\0';
+
+	FS_Read( pBuffer, iSize, hFile );
+	FS_Close( hFile );
+
+	if( pLength )
+		*pLength = iSize;
+
+	return ( byte * ) pBuffer;
+}
+
+void COM_FreeFile( void *buffer )
+{
+	//g_engdstAddrs.COM_FreeFile();
+
+	if( buffer )
+		Mem_Free( buffer );
 }

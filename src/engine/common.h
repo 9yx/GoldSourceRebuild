@@ -22,6 +22,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <cstdio>
 
+#include "tier0/platform.h"
+
 // comndef.h  -- general definitions
 
 extern int com_argc;
@@ -49,5 +51,9 @@ void COM_FixSlashes( char *pname );
 *	FIXME: make this buffer size safe someday
 */
 char* va( const char* format, ... );
+
+byte* COM_LoadFile( const char* path, int usehunk, int* pLength );
+
+void COM_FreeFile( void *buffer );
 
 #endif //ENGINE_COMMON_H
