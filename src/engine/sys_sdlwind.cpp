@@ -8,6 +8,7 @@
 #include "filesystem.h"
 #include "IGame.h"
 #include "qgl.h"
+#include "render.h"
 #include "strtools.h"
 #include "sys.h"
 
@@ -166,8 +167,7 @@ bool CGame::CreateGameWindow()
 
 	byte* buffer = ( byte* ) malloc( 512 * 512 );
 	int width, height;
-	//TODO: implement - Solokiller
-	if( false/*LoadTGA( "game.tga", buffer, 512 * 512, &width, &height )*/ )
+	if( LoadTGA( "game.tga", buffer, 512 * 512, &width, &height ) )
 	{
 		//Flip the image vertically.
 		byte* bufferline = ( byte* ) malloc( 4 * width );

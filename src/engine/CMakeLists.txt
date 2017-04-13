@@ -19,9 +19,10 @@ add_sources(
 	console.cpp
 	console.h
 	filesystem.cpp
-	filesystem_internal.cpp
 	filesystem.h
+	filesystem_internal.cpp
 	gl_screen.cpp
+	gl_warp.cpp
 	IEngine.h
 	IGame.h
 	info.cpp
@@ -32,6 +33,7 @@ add_sources(
 	qgl.cpp
 	qgl.h
 	quakedef.h
+	render.h
 	snd.h
 	snd_mix.cpp
 	snd_sdl.cpp
