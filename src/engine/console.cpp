@@ -54,3 +54,25 @@ void Con_Printf( const char* fmt, ... )
 		*/
 	}
 }
+
+void Con_DPrintf( const char* fmt, ... )
+{
+	//TODO: implement - Solokiller
+	/*
+	va_list va;
+
+	va_start( va, fmt );
+
+	if( developer.value != 0.0 && ( scr_con_current == 0.0 || cls.state != 5 ) )
+	{
+		char msg[ 4096 ];
+
+		vsnprintf( msg, sizeof( msg ), fmt, va );
+		if( con_debuglog )
+			Con_DebugLog( "qconsole.log", "%s", msg );
+		VGuiWrap2_ConDPrintf( msg );
+	}
+
+	va_end( va );
+	*/
+}

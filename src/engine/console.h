@@ -11,5 +11,6 @@ enum redirect_t
 extern bool con_initialized;
 
 void Con_Printf( const char* fmt, ... );
+void Con_DPrintf( const char* fmt, ... );
 
 #endif //ENGINE_CONSOLE_H
