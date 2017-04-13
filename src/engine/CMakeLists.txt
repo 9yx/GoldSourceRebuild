@@ -29,6 +29,9 @@ add_sources(
 	qgl.cpp
 	qgl.h
 	quakedef.h
+	snd.h
+	snd_mix.cpp
+	snd_sdl.cpp
 	sv_log.cpp
 	sv_log.h
 	sv_main.cpp
