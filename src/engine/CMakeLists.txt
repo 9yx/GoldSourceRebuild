@@ -21,6 +21,7 @@ add_sources(
 	filesystem.cpp
 	filesystem_internal.cpp
 	filesystem.h
+	gl_screen.cpp
 	IEngine.h
 	IGame.h
 	info.cpp
@@ -47,6 +48,7 @@ add_sources(
 	traceinit.h
 	unicode_strtools.cpp
 	unicode_strtools.h
+	vid.h
 )
 
 preprocess_sources()
