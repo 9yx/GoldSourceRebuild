@@ -28,6 +28,30 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define MAX_NUM_ARGVS	50
 
+#if defined(_M_IX86)
+#define __i386__	1
+#endif
+
+#if defined __i386__ // && !defined __sun__
+#define id386	1
+#else
+#define id386	0
+#endif
+
+// up / down
+#define	PITCH	0
+
+// left / right
+#define	YAW		1
+
+// fall over
+#define	ROLL	2
+
+#include "tier0/platform.h"
+#include "common.h"
+#include "mathlib.h"
+#include "const.h"
+
 /**
 *	the host system specifies the base of the directory tree, the
 *	command line parms passed to the program, and the amount of memory
