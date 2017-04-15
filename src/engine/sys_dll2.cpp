@@ -19,7 +19,6 @@ char* g_pPostRestartCmdLineArgs = nullptr;
 
 bool g_bIsDedicatedServer = false;
 
-quakeparms_t host_parms = {};
 const char* argv[ MAX_NUM_ARGVS ];
 
 SDL_Window* pmainwindow = nullptr;

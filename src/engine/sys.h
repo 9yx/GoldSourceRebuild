@@ -54,7 +54,6 @@ extern PrintfFunc Launcher_ConsolePrintf;
 
 extern bool g_bIsDedicatedServer;
 
-extern quakeparms_t host_parms;
 
 extern SDL_Window* pmainwindow;
 

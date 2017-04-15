@@ -43,4 +43,11 @@ struct quakeparms_t
 	int memsize;
 };
 
+extern quakeparms_t host_parms;
+
+/**
+*	true if into command execution
+*/
+extern bool host_initialized;
+
 #endif //ENGINE_QUAKEDEF_H

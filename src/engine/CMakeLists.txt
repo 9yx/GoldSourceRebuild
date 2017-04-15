@@ -23,6 +23,7 @@ add_sources(
 	filesystem_internal.cpp
 	gl_screen.cpp
 	gl_warp.cpp
+	host.cpp
 	IEngine.h
 	IGame.h
 	info.cpp
