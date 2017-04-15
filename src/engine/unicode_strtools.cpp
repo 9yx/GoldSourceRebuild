@@ -110,3 +110,25 @@ bool Q_UnicodeValidate( const char* pUTF8 )
 	}
 	return true;
 }
+
+bool V_UTF8ToUChar32( const char* pUTF8_, uchar32& uValueOut )
+{
+	bool bError;
+
+	Q_UTF8ToUChar32( pUTF8_, uValueOut, bError );
+
+	return bError;
+}
+
+char* Q_UnicodeAdvance( char* pUTF8, int nChars )
+{
+	uchar32 uVal;
+	bool bError;
+
+	for( ; nChars > 0 && *pUTF8; --nChars )
+	{
+		pUTF8 += Q_UTF8ToUChar32( pUTF8, uVal, bError );
+	}
+
+	return pUTF8;
+}

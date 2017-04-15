@@ -39,4 +39,8 @@ int Q_UTF8ToUChar32( const char* pUTF8_, uchar32& uValueOut, bool& bErrorOut );
 */
 bool Q_UnicodeValidate( const char* pUTF8 );
 
+bool V_UTF8ToUChar32( const char* pUTF8_, uchar32& uValueOut );
+
+char* Q_UnicodeAdvance( char* pUTF8, int nChars );
+
 #endif //ENGINE_UNICODE_STRTOOLS_H
