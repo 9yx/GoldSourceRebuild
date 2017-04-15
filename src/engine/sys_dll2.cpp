@@ -166,6 +166,47 @@ void Sys_InitAuthentication()
 	Sys_Printf( "STEAM Auth Server\r\n" );
 }
 
+void Sys_InitMemory()
+{
+	// Take at least 14 Mb and no more than 134 Mb, unless they explicitly
+	// request otherwise
+	const int heapsizeIndex = COM_CheckParm( "-heapsize" );
+
+	if( heapsizeIndex && heapsizeIndex < com_argc - 1 )
+	{
+		host_parms.memsize = strtol( com_argv[ heapsizeIndex + 1 ], nullptr, 10 ) * 1024;
+	}
+
+	if( host_parms.memsize >= MINIMUM_MEMORY )
+	{
+		if( host_parms.memsize > MAXIMUM_MEMORY )
+		{
+			host_parms.memsize = MAXIMUM_MEMORY;
+		}
+	}
+	else
+	{
+		host_parms.memsize = DEFAULT_MEMORY;
+	}
+
+	if( COM_CheckParm( "-minmemory" ) )
+	{
+		host_parms.memsize = MINIMUM_MEMORY;
+	}
+
+	host_parms.membase = malloc( host_parms.memsize );
+
+	if( !host_parms.membase )
+		Sys_Error( "Unable to allocate %.2f MB\n", host_parms.memsize / ( 1024.0 * 1024.0 ) );
+}
+
+void Sys_ShutdownMemory()
+{
+	free( host_parms.membase );
+	host_parms.membase = 0;
+	host_parms.memsize = 0;
+}
+
 bool Sys_InitGame( char *lpOrgCmdLine, char *pBaseDir, void *pwnd, bool bIsDedicated )
 {
 	host_initialized = false;
@@ -194,8 +235,7 @@ bool Sys_InitGame( char *lpOrgCmdLine, char *pBaseDir, void *pwnd, bool bIsDedic
 
 	TraceInit( "Sys_InitMemory()", "Sys_ShutdownMemory()", 0 );
 
-	//TODO: implement - Solokiller
-	//Sys_InitMemory();
+	Sys_InitMemory();
 
 	TraceInit( "Sys_InitLauncherInterface()", "Sys_ShutdownLauncherInterface()", 0 );
 	
@@ -284,7 +324,7 @@ void Sys_ShutdownGame()
 	TraceShutdown( "Sys_ShutdownAuthentication()", 0 );
 	TraceShutdown( "Sys_ShutdownMemory()", 0 );
 
-	free( host_parms.membase );
+	Sys_ShutdownMemory();
 
 	TraceShutdown( "Sys_Shutdown()", 0 );
 
