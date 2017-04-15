@@ -30,6 +30,25 @@ extern int com_argc;
 extern const char** com_argv;
 extern char com_gamedir[ FILENAME_MAX ];
 
+extern char com_token[ 1024 ];
+
+/**
+*	If true, colons are treated as regular characters, instead of being parsed as single characters.
+*/
+extern bool com_ignorecolons;
+
+void COM_UngetToken();
+
+/**
+*	Parse a token out of a string
+*/
+char *COM_Parse( char *data );
+
+/**
+*	Parse a line out of a string. Used to parse out lines out of cfg files
+*/
+char* COM_ParseLine( char* data );
+
 /**
 *	Returns the position (1 to argc-1) in the program's argument list
 *	where the given parameter apears, or 0 if not present

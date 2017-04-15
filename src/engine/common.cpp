@@ -28,6 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "quakedef.h"
 #include "strtools.h"
 #include "sys.h"
+#include "unicode_strtools.h"
 #include "zone.h"
 
 #define NUM_SAFE_ARGVS  7
@@ -46,6 +47,158 @@ char	com_cmdline[ CMDLINE_LENGTH ];
 
 char com_clientfallback[ FILENAME_MAX ] = {};
 char com_gamedir[ FILENAME_MAX ] = {};
+
+//TODO: on Windows com_token seems to be 2048 characters large. - Solokiller
+char com_token[ 1024 ] = {};
+
+static bool s_com_token_unget = false;
+
+bool com_ignorecolons = false;
+
+void COM_UngetToken()
+{
+	s_com_token_unget = true;
+}
+
+//Updated version of COM_Parse from Quake:
+//Allows retrieving the last token by calling COM_UngetToken to mark it
+//Supports Unicode
+//Has buffer overflow checks
+//Allows colons to be treated as regular characters using com_ignorecolons
+char *COM_Parse( char *data )
+{
+	if( s_com_token_unget )
+	{
+		s_com_token_unget = false;
+
+		return data;
+	}
+
+	int             len;
+
+	len = 0;
+	com_token[ 0 ] = 0;
+
+	if( !data )
+		return NULL;
+
+	uchar32 wchar;
+
+	// skip whitespace
+skipwhite:
+	while( !V_UTF8ToUChar32( data, wchar ) && wchar <= ' ' )
+	{
+		if( wchar == 0 )
+			return NULL;                    // end of file;
+		data = Q_UnicodeAdvance( data, 1 );
+	}
+
+	// skip // comments
+	if( *data == '/' && data[ 1 ] == '/' )
+	{
+		while( *data && *data != '\n' )
+			data++;
+		goto skipwhite;
+	}
+
+	// handle quoted strings specially
+	if( *data == '\"' )
+	{
+		data++;
+		char c;
+		while( len != ( ARRAYSIZE( com_token ) - 1 ) )
+		{
+			c = *data++;
+			if( c == '\"' || !c )
+			{
+				break;
+			}
+			com_token[ len ] = c;
+			len++;
+		}
+
+		com_token[ len ] = 0;
+		return data;
+	}
+
+	// parse single characters
+	if( *data == '{' || 
+		*data == '}' || 
+		*data == ')' ||
+		*data == '(' ||
+		*data == '\'' || 
+		( !com_ignorecolons && *data == ':' ) )
+	{
+		com_token[ len ] = *data;
+		len++;
+		com_token[ len ] = 0;
+		return data + 1;
+	}
+
+	char c;
+	// parse a regular word
+	do
+	{
+		com_token[ len ] = *data;
+		data++;
+		len++;
+		c = *data;
+		if( c == '{' || 
+			c == '}' || 
+			c == ')' || 
+			c == '(' || 
+			c == '\'' || 
+			( !com_ignorecolons && c == ':' ) ||
+			len < ( ARRAYSIZE( com_token ) - 1 ) )
+			break;
+	}
+	while( c>' ' );
+
+	com_token[ len ] = 0;
+	return data;
+}
+
+char* COM_ParseLine( char* data )
+{
+	if( s_com_token_unget )
+	{
+		s_com_token_unget = false;
+
+		return data;
+	}
+
+	com_token[ 0 ] = 0;
+
+	if( !data )
+		return nullptr;
+
+	int len = 0;
+
+	char c = *data;
+
+	do
+	{
+		com_token[ len ] = c;
+		data++;
+		len++;
+		c = *data;
+	}
+	while( c>=' ' && len < ( ARRAYSIZE( com_token ) - 1 ) );
+
+	com_token[ len ] = 0;
+
+	//Skip unprintable characters.
+	while( *data && *data < ' ' )
+	{
+		++data;
+	}
+
+	//End of data.
+	if( *data == '\0' )
+		return nullptr;
+
+	return data;
+}
 
 int COM_CheckParm( const char* parm )
 {
