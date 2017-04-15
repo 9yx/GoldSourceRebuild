@@ -64,6 +64,8 @@ void COM_ParseDirectoryFromCmd( const char *pCmdName, char *pDirName, const char
 
 void COM_FixSlashes( char *pname );
 
+void COM_AddDefaultDir( const char* pszDir );
+
 /**
 *	does a varargs printf into a temp buffer, so I don't need to have
 *	varargs versions of all text functions.

@@ -384,6 +384,15 @@ void COM_FixSlashes( char *pname )
 	}
 }
 
+void COM_AddDefaultDir( const char* pszDir )
+{
+	if( pszDir && *pszDir )
+	{
+		FileSystem_AddFallbackGameDir( pszDir );
+	}
+}
+
+
 char* va( const char* format, ... )
 {
 	static char string[ 1024 ];
