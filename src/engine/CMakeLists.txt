@@ -32,6 +32,7 @@ add_sources(
 	filesystem.h
 	filesystem_internal.cpp
 	gl_screen.cpp
+	gl_vidnt.cpp
 	gl_warp.cpp
 	host.cpp
 	IEngine.h

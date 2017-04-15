@@ -14,6 +14,7 @@
 #include "sv_log.h"
 #include "sv_steam3.h"
 #include "sys.h"
+#include "sys_getmodes.h"
 
 #ifdef WIN32
 #undef ARRAYSIZE
@@ -81,8 +82,8 @@ void Sys_Error( const char* error, ... )
 		{
 			Sys_Printf( text );
 			SDL_ShowSimpleMessageBox( SDL_MESSAGEBOX_ERROR, "Fatal Error", text, pmainwindow );
-			//TODO: implement - Solokiller
-			//VideoMode_IsWindowed();
+			//TODO: Don't know why this is here - Solokiller
+			VideoMode_IsWindowed();
 		}
 		exit( -1 );
 	}

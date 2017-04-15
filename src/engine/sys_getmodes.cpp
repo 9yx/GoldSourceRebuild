@@ -653,3 +653,28 @@ void VideoMode_Create()
 
 	videomode = new CVideoMode_OpenGL( bWindowed );
 }
+
+bool VideoMode_IsWindowed()
+{
+	return videomode->IsWindowedMode();
+}
+
+void VideoMode_GetCurrentVideoMode( int *wide, int *tall, int *bpp )
+{
+	vmode_t* pMode = videomode->GetCurrentMode();
+
+	if( pMode )
+	{
+		if( wide )
+			*wide = pMode->width;
+		if( tall )
+			*tall = pMode->height;
+		if( bpp )
+			*bpp = pMode->bpp;
+	}
+}
+
+void VideoMode_RestoreVideo()
+{
+	videomode->RestoreVideo();
+}

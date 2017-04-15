@@ -41,4 +41,10 @@ extern IVideoMode* videomode;
 
 void VideoMode_Create();
 
+bool VideoMode_IsWindowed();
+
+void VideoMode_GetCurrentVideoMode( int* wide, int* tall, int* bpp );
+
+void VideoMode_RestoreVideo();
+
 #endif //ENGINE_SYS_GETMODES_H

@@ -14,6 +14,7 @@
 #include "IRegistry.h"
 #include "modinfo.h"
 #include "pr_cmds.h"
+#include "qgl.h"
 #include "strtools.h"
 #include "sv_steam3.h"
 #include "sys.h"
@@ -207,6 +208,9 @@ void Sys_ShutdownMemory()
 	host_parms.memsize = 0;
 }
 
+static HDC maindc;
+static HGLRC baseRC;
+
 bool Sys_InitGame( char *lpOrgCmdLine, char *pBaseDir, void *pwnd, bool bIsDedicated )
 {
 	host_initialized = false;
@@ -242,7 +246,7 @@ bool Sys_InitGame( char *lpOrgCmdLine, char *pBaseDir, void *pwnd, bool bIsDedic
 	Sys_InitLauncherInterface();
 
 	//TODO: implement - Solokiller
-	if( false /*GL_SetMode( pmainwindow, &maindc, &baseRC ) */)
+	if( GL_SetMode( pmainwindow, &maindc, &baseRC ) )
 	{
 		TraceInit( "Host_Init( &host_parms )", "Host_Shutdown()", 0 );
 		

@@ -51,6 +51,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "common.h"
 #include "mathlib.h"
 #include "const.h"
+#include "filesystem.h"
+#include "console.h"
+#include "sys.h"
 
 /**
 *	the host system specifies the base of the directory tree, the
