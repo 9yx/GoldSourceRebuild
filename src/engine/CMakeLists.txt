@@ -6,18 +6,28 @@ set( PROJECT_NAME hw )
 
 #Add in the directories
 add_sources(
+	${SRC_DIR}/common/com_model.h
+	${SRC_DIR}/common/const.h
+	${SRC_DIR}/common/crc.h
 	${SRC_DIR}/common/CRegistry.cpp
 	${SRC_DIR}/common/CRegistry.h
+	${SRC_DIR}/common/in_buttons.h
 	${SRC_DIR}/common/IRegistry.h
 	${SRC_DIR}/public/engine_launcher_api.h
 	${SRC_DIR}/public/interface.cpp
 	${SRC_DIR}/public/interface.h
+	anorms.h
+	APIProxy.h
 	buildnum.cpp
 	buildnum.h
 	common.cpp
 	common.h
 	console.cpp
 	console.h
+	custom.h
+	customentity.h
+	edict.h
+	eiface.h
 	filesystem.cpp
 	filesystem.h
 	filesystem_internal.cpp
@@ -33,13 +43,17 @@ add_sources(
 	mem.cpp
 	mem.h
 	net.h
+	progdefs.h
+	progs.h
 	qgl.cpp
 	qgl.h
 	quakedef.h
 	render.h
+	shake.h
 	snd.h
 	snd_mix.cpp
 	snd_sdl.cpp
+	studio.h
 	sv_log.cpp
 	sv_log.h
 	sv_main.cpp
