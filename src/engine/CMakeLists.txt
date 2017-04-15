@@ -44,6 +44,8 @@ add_sources(
 	mem.h
 	modinfo.h
 	net.h
+	pr_cmds.cpp
+	pr_cmds.h
 	progdefs.h
 	progs.h
 	qgl.cpp

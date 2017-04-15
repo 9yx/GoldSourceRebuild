@@ -13,6 +13,7 @@
 #include "IGame.h"
 #include "IRegistry.h"
 #include "modinfo.h"
+#include "pr_cmds.h"
 #include "strtools.h"
 #include "sv_steam3.h"
 #include "sys.h"
@@ -149,7 +150,23 @@ int RunListenServer( void *instance, char *basedir, char *cmdline, char *postRes
 	return result;
 }
 
-bool Sys_InitGame( char *lpOrgCmdLine, char *pBaseDir, void *pwnd, int bIsDedicated )
+void Sys_InitLauncherInterface()
+{
+	//TODO: implement - Solokiller
+	/*
+	gHasMMXTechnology = 1;
+	VID_FlipScreen = Sys_VID_FlipScreen;
+	D_SurfaceCacheForRes = ( int( *)( int, int ) )Sys_GetSurfaceCacheSize;
+	Launcher_ConsolePrintf = Legacy_Sys_Printf;
+	*/
+}
+
+void Sys_InitAuthentication()
+{
+	Sys_Printf( "STEAM Auth Server\r\n" );
+}
+
+bool Sys_InitGame( char *lpOrgCmdLine, char *pBaseDir, void *pwnd, bool bIsDedicated )
 {
 	host_initialized = false;
 
@@ -173,8 +190,7 @@ bool Sys_InitGame( char *lpOrgCmdLine, char *pBaseDir, void *pwnd, int bIsDedica
 
 	FS_LogLevelLoadStarted( "Launcher" );
 
-	//TODO: implement - Solokiller
-	//SeedRandomNumberGenerator();
+	SeedRandomNumberGenerator();
 
 	TraceInit( "Sys_InitMemory()", "Sys_ShutdownMemory()", 0 );
 
@@ -183,11 +199,7 @@ bool Sys_InitGame( char *lpOrgCmdLine, char *pBaseDir, void *pwnd, int bIsDedica
 
 	TraceInit( "Sys_InitLauncherInterface()", "Sys_ShutdownLauncherInterface()", 0 );
 	
-	//TODO: implement - Solokiller
-	//VID_FlipScreen = Sys_VID_FlipScreen;
-	//gHasMMXTechnology = 1;
-	//D_SurfaceCacheForRes = ( int( *)( int, int ) )Sys_GetSurfaceCacheSize;
-	//Launcher_ConsolePrintf = Legacy_Sys_Printf;
+	Sys_InitLauncherInterface();
 
 	//TODO: implement - Solokiller
 	if( false /*GL_SetMode( pmainwindow, &maindc, &baseRC ) */)
@@ -200,7 +212,8 @@ bool Sys_InitGame( char *lpOrgCmdLine, char *pBaseDir, void *pwnd, int bIsDedica
 		if( host_initialized )
 		{
 			TraceInit( "Sys_InitAuthentication()", "Sys_ShutdownAuthentication()", 0 );
-			Sys_Printf( "STEAM Auth Server\r\n" );
+			
+			Sys_InitAuthentication();
 
 			if( g_bIsDedicatedServer )
 			{
@@ -215,6 +228,7 @@ bool Sys_InitGame( char *lpOrgCmdLine, char *pBaseDir, void *pwnd, int bIsDedica
 
 			bSuccess = true;
 
+#ifndef WIN32
 			char en_US[ 12 ];
 
 			strcpy( en_US, "en_US.UTF-8" );
@@ -239,6 +253,8 @@ bool Sys_InitGame( char *lpOrgCmdLine, char *pBaseDir, void *pwnd, int bIsDedica
 
 				SDL_ShowSimpleMessageBox( 0, "Warning", MessageText, pmainwindow );
 			}
+
+#endif
 		}
 	}
 

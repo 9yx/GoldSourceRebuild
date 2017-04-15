@@ -57,10 +57,7 @@ bool CEngine::Load( bool dedicated, char* basedir, char* cmdline )
 {
 	SetState( 1 );
 
-	void* pWnd = game->GetMainWindow();
-
-	//TODO: implement - Solokiller
-	bool bInitialized = Sys_InitGame( cmdline, basedir, pWnd, dedicated );
+	bool bInitialized = Sys_InitGame( cmdline, basedir, game->GetMainWindow(), dedicated );
 
 	if( bInitialized )
 	{

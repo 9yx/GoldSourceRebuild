@@ -60,7 +60,7 @@ bool Sys_IsWin98();
 void Sys_Init();
 void Sys_Shutdown();
 
-bool Sys_InitGame( char *lpOrgCmdLine, char *pBaseDir, void *pwnd, int bIsDedicated );
+bool Sys_InitGame( char *lpOrgCmdLine, char *pBaseDir, void *pwnd, bool bIsDedicated );
 void Sys_ShutdownGame();
 
 extern bool g_bIsDedicatedServer;
