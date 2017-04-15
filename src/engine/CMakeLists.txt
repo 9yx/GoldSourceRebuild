@@ -27,6 +27,8 @@ add_sources(
 	IGame.h
 	info.cpp
 	info.h
+	mathlib.cpp
+	mathlib.h
 	mem.cpp
 	mem.h
 	net.h
