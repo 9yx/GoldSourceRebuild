@@ -42,6 +42,7 @@ add_sources(
 	mathlib.h
 	mem.cpp
 	mem.h
+	modinfo.h
 	net.h
 	progdefs.h
 	progs.h

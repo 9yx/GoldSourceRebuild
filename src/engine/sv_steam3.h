@@ -41,6 +41,7 @@ private:
 };
 
 void Steam_InitClient();
+void Steam_ShutdownClient();
 
 void Steam_ClientRunFrame();
 

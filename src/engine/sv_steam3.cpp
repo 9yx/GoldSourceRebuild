@@ -112,6 +112,11 @@ void Steam_InitClient()
 	s_Steam3Client.InitClient();
 }
 
+void Steam_ShutdownClient()
+{
+	s_Steam3Client.Shutdown();
+}
+
 void Steam_ClientRunFrame()
 {
 	s_Steam3Client.RunFrame();

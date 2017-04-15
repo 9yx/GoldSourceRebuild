@@ -52,8 +52,18 @@ extern PrintfFunc Launcher_ConsolePrintf;
 
 /** @} */
 
-extern bool g_bIsDedicatedServer;
+double Sys_FloatTime();
 
+bool Sys_IsWin95();
+bool Sys_IsWin98();
+
+void Sys_Init();
+void Sys_Shutdown();
+
+bool Sys_InitGame( char *lpOrgCmdLine, char *pBaseDir, void *pwnd, int bIsDedicated );
+void Sys_ShutdownGame();
+
+extern bool g_bIsDedicatedServer;
 
 extern SDL_Window* pmainwindow;
 

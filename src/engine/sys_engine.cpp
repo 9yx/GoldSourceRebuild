@@ -1,6 +1,8 @@
 #include "IEngine.h"
 #include "IGame.h"
 
+#include "sys.h"
+
 class CEngine final : public IEngine
 {
 public:
@@ -58,7 +60,7 @@ bool CEngine::Load( bool dedicated, char* basedir, char* cmdline )
 	void* pWnd = game->GetMainWindow();
 
 	//TODO: implement - Solokiller
-	bool bInitialized = false;//Sys_InitGame( cmdline, basedir, pWnd, dedicated );
+	bool bInitialized = Sys_InitGame( cmdline, basedir, pWnd, dedicated );
 
 	if( bInitialized )
 	{
@@ -71,8 +73,8 @@ bool CEngine::Load( bool dedicated, char* basedir, char* cmdline )
 
 void CEngine::Unload()
 {
-	//TODO: implement - Solokiller
-	//Sys_ShutdownGame();
+	Sys_ShutdownGame();
+	//TODO: define constants - Solokiller
 	m_nDLLState = 0;
 }
 
