@@ -30,6 +30,7 @@ add_sources(
 	strtools.cpp
 	tier1.cpp
 	TokenReader.cpp
+	unicode_strtools.cpp
 	UtlBuffer.cpp
 	UtlString.cpp
 	UtlSymbol.cpp

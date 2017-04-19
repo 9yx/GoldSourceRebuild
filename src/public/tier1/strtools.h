@@ -147,6 +147,113 @@ void V_wcsncpy( wchar_t *pDest, wchar_t const *pSrc, int maxLenInBytes );
 char *V_strncat(char *, const char *, size_t destBufferSize, int max_chars_to_copy=COPY_ALL_CHARACTERS );
 char *V_strnlwr(char *, size_t);
 
+// Unicode string conversion policies - what to do if an illegal sequence is encountered
+enum EStringConvertErrorPolicy
+{
+	_STRINGCONVERTFLAG_SKIP = 1,
+	_STRINGCONVERTFLAG_FAIL = 2,
+	_STRINGCONVERTFLAG_ASSERT = 4,
+
+	STRINGCONVERT_REPLACE = 0,
+	STRINGCONVERT_SKIP = _STRINGCONVERTFLAG_SKIP,
+	STRINGCONVERT_FAIL = _STRINGCONVERTFLAG_FAIL,
+
+	STRINGCONVERT_ASSERT_REPLACE = _STRINGCONVERTFLAG_ASSERT + STRINGCONVERT_REPLACE,
+	STRINGCONVERT_ASSERT_SKIP = _STRINGCONVERTFLAG_ASSERT + STRINGCONVERT_SKIP,
+	STRINGCONVERT_ASSERT_FAIL = _STRINGCONVERTFLAG_ASSERT + STRINGCONVERT_FAIL,
+};
+
+// Unicode (UTF-8, UTF-16, UTF-32) fundamental conversion functions.
+bool Q_IsValidUChar32( uchar32 uValue );
+int Q_UChar32ToUTF8Len( uchar32 uValue );
+int Q_UChar32ToUTF8( uchar32 uValue, char *pOut );
+int Q_UChar32ToUTF16Len( uchar32 uValue );
+int Q_UChar32ToUTF16( uchar32 uValue, uchar16 *pOut );
+
+// Validate that a Unicode string is well-formed and contains only valid code points
+bool Q_UnicodeValidate( const char *pUTF8 );
+bool Q_UnicodeValidate( const uchar16 *pUTF16 );
+bool Q_UnicodeValidate( const uchar32 *pUTF32 );
+
+// Returns length of string in Unicode code points (printed glyphs or non-printing characters)
+int Q_UnicodeLength( const char *pUTF8 );
+int Q_UnicodeLength( const uchar16 *pUTF16 );
+int Q_UnicodeLength( const uchar32 *pUTF32 );
+
+// Returns length of string in elements, not characters! These are analogous to Q_strlen and Q_wcslen
+inline int Q_strlen16( const uchar16 *puc16 ) { int nElems = 0; while( puc16[ nElems ] ) ++nElems; return nElems; }
+inline int Q_strlen32( const uchar32 *puc32 ) { int nElems = 0; while( puc32[ nElems ] ) ++nElems; return nElems; }
+
+
+// Repair invalid Unicode strings by dropping truncated characters and fixing improperly-double-encoded UTF-16 sequences.
+// Unlike conversion functions which replace with '?' by default, a repair operation assumes that you know that something
+// is wrong with the string (eg, mid-sequence truncation) and you just want to do the best possible job of cleaning it up.
+// You can pass a REPLACE or FAIL policy if you would prefer to replace characters with '?' or clear the entire string.
+// Returns nonzero on success, or 0 if the policy is FAIL and an invalid sequence was found.
+int Q_UnicodeRepair( char *pUTF8, EStringConvertErrorPolicy ePolicy = STRINGCONVERT_SKIP );
+int Q_UnicodeRepair( uchar16 *pUTF16, EStringConvertErrorPolicy ePolicy = STRINGCONVERT_SKIP );
+int Q_UnicodeRepair( uchar32 *pUTF32, EStringConvertErrorPolicy ePolicy = STRINGCONVERT_SKIP );
+
+// Advance pointer forward by N Unicode code points (printed glyphs or non-printing characters), stopping at terminating null if encountered.
+char *Q_UnicodeAdvance( char *pUTF8, int nCharacters );
+uchar16 *Q_UnicodeAdvance( uchar16 *pUTF16, int nCharactersnCharacters );
+uchar32 *Q_UnicodeAdvance( uchar32 *pUTF32, int nChars );
+inline const char *Q_UnicodeAdvance( const char *pUTF8, int nCharacters ) { return Q_UnicodeAdvance( ( char* ) pUTF8, nCharacters ); }
+inline const uchar16 *Q_UnicodeAdvance( const uchar16 *pUTF16, int nCharacters ) { return Q_UnicodeAdvance( ( uchar16* ) pUTF16, nCharacters ); }
+inline const uchar32 *Q_UnicodeAdvance( const uchar32 *pUTF32, int nCharacters ) { return Q_UnicodeAdvance( ( uchar32* ) pUTF32, nCharacters ); }
+
+// Truncate to maximum of N Unicode code points (printed glyphs or non-printing characters)
+inline void Q_UnicodeTruncate( char *pUTF8, int nCharacters ) { *Q_UnicodeAdvance( pUTF8, nCharacters ) = 0; }
+inline void Q_UnicodeTruncate( uchar16 *pUTF16, int nCharacters ) { *Q_UnicodeAdvance( pUTF16, nCharacters ) = 0; }
+inline void Q_UnicodeTruncate( uchar32 *pUTF32, int nCharacters ) { *Q_UnicodeAdvance( pUTF32, nCharacters ) = 0; }
+
+
+// Conversion between Unicode string types (UTF-8, UTF-16, UTF-32). Deals with bytes, not element counts,
+// to minimize harm from the programmer mistakes which continue to plague our wide-character string code.
+// Returns the number of bytes written to the output, or if output is NULL, the number of bytes required.
+int Q_UTF8ToUTF16( const char *pUTF8, OUT_Z_BYTECAP( cubDestSizeInBytes ) uchar16 *pUTF16, int cubDestSizeInBytes, EStringConvertErrorPolicy ePolicy = STRINGCONVERT_ASSERT_REPLACE );
+int Q_UTF8ToUTF32( const char *pUTF8, OUT_Z_BYTECAP( cubDestSizeInBytes ) uchar32 *pUTF32, int cubDestSizeInBytes, EStringConvertErrorPolicy ePolicy = STRINGCONVERT_ASSERT_REPLACE );
+int Q_UTF16ToUTF8( const uchar16 *pUTF16, OUT_Z_BYTECAP( cubDestSizeInBytes ) char *pUTF8, int cubDestSizeInBytes, EStringConvertErrorPolicy ePolicy = STRINGCONVERT_ASSERT_REPLACE );
+int Q_UTF16ToUTF32( const uchar16 *pUTF16, OUT_Z_BYTECAP( cubDestSizeInBytes ) uchar32 *pUTF32, int cubDestSizeInBytes, EStringConvertErrorPolicy ePolicy = STRINGCONVERT_ASSERT_REPLACE );
+int Q_UTF32ToUTF8( const uchar32 *pUTF32, OUT_Z_BYTECAP( cubDestSizeInBytes ) char *pUTF8, int cubDestSizeInBytes, EStringConvertErrorPolicy ePolicy = STRINGCONVERT_ASSERT_REPLACE );
+int Q_UTF32ToUTF16( const uchar32 *pUTF32, OUT_Z_BYTECAP( cubDestSizeInBytes ) uchar16 *pUTF16, int cubDestSizeInBytes, EStringConvertErrorPolicy ePolicy = STRINGCONVERT_ASSERT_REPLACE );
+
+// This is disgusting and exist only easily to facilitate having 16-bit and 32-bit wchar_t's on different platforms
+int Q_UTF32ToUTF32( const uchar32 *pUTF32Source, OUT_Z_BYTECAP( cubDestSizeInBytes ) uchar32 *pUTF32Dest, int cubDestSizeInBytes, EStringConvertErrorPolicy ePolicy = STRINGCONVERT_ASSERT_REPLACE );
+
+// Conversion between count-limited UTF-n character arrays, including any potential NULL characters.
+// Output has a terminating NULL for safety; strip the last character if you want an unterminated string.
+// Returns the number of bytes written to the output, or if output is NULL, the number of bytes required.
+int Q_UTF8CharsToUTF16( const char *pUTF8, int nElements, OUT_Z_BYTECAP( cubDestSizeInBytes ) uchar16 *pUTF16, int cubDestSizeInBytes, EStringConvertErrorPolicy ePolicy = STRINGCONVERT_ASSERT_REPLACE );
+int Q_UTF8CharsToUTF32( const char *pUTF8, int nElements, OUT_Z_BYTECAP( cubDestSizeInBytes ) uchar32 *pUTF32, int cubDestSizeInBytes, EStringConvertErrorPolicy ePolicy = STRINGCONVERT_ASSERT_REPLACE );
+int Q_UTF16CharsToUTF8( const uchar16 *pUTF16, int nElements, OUT_Z_BYTECAP( cubDestSizeInBytes ) char *pUTF8, int cubDestSizeInBytes, EStringConvertErrorPolicy ePolicy = STRINGCONVERT_ASSERT_REPLACE );
+int Q_UTF16CharsToUTF32( const uchar16 *pUTF16, int nElements, OUT_Z_BYTECAP( cubDestSizeInBytes ) uchar32 *pUTF32, int cubDestSizeInBytes, EStringConvertErrorPolicy ePolicy = STRINGCONVERT_ASSERT_REPLACE );
+int Q_UTF32CharsToUTF8( const uchar32 *pUTF32, int nElements, OUT_Z_BYTECAP( cubDestSizeInBytes ) char *pUTF8, int cubDestSizeInBytes, EStringConvertErrorPolicy ePolicy = STRINGCONVERT_ASSERT_REPLACE );
+int Q_UTF32CharsToUTF16( const uchar32 *pUTF32, int nElements, OUT_Z_BYTECAP( cubDestSizeInBytes ) uchar16 *pUTF16, int cubDestSizeInBytes, EStringConvertErrorPolicy ePolicy = STRINGCONVERT_ASSERT_REPLACE );
+
+// Decode a single UTF-8 character to a uchar32, returns number of UTF-8 bytes parsed
+int Q_UTF8ToUChar32( const char *pUTF8_, uchar32 &uValueOut, bool &bErrorOut );
+
+// Decode a single UTF-16 character to a uchar32, returns number of UTF-16 characters (NOT BYTES) consumed
+int Q_UTF16ToUChar32( const uchar16 *pUTF16, uchar32 &uValueOut, bool &bErrorOut );
+
+
+// NOTE: WString means either UTF32 or UTF16 depending on the platform and compiler settings.
+#if defined( _MSC_VER ) || defined( _WIN32 )
+#define Q_UTF8ToWString Q_UTF8ToUTF16
+#define Q_UTF8CharsToWString Q_UTF8CharsToUTF16
+#define Q_UTF32ToWString Q_UTF32ToUTF16
+#define Q_WStringToUTF8 Q_UTF16ToUTF8
+#define Q_WStringCharsToUTF8 Q_UTF16CharsToUTF8
+#define Q_WStringToUTF32 Q_UTF16ToUTF32
+#else
+#define Q_UTF8ToWString Q_UTF8ToUTF32
+#define Q_UTF8CharsToWString Q_UTF8CharsToUTF32
+#define Q_UTF32ToWString Q_UTF32ToUTF32
+#define Q_WStringToUTF8 Q_UTF32ToUTF8
+#define Q_WStringCharsToUTF8 Q_UTF32CharsToUTF8
+#define Q_WStringToUTF32 Q_UTF32ToUTF32
+#endif
 
 // UNDONE: Find a non-compiler-specific way to do this
 #ifdef _WIN32
@@ -319,6 +426,8 @@ int V_sprintf_safe( char ( &dest )[ SIZE_IN_CHARS ], const char* pszFormat, ... 
 // Force slashes of either type to be = separator character
 void V_FixSlashes( char *pname, char separator = CORRECT_PATH_SEPARATOR );
 
+bool Q_IsMeanSpaceW( wchar_t wch );
+
 //From Source 2013 begin - Solokiller
 // strips leading and trailing whitespace; returns true if any characters were removed. UTF-8 and UTF-16 versions.
 bool Q_StripPrecedingAndTrailingWhitespace( char *pch );
@@ -330,6 +439,11 @@ bool Q_AggressiveStripPrecedingAndTrailingWhitespace( char *pch );
 bool Q_AggressiveStripPrecedingAndTrailingWhitespaceW( wchar_t *pwch );
 
 //From Source 2013 end - Solokiller
+
+bool Q_StripUnprintableAndSpace( char* pch );
+
+//Helper function to wrap Q_UTF8ToUChar32
+bool V_UTF8ToUChar32( const char* pUTF8_, uchar32& uValueOut );
 
 // Convert multibyte to wchar + back
 // Specify -1 for nInSize for null-terminated string

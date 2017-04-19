@@ -285,6 +285,9 @@ typedef void * HINSTANCE;
 	#define ALIGN32 /* */
 #endif
 
+// Pull in the /analyze code annotations.
+#include "annotations.h"
+
 #ifdef _WIN32
 	#define SELECTANY __declspec(selectany)
 #elif POSIX

@@ -1345,6 +1345,28 @@ static wchar_t *StripWhitespaceWorker( int cchLength, wchar_t *pwch, bool *pbStr
 	return pwch;
 }
 
+static wchar_t* StripUnprintableWorker( wchar_t* pch, bool* pbStrippedAny )
+{
+	*pbStrippedAny = false;
+
+	wchar_t* pszSource = pch;
+	wchar_t* pszDest = pch;
+
+	for( ; *pszSource; ++pszSource )
+	{
+		if( *pszSource >= L' ' && !Q_IsMeanSpaceW( *pszSource ) && *pszSource != L'\x2026' )
+		{
+			*pszDest++ = *pszSource;
+		}
+	}
+
+	*pszDest = L'\0';
+
+	*pbStrippedAny = pszSource != pszDest;
+
+	return pch;
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: strips leading and trailing whitespace
 //-----------------------------------------------------------------------------
@@ -1442,6 +1464,39 @@ bool Q_AggressiveStripPrecedingAndTrailingWhitespace( char *pch )
 }
 
 //From Source 2013 end - Solokiller
+
+bool Q_StripUnprintableAndSpace( char* pch )
+{
+	const int cch = Q_strlen( pch );
+	const size_t cubDest = ( cch + 1 ) * sizeof( wchar_t );
+
+	wchar_t* pwchT = ( wchar_t* ) malloc( cubDest );
+
+	bool bStrippedAny = false;
+	bool bStrippedWhitespace = false;
+
+	const int cwch = Q_UTF8ToWString(
+		pch,
+		pwchT,
+		cubDest,
+		_STRINGCONVERTFLAG_ASSERT ) / sizeof( wchar_t );
+
+	wchar_t* pszUnprintableResult = StripUnprintableWorker( pwchT, &bStrippedAny );
+	wchar_t* pszResult = StripWhitespaceWorker( cwch - 1, pszUnprintableResult, &bStrippedWhitespace, true );
+
+	if( bStrippedAny || bStrippedWhitespace )
+	{
+		Q_WStringToUTF8(
+			pszResult,
+			pch,
+			cch,
+			_STRINGCONVERTFLAG_ASSERT );
+	}
+
+	free( pwchT );
+
+	return bStrippedAny || bStrippedWhitespace;
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: Strip off the last directory from dirName

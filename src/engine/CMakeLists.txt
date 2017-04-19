@@ -73,8 +73,6 @@ add_sources(
 	sys_sdlwind.cpp
 	traceinit.cpp
 	traceinit.h
-	unicode_strtools.cpp
-	unicode_strtools.h
 	vid.h
 	zone.cpp
 	zone.h
