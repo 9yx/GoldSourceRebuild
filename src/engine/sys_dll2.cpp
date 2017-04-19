@@ -245,13 +245,11 @@ bool Sys_InitGame( char *lpOrgCmdLine, char *pBaseDir, void *pwnd, bool bIsDedic
 	
 	Sys_InitLauncherInterface();
 
-	//TODO: implement - Solokiller
 	if( GL_SetMode( pmainwindow, &maindc, &baseRC ) )
 	{
 		TraceInit( "Host_Init( &host_parms )", "Host_Shutdown()", 0 );
 		
-		//TODO: implement - Solokiller
-		//Host_Init( &host_parms );
+		Host_Init( &host_parms );
 
 		if( host_initialized )
 		{

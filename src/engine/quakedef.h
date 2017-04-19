@@ -92,4 +92,12 @@ extern quakeparms_t host_parms;
 */
 extern bool host_initialized;
 
+/**
+*	not bounded in any way, changed at
+*	start of every frame, never reset
+*/
+extern double realtime;
+
+bool Host_Init( quakeparms_t* parms );
+
 #endif //ENGINE_QUAKEDEF_H
