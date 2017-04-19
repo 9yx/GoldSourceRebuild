@@ -47,4 +47,6 @@ void Steam_ClientRunFrame();
 
 bool ISteamApps_BIsSubscribedApp( AppId_t appid );
 
+void Steam_SetCVar( const char* pchKey, const char* pchValue );
+
 #endif //ENGINE_SV_STEAM3_H

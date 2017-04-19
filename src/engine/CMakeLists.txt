@@ -11,6 +11,7 @@ add_sources(
 	${SRC_DIR}/common/crc.h
 	${SRC_DIR}/common/CRegistry.cpp
 	${SRC_DIR}/common/CRegistry.h
+	${SRC_DIR}/common/cvardef.h
 	${SRC_DIR}/common/in_buttons.h
 	${SRC_DIR}/common/IRegistry.h
 	${SRC_DIR}/public/engine_launcher_api.h
@@ -20,12 +21,16 @@ add_sources(
 	APIProxy.h
 	buildnum.cpp
 	buildnum.h
+	cmd.cpp
+	cmd.h
 	common.cpp
 	common.h
 	console.cpp
 	console.h
 	custom.h
 	customentity.h
+	cvar.cpp
+	cvar.h
 	edict.h
 	eiface.h
 	filesystem.cpp

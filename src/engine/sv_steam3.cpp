@@ -1,6 +1,8 @@
 #include <cstdio>
 #include <cstdlib>
 
+#include "steam/steam_gameserver.h"
+
 #include "console.h"
 #include "sv_main.h"
 #include "sv_steam3.h"
@@ -128,4 +130,15 @@ bool ISteamApps_BIsSubscribedApp( AppId_t appid )
 		return false;
 
 	return SteamApps()->BIsSubscribedApp( appid );
+}
+
+void Steam_SetCVar( const char* pchKey, const char* pchValue )
+{
+	//TODO: implement - Solokiller
+	/*
+	if( s_Steam3Server )
+	{
+		SteamGameServer()->SetKeyValue( pchKey, pchValue );
+	}
+	*/
 }

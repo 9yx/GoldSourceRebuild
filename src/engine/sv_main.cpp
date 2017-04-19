@@ -69,6 +69,44 @@ bool IsGameSubscribed( const char *game )
 	return ISteamApps_BIsSubscribedApp( appId );
 }
 
+static bool g_bCS_CZ_Flags_Initialized = false;
+
+bool g_bIsCStrike = false;
+bool g_bIsCZero = false;
+bool g_bIsCZeroRitual = false;
+bool g_bIsTerrorStrike = false;
+bool g_bIsTFC = false;
+
+void SetCStrikeFlags()
+{
+	if( !g_bCS_CZ_Flags_Initialized )
+	{
+		if( !stricmp( com_gamedir, "cstrike" ) || 
+			!stricmp( com_gamedir, "cstrike_beta" ) )
+		{
+			g_bIsCStrike = true;
+		}
+		else if( !stricmp( com_gamedir, "czero" ) )
+		{
+			g_bIsCZero = true;
+		}
+		else if( !stricmp( com_gamedir, "czeror" ) )
+		{
+			g_bIsCZeroRitual = true;
+		}
+		else if( !stricmp( com_gamedir, "terror" ) )
+		{
+			g_bIsTerrorStrike = true;
+		}
+		else if( !stricmp( com_gamedir, "tfc" ) )
+		{
+			g_bIsTFC = true;
+		}
+
+		g_bCS_CZ_Flags_Initialized = true;
+	}
+}
+
 void SV_ResetModInfo()
 {
 	Q_memset( &gmodinfo, 0, sizeof( gmodinfo ) );
