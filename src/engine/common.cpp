@@ -477,6 +477,31 @@ void COM_AddDefaultDir( const char* pszDir )
 	}
 }
 
+const char* COM_FileExtension( const char* in )
+{
+	static char exten[ 8 ];
+
+	for( const char* pszExt = in; *pszExt; ++pszExt )
+	{
+		if( *pszExt == '.' )
+		{
+			//Skip the '.'
+			++pszExt;
+
+			size_t uiIndex;
+
+			for( uiIndex = 0; *pszExt && uiIndex < ARRAYSIZE( exten ) - 1; ++pszExt, ++uiIndex )
+			{
+				exten[ uiIndex ] = *pszExt;
+			}
+
+			exten[ uiIndex ] = '\0';
+			return exten;
+		}
+	}
+
+	return "";
+}
 
 char* va( const char* format, ... )
 {

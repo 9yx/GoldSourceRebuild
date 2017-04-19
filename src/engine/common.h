@@ -102,6 +102,8 @@ void COM_FixSlashes( char *pname );
 
 void COM_AddDefaultDir( const char* pszDir );
 
+const char* COM_FileExtension( const char* in );
+
 /**
 *	does a varargs printf into a temp buffer, so I don't need to have
 *	varargs versions of all text functions.
