@@ -1,10 +1,7 @@
 #include <cstdarg>
 #include <cstdio>
 
-#include "console.h"
-#include "net.h"
-#include "strtools.h"
-#include "sys.h"
+#include "quakedef.h"
 
 static redirect_t sv_redirected = RD_NONE;
 

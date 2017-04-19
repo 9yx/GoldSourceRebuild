@@ -3,7 +3,6 @@
 #include "console.h"
 #include "info.h"
 #include "strtools.h"
-#include "unicode_strtools.h"
 
 const int MAX_INFO_TOKEN = MAX_INFO_STRING / 2;
 
@@ -177,6 +176,14 @@ void Info_SetValueForStarKey( char *s, const char *key, const char *value, int m
 			Con_Printf( "Values must be valid utf8 text\n" );
 		}
 	}
+}
+
+void Info_SetValueForKey( char* s, const char* key, const char* value, int maxsize )
+{
+	if( *key == '*' )
+		Con_Printf( "Can't set * keys\n" );
+	else
+		Info_SetValueForStarKey( s, key, value, maxsize );
 }
 
 void Info_RemoveKey( char *s, const char *key )

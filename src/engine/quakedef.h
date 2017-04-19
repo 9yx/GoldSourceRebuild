@@ -19,6 +19,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 #ifndef ENGINE_QUAKEDEF_H
 #define ENGINE_QUAKEDEF_H
+//For backwards compatibility only, SDK headers use it - Solokiller
+#define QUAKEDEF_H
 
 /**
 *	@file
@@ -47,13 +49,25 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // fall over
 #define	ROLL	2
 
+//TODO: tidy these includes - Solokiller
 #include "tier0/platform.h"
+#include "filesystem.h"
+#include "cvar.h"
+#include "cmd.h"
 #include "common.h"
+#include "mem.h"
+#include "zone.h"
+#include "net.h"
 #include "mathlib.h"
 #include "const.h"
-#include "filesystem.h"
 #include "console.h"
+#include "sv_main.h"
 #include "sys.h"
+#include "strtools.h"
+#include "sv_log.h"
+#include "info.h"
+#include "sv_steam3.h"
+#include "com_model.h"
 
 /**
 *	the host system specifies the base of the directory tree, the

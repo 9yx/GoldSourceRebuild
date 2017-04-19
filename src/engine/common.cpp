@@ -28,7 +28,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "quakedef.h"
 #include "strtools.h"
 #include "sys.h"
-#include "unicode_strtools.h"
 #include "zone.h"
 
 #define NUM_SAFE_ARGVS  7

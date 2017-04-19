@@ -2,10 +2,7 @@
 #include <cstdio>
 #include <ctime>
 
-#include "console.h"
-#include "filesystem.h"
-#include "net.h"
-#include "strtools.h"
+#include "quakedef.h"
 #include "sv_log.h"
 
 struct server_log_t 

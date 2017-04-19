@@ -9,7 +9,7 @@ static int32 idum = 0;
 
 void SeedRandomNumberGenerator()
 {
-	auto result = -time( 0 );
+	auto result = -time( nullptr );
 
 	idum = result;
 
