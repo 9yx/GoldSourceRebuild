@@ -45,10 +45,12 @@ add_sources(
 	mem.h
 	modinfo.h
 	net.h
+	net_api.cpp
 	pr_cmds.cpp
 	pr_cmds.h
 	progdefs.h
 	progs.h
+	protocol.h
 	qgl.cpp
 	qgl.h
 	quakedef.h

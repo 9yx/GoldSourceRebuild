@@ -64,6 +64,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "sv_main.h"
 #include "sys.h"
 #include "strtools.h"
+#include "protocol.h"
 #include "sv_log.h"
 #include "info.h"
 #include "sv_steam3.h"

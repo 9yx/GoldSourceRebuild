@@ -17,4 +17,6 @@ struct netadr_t
 	unsigned short	pad;
 };
 
+extern sizebuf_t net_message;
+
 #endif //ENGINE_NET_H

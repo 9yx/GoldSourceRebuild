@@ -24,7 +24,43 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "tier0/platform.h"
 
-// comndef.h  -- general definitions
+/**
+*	@file
+*
+*	general definitions
+*/
+
+enum FSB
+{
+	/**
+	*	If not set, do a Sys_Error
+	*/
+	FSB_ALLOWOVERFLOW	=	1	<<	0,
+
+	/**
+	*	set if the buffer size failed
+	*/
+	FSB_OVERFLOWED		=	1	<<	1
+};
+
+struct sizebuf_t
+{
+	const char* buffername;
+	unsigned short flags;
+	byte* data;
+	int maxsize;
+	int cursize;
+};
+
+void SZ_Alloc( const char* name, sizebuf_t* buf, int startsize );
+void SZ_Clear( sizebuf_t* buf );
+void* SZ_GetSpace( sizebuf_t* buf, int length );
+void SZ_Write( sizebuf_t* buf, const void* data, int length );
+
+/**
+*	strcats onto the sizebuf
+*/
+void SZ_Print( sizebuf_t* buf, const char* data );
 
 extern int com_argc;
 extern const char** com_argv;
@@ -76,5 +112,32 @@ char* va( const char* format, ... );
 byte* COM_LoadFile( const char* path, int usehunk, int* pLength );
 
 void COM_FreeFile( void *buffer );
+
+void MSG_WriteChar( sizebuf_t *sb, int c );
+void MSG_WriteByte( sizebuf_t *sb, int c );
+void MSG_WriteShort( sizebuf_t *sb, int c );
+void MSG_WriteLong( sizebuf_t *sb, int c );
+void MSG_WriteFloat( sizebuf_t *sb, float f );
+void MSG_WriteString( sizebuf_t *sb, char *s );
+void MSG_WriteCoord( sizebuf_t *sb, float f );
+void MSG_WriteAngle( sizebuf_t *sb, float f );
+
+extern int msg_readcount;
+
+/**
+*	set if a read goes beyond end of message
+*/
+extern bool msg_badread;
+
+void MSG_BeginReading();
+int MSG_ReadChar();
+int MSG_ReadByte();
+int MSG_ReadShort();
+int MSG_ReadLong();
+float MSG_ReadFloat();
+char *MSG_ReadString();
+
+float MSG_ReadCoord();
+float MSG_ReadAngle();
 
 #endif //ENGINE_COMMON_H

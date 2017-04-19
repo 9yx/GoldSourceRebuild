@@ -30,6 +30,92 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "sys.h"
 #include "zone.h"
 
+void SZ_Alloc( const char* name, sizebuf_t* buf, int startsize )
+{
+	if( startsize < 256 )
+		startsize = 256;
+
+	buf->buffername = name;
+	buf->data = reinterpret_cast<byte*>( Hunk_AllocName( startsize, "sizebuf" ) );
+	buf->maxsize = startsize;
+	buf->cursize = 0;
+	buf->flags = 0;
+}
+
+void SZ_Clear( sizebuf_t* buf )
+{
+	buf->cursize = 0;
+	buf->flags &= ~FSB_OVERFLOWED;
+}
+
+void* SZ_GetSpace( sizebuf_t* buf, int length )
+{
+	if( buf->cursize + length > buf->maxsize )
+	{
+		const char* name = buf->buffername;
+
+		if( !name )
+			name = "???";
+
+		if( !( buf->flags & FSB_ALLOWOVERFLOW ) )
+		{
+			if( buf->maxsize == 0 )
+			{
+				Sys_Error( "SZ_GetSpace:  Tried to write to an uninitialized sizebuf_t: %s", name );
+			}
+
+			Sys_Error( "SZ_GetSpace: overflow without FSB_ALLOWOVERFLOW set on %s", name );
+		}
+
+		if( length > buf->maxsize )
+		{
+			if( !( buf->flags & FSB_ALLOWOVERFLOW ) )
+			{
+				Sys_Error( "SZ_GetSpace: %i is > full buffer size on %s", length, name );
+			}
+
+			Con_DPrintf( "SZ_GetSpace: %i is > full buffer size on %s, ignoring", length, name );
+		}
+
+		Con_Printf( "SZ_GetSpace: overflow on %s\n", name );
+
+		buf->cursize = length;
+		buf->flags |= FSB_OVERFLOWED;
+
+		return buf->data;
+	}
+
+	void* data = buf->data + buf->cursize;
+	buf->cursize += length;
+
+	return data;
+}
+
+void SZ_Write( sizebuf_t* buf, const void* data, int length )
+{
+	byte* pSpace = reinterpret_cast<byte*>( SZ_GetSpace( buf, length ) );
+
+	if( buf->flags & FSB_OVERFLOWED )
+		return;
+
+	Q_memcpy( pSpace, data, length );
+}
+
+void SZ_Print( sizebuf_t* buf, const char* data )
+{
+	const int len = Q_strlen( data ) + 1;
+
+	// byte* cast to keep VC++ happy
+	byte* pSpace = buf->data[ buf->cursize - 1 ] ? 
+		reinterpret_cast<byte*>( SZ_GetSpace( buf, len ) ) :		// no trailing 0
+		reinterpret_cast<byte*>( SZ_GetSpace( buf, len - 1 ) ) - 1;	// write over trailing 0
+
+	if( buf->flags & FSB_OVERFLOWED )
+		return;
+
+	Q_memcpy( pSpace, data, len );
+}
+
 #define NUM_SAFE_ARGVS  7
 
 static const char* largv[ MAX_NUM_ARGVS + NUM_SAFE_ARGVS + 1 ];
@@ -482,4 +568,235 @@ void COM_FreeFile( void *buffer )
 
 	if( buffer )
 		Mem_Free( buffer );
+}
+
+/*
+==============================================================================
+
+MESSAGE IO FUNCTIONS
+
+Handles byte ordering and avoids alignment errors
+==============================================================================
+*/
+
+//
+// writing functions
+//
+
+void MSG_WriteChar( sizebuf_t *sb, int c )
+{
+	byte    *buf;
+
+#ifdef PARANOID
+	if( c < -128 || c > 127 )
+		Sys_Error( "MSG_WriteChar: range error" );
+#endif
+
+	buf = reinterpret_cast<byte*>( SZ_GetSpace( sb, 1 ) );
+	buf[ 0 ] = c;
+}
+
+void MSG_WriteByte( sizebuf_t *sb, int c )
+{
+	byte    *buf;
+
+#ifdef PARANOID
+	if( c < 0 || c > 255 )
+		Sys_Error( "MSG_WriteByte: range error" );
+#endif
+
+	buf = reinterpret_cast<byte*>( SZ_GetSpace( sb, 1 ) );
+	buf[ 0 ] = c;
+}
+
+void MSG_WriteShort( sizebuf_t *sb, int c )
+{
+	byte    *buf;
+
+#ifdef PARANOID
+	if( c < ( ( short ) 0x8000 ) || c >( short )0x7fff )
+		Sys_Error( "MSG_WriteShort: range error" );
+#endif
+
+	buf = reinterpret_cast<byte*>( SZ_GetSpace( sb, 2 ) );
+	buf[ 0 ] = c & 0xff;
+	buf[ 1 ] = c >> 8;
+}
+
+void MSG_WriteLong( sizebuf_t *sb, int c )
+{
+	byte    *buf;
+
+	buf = reinterpret_cast<byte*>( SZ_GetSpace( sb, 4 ) );
+	buf[ 0 ] = c & 0xff;
+	buf[ 1 ] = ( c >> 8 ) & 0xff;
+	buf[ 2 ] = ( c >> 16 ) & 0xff;
+	buf[ 3 ] = c >> 24;
+}
+
+void MSG_WriteFloat( sizebuf_t *sb, float f )
+{
+	union
+	{
+		float   f;
+		int     l;
+	} dat;
+
+
+	dat.f = f;
+	dat.l = LittleLong( dat.l );
+
+	SZ_Write( sb, &dat.l, 4 );
+}
+
+void MSG_WriteString( sizebuf_t *sb, char *s )
+{
+	if( !s )
+		SZ_Write( sb, "", 1 );
+	else
+		SZ_Write( sb, s, Q_strlen( s ) + 1 );
+}
+
+void MSG_WriteCoord( sizebuf_t *sb, float f )
+{
+	MSG_WriteShort( sb, ( int ) ( f * 8 ) );
+}
+
+void MSG_WriteAngle( sizebuf_t *sb, float f )
+{
+	MSG_WriteByte( sb, ( ( int ) f * 256 / 360 ) & 255 );
+}
+
+//
+// reading functions
+//
+int msg_readcount = 0;
+bool msg_badread = false;
+
+void MSG_BeginReading()
+{
+	msg_readcount = 0;
+	msg_badread = false;
+}
+
+// returns -1 and sets msg_badread if no more characters are available
+int MSG_ReadChar()
+{
+	int     c;
+
+	if( msg_readcount + 1 > net_message.cursize )
+	{
+		msg_badread = true;
+		return -1;
+	}
+
+	c = ( signed char ) net_message.data[ msg_readcount ];
+	msg_readcount++;
+
+	return c;
+}
+
+int MSG_ReadByte()
+{
+	int     c;
+
+	if( msg_readcount + 1 > net_message.cursize )
+	{
+		msg_badread = true;
+		return -1;
+	}
+
+	c = ( unsigned char ) net_message.data[ msg_readcount ];
+	msg_readcount++;
+
+	return c;
+}
+
+int MSG_ReadShort()
+{
+	int     c;
+
+	if( msg_readcount + 2 > net_message.cursize )
+	{
+		msg_badread = true;
+		return -1;
+	}
+
+	c = ( short ) ( net_message.data[ msg_readcount ]
+					+ ( net_message.data[ msg_readcount + 1 ] << 8 ) );
+
+	msg_readcount += 2;
+
+	return c;
+}
+
+int MSG_ReadLong()
+{
+	int     c;
+
+	if( msg_readcount + 4 > net_message.cursize )
+	{
+		msg_badread = true;
+		return -1;
+	}
+
+	c = net_message.data[ msg_readcount ]
+		+ ( net_message.data[ msg_readcount + 1 ] << 8 )
+		+ ( net_message.data[ msg_readcount + 2 ] << 16 )
+		+ ( net_message.data[ msg_readcount + 3 ] << 24 );
+
+	msg_readcount += 4;
+
+	return c;
+}
+
+float MSG_ReadFloat()
+{
+	union
+	{
+		byte    b[ 4 ];
+		float   f;
+		int     l;
+	} dat;
+
+	dat.b[ 0 ] = net_message.data[ msg_readcount ];
+	dat.b[ 1 ] = net_message.data[ msg_readcount + 1 ];
+	dat.b[ 2 ] = net_message.data[ msg_readcount + 2 ];
+	dat.b[ 3 ] = net_message.data[ msg_readcount + 3 ];
+	msg_readcount += 4;
+
+	dat.l = LittleLong( dat.l );
+
+	return dat.f;
+}
+
+char* MSG_ReadString()
+{
+	static char     string[ 2048 ];
+	int             l, c;
+
+	l = 0;
+	do
+	{
+		c = MSG_ReadChar();
+		if( c == -1 || c == 0 )
+			break;
+		string[ l ] = c;
+		l++;
+	}
+	while( l < sizeof( string ) - 1 );
+
+	string[ l ] = 0;
+
+	return string;
+}
+
+float MSG_ReadCoord()
+{
+	return MSG_ReadShort() * ( 1.0 / 8 );
+}
+
+float MSG_ReadAngle()
+{
+	return MSG_ReadChar() * ( 360.0 / 256 );
 }
