@@ -22,9 +22,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "quakedef.h"
 
-//TODO: implement - Solokiller
 //TODO: not registered? - Solokiller
-//cvar_t mem_dbgfile = { "mem_dbgfile", ".\\mem.txt" };
+cvar_t mem_dbgfile = { "mem_dbgfile", ".\\mem.txt" };
 
 #define	DYNAMIC_SIZE	0xc000
 
@@ -370,8 +369,7 @@ void Hunk_Print( qboolean all )
 
 	name[ HUNK_MAX_NAME ] = '\0';
 
-	//TODO: implement - Solokiller
-	FileHandle_t file = FS_Open( /*mem_dbgfile.string*/"", "a" );
+	FileHandle_t file = FS_Open( mem_dbgfile.string, "a" );
 
 	if( file == FILESYSTEM_INVALID_HANDLE )
 		return;
@@ -848,8 +846,7 @@ Cache_Print
 */
 void Cache_Print( void )
 {
-	//TODO: implement - Solokiller
-	FileHandle_t file = FS_Open( /*mem_dbgfile.string*/"", "a" );
+	FileHandle_t file = FS_Open( mem_dbgfile.string, "a" );
 
 	if( file == FILESYSTEM_INVALID_HANDLE )
 		return;
