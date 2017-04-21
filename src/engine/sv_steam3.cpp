@@ -1,12 +1,9 @@
 #include <cstdio>
 #include <cstdlib>
 
-#include "steam/steam_gameserver.h"
+#include "quakedef.h"
 
-#include "console.h"
-#include "sv_main.h"
-#include "sv_steam3.h"
-#include "sys.h"
+#include "steam/steam_gameserver.h"
 
 static CSteam3Client s_Steam3Client;
 

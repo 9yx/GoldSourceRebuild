@@ -20,17 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // Z_zone.c
 #include <cstdlib>
 
-#include "tier0/platform.h"
-
-#include "common.h"
-#include "console.h"
-#include "filesystem.h"
-
 #include "quakedef.h"
-
-#include "strtools.h"
-#include "sys.h"
-#include "zone.h"
 
 //TODO: implement - Solokiller
 //TODO: not registered? - Solokiller

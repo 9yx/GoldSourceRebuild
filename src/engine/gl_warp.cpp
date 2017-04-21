@@ -1,11 +1,8 @@
 #include <cstdio>
 
-#include "tier0/platform.h"
+#include "quakedef.h"
 
-#include "common.h"
-#include "console.h"
 #include "render.h"
-#include "sys.h"
 
 typedef struct _TargaHeader {
 	unsigned char 	id_length, colormap_type, image_type;

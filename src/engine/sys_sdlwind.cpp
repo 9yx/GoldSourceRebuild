@@ -2,15 +2,10 @@
 
 #include <SDL2/SDL.h>
 
-#include "tier0/platform.h"
-#include "common.h"
-#include "console.h"
-#include "filesystem.h"
+#include "quakedef.h"
 #include "IGame.h"
 #include "qgl.h"
 #include "render.h"
-#include "strtools.h"
-#include "sys.h"
 
 class CGame final : public IGame
 {

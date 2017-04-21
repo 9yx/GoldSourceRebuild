@@ -1,8 +1,6 @@
 #include <cctype>
 
-#include "console.h"
-#include "info.h"
-#include "strtools.h"
+#include "quakedef.h"
 
 const int MAX_INFO_TOKEN = MAX_INFO_STRING / 2;
 
