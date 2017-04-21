@@ -908,8 +908,7 @@ void Cache_Init( void )
 	cache_head.next = cache_head.prev = &cache_head;
 	cache_head.lru_next = cache_head.lru_prev = &cache_head;
 
-	//TODO: implement - Solokiller
-	//Cmd_AddCommand( "flush", Cache_Flush );
+	Cmd_AddCommand( "flush", Cache_Flush );
 }
 
 /*

@@ -10,9 +10,6 @@
 *	Keys start with '\\' as well, meaning a buffer that has at least one keyvalue has the form "\\key\\value".
 */
 
-//TODO: from com_model.h, import into repo and fix dependencies - Solokiller
-#define	MAX_INFO_STRING			256
-
 extern char serverinfo[ MAX_INFO_STRING ];
 
 bool Info_IsKeyImportant( const char *key );

@@ -21,14 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <cstdarg>
 #include <cstdio>
 
-#include "common.h"
-#include "filesystem.h"
-#include "info.h"
-#include "mem.h"
 #include "quakedef.h"
-#include "strtools.h"
-#include "sys.h"
-#include "zone.h"
 
 void SZ_Alloc( const char* name, sizebuf_t* buf, int startsize )
 {

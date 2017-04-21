@@ -394,8 +394,6 @@ const char* Cvar_IsMultipleTokens( const char* varname )
 {
 	//TODO: why is this such an odd size? - Solokiller
 	static char firstToken[ 516 ];
-	//TODO: i have no idea why this is here, or if this is even a boolean. - Solokiller
-	static bool bMultipleTokens = false;
 
 	firstToken[ 0 ] = '\0';
 
@@ -417,8 +415,7 @@ const char* Cvar_IsMultipleTokens( const char* varname )
 		else
 		{
 			count = 1;
-			Q_strncpy( firstToken, com_token, ARRAYSIZE( firstToken ) - 1 );
-			bMultipleTokens = false;
+			Q_strncpy( firstToken, com_token, ARRAYSIZE( firstToken ) );
 		}
 	}
 

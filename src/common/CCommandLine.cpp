@@ -4,11 +4,9 @@
 #include <cstring>
 #include <utility>
 
-#include "CCommandLine.h"
+#include "tier0/platform.h"
 
-//TODO: define once in a header - Solokiller
-using std::min;
-using std::max;
+#include "CCommandLine.h"
 
 namespace
 {
