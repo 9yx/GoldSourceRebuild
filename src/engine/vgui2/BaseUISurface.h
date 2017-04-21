@@ -13,6 +13,10 @@ public:
 
 	bool IsCursorVisible();
 
+	void CalculateMouseVisible();
+
+	void GetMouseDelta( int& x, int& y );
+
 private:
 	BaseUISurface( const BaseUISurface& ) = delete;
 	BaseUISurface& operator=( const BaseUISurface& ) = delete;

@@ -7,6 +7,8 @@
 
 #include "quakedef.h"
 
+#include "cdll_int.h"
+
 #include "common.h"
 #include "buildnum.h"
 #include "engine_launcher_api.h"
@@ -333,4 +335,15 @@ void Sys_ShutdownGame()
 	TraceShutdown( "Sys_Shutdown()", 0 );
 
 	Sys_Shutdown();
+}
+
+void ClearIOStates()
+{
+	for( int key = 0; key < 256; ++key )
+	{
+		Key_Event( key, false );
+	}
+
+	Key_ClearStates();
+	ClientDLL_ClearStates();
 }

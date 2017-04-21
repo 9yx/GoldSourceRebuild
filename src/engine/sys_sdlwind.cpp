@@ -9,6 +9,7 @@
 
 #include "vgui2/BaseUISurface.h"
 
+#include "cdll_int.h"
 #include "IGame.h"
 #include "qgl.h"
 #include "render.h"
@@ -17,6 +18,8 @@
 #include "vgui_int.h"
 
 uint32 mouseCode = 0;
+
+static bool bPausedByCareer = false;
 
 bool BUsesSDLInput()
 {
@@ -265,7 +268,6 @@ bool CGame::CreateGameWindow()
 
 void CGame::SleepUntilInput( int time )
 {
-	//TODO: implement - Solokiller
 	SDL_PumpEvents();
 
 	SDL_Event ev;
@@ -537,7 +539,8 @@ void CGame::SetCursorVisible( bool bState )
 {
 	m_bCursorVisible = bState;
 
-	//TODO: implement - Solokiller
+	if( !bState && !cl_mousegrab.value )
+		SDL_SetWindowGrab( m_hSDLWindow, SDL_FALSE );
 }
 
 void CGame::SetActiveApp( bool active )
@@ -547,54 +550,55 @@ void CGame::SetActiveApp( bool active )
 
 void CGame::AppActivate( bool fActive )
 {
-	/*
-	int dx_0; // [sp+18h] [bp-14h]@16
-	int dy; // [sp+1Ch] [bp-10h]@16
-	*/
-
 	if( fActive )
 	{
-		fwrite( "AppActive: active\n", 1u, 0x12u, stderr );
-		//TODO: implement - Solokiller
-		/*
+		fputs( "AppActive: active\n", stderr );
+		
 		if( host_initialized )
 		{
 			ClearIOStates();
-			( *( ( void( __cdecl ** )( _DWORD ) )cdaudio->_vptr.ICDAudio + 5 ) )( cdaudio );
-			if( ( unsigned __int8 ) ( *( ( int( __cdecl ** )( _DWORD ) )videomode->_vptr.IVideoMode + 8 ) )( videomode ) )
+
+			//TODO: implement - Solokiller
+			//( *( ( void( __cdecl ** )( _DWORD ) )cdaudio->_vptr.ICDAudio + 5 ) )( cdaudio );
+
+			if( videomode->GetInitialized() )
 			{
 				if( !VGuiWrap2_IsGameUIVisible() )
 					ClientDLL_ActivateMouse();
-				BaseUISurface::CalculateMouseVisible( &g_BaseUISurface );
-				BaseUISurface::GetMouseDelta( &g_BaseUISurface, &dx_0, &dy );
+
+				g_BaseUISurface.CalculateMouseVisible();
+
+				int dx, dy;
+				g_BaseUISurface.GetMouseDelta( dx, dy );
 			}
+
 			if( VGuiWrap2_IsInCareerMatch() && bPausedByCareer )
 			{
 				Cmd_ExecuteString( "unpause", src_command );
-				bPausedByCareer = 0;
+				bPausedByCareer = false;
 			}
 		}
-		*/
 	}
 	else
 	{
-		fwrite( "AppActive: not active\n", 1u, 0x16u, stderr );
+		fputs( "AppActive: not active\n", stderr );
 
-		//TODO: implement - Solokiller
-		/*
 		if( host_initialized )
 		{
-			if( ( unsigned __int8 ) ( *( ( int( __cdecl ** )( _DWORD ) )videomode->_vptr.IVideoMode + 8 ) )( videomode )
-				&& !VGuiWrap2_IsGameUIVisible() )
+			if( videomode->GetInitialized() &&
+				!VGuiWrap2_IsGameUIVisible() )
 				ClientDLL_DeactivateMouse();
-			( *( ( void( __cdecl ** )( _DWORD ) )cdaudio->_vptr.ICDAudio + 4 ) )( cdaudio );
-			if( VGuiWrap2_IsInCareerMatch() && ei.paused == false )
+
+			//TODO: implement - Solokiller
+			//( *( ( void( __cdecl ** )( _DWORD ) )cdaudio->_vptr.ICDAudio + 4 ) )( cdaudio );
+
+			//TODO: implement - Solokiller
+			if( VGuiWrap2_IsInCareerMatch() /*&& ei.paused == false*/ )
 			{
 				Cmd_ExecuteString( "setpause", src_command );
-				bPausedByCareer = 1;
+				bPausedByCareer = true;
 			}
 		}
-		*/
 	}
 	m_bActiveApp = fActive;
 }

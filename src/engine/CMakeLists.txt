@@ -7,6 +7,7 @@ set( PROJECT_NAME hw )
 #Add in the directories
 add_sources(
 	${SRC_DIR}/cl_dll/wrect.h
+	${SRC_DIR}/common/GameUI/CareerDefs.h
 	${SRC_DIR}/common/beamdef.h
 	${SRC_DIR}/common/cl_entity.h
 	${SRC_DIR}/common/com_model.h

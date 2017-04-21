@@ -51,6 +51,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 //TODO: tidy these includes - Solokiller
 #include "tier0/platform.h"
+#include "commonmacros.h"
 #include "filesystem.h"
 #include "cvar.h"
 #include "cmd.h"

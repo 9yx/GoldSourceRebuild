@@ -19,3 +19,13 @@ bool BaseUISurface::IsCursorVisible()
 	//TODO: implement - Solokiller
 	return false;
 }
+
+void BaseUISurface::CalculateMouseVisible()
+{
+	//TODO: implement - Solokiller
+}
+
+void BaseUISurface::GetMouseDelta( int& x, int& y )
+{
+	//TODO: implement - Solokiller
+}

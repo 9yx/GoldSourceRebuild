@@ -11,6 +11,18 @@ bool VGuiWrap2_CallEngineSurfaceAppHandler( void* event, void* userData )
 	return false;
 }
 
+bool VGuiWrap2_IsGameUIVisible()
+{
+	//TODO: implement - Solokiller
+	return false;
+	/*
+	if( !staticGameUIFuncs )
+		return false;
+
+	return staticGameUIFuncs->IsGameUIActive();
+	*/
+}
+
 bool VGuiWrap2_GameUIKeyPressed()
 {
 	//TODO: implement - Solokiller
@@ -54,4 +66,16 @@ void VGuiWrap2_HideGameUI()
 	if( staticUIFuncs )
 		staticUIFuncs->HideGameUI();
 		*/
+}
+
+CareerStateType VGuiWrap2_IsInCareerMatch()
+{
+	//TODO: implement - Solokiller
+	return CAREER_NONE;
+	/*
+	if( !staticCareerUI )
+		return CAREER_NONE;
+
+	return g_careerState;
+	*/
 }
