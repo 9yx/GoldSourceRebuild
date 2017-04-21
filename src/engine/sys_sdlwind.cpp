@@ -1,5 +1,7 @@
 #include <cstdio>
 
+#include "winheaders.h"
+
 #include <SDL2/SDL.h>
 
 #include "quakedef.h"

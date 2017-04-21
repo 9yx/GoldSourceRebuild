@@ -7,8 +7,7 @@
 
 //TODO: remove - Solokiller
 #ifdef WIN32
-#undef ARRAYSIZE
-#include <winlite.h>
+#include "winheaders.h"
 #else
 typedef void* HDC;
 typedef void* HGLRC;

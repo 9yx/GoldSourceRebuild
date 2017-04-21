@@ -28,6 +28,9 @@ add_sources(
 	${SRC_DIR}/common/Sequence.h
 	${SRC_DIR}/common/studio_event.h
 	${SRC_DIR}/common/weaponinfo.h
+	${SRC_DIR}/common/winheaders.h
+	${SRC_DIR}/common/winsani_in.h
+	${SRC_DIR}/common/winsani_out.h
 	${SRC_DIR}/pm_shared/pm_info.h
 	${SRC_DIR}/public/engine_launcher_api.h
 	${SRC_DIR}/public/interface.cpp

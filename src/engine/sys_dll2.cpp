@@ -1,6 +1,8 @@
 #include <clocale>
 #include <cstring>
 
+#include "winheaders.h"
+
 #include "steam/steam_api.h"
 
 #include "quakedef.h"
