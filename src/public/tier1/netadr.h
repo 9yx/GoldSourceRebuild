@@ -6,8 +6,8 @@
 //
 //=============================================================================//
 // netadr.h
-#ifndef NETADR_H
-#define NETADR_H
+#ifndef TIER1_NETADR_H
+#define TIER1_NETADR_H
 #ifdef _WIN32
 #pragma once
 #endif
@@ -64,4 +64,4 @@ public:	// members are public to avoid to much changes
 	unsigned short	port;
 } netadr_t;
 
-#endif // NETADR_H
+#endif // TIER1_NETADR_H

@@ -6,17 +6,33 @@ set( PROJECT_NAME hw )
 
 #Add in the directories
 add_sources(
+	${SRC_DIR}/cl_dll/wrect.h
+	${SRC_DIR}/common/beamdef.h
+	${SRC_DIR}/common/cl_entity.h
 	${SRC_DIR}/common/com_model.h
 	${SRC_DIR}/common/const.h
 	${SRC_DIR}/common/crc.h
 	${SRC_DIR}/common/CRegistry.cpp
 	${SRC_DIR}/common/CRegistry.h
 	${SRC_DIR}/common/cvardef.h
+	${SRC_DIR}/common/dlight.h
+	${SRC_DIR}/common/entity_state.h
+	${SRC_DIR}/common/event_args.h
+	${SRC_DIR}/common/event_flags.h
 	${SRC_DIR}/common/in_buttons.h
 	${SRC_DIR}/common/IRegistry.h
+	${SRC_DIR}/common/netadr.h
+	${SRC_DIR}/common/particledef.h
+	${SRC_DIR}/common/r_efx.h
+	${SRC_DIR}/common/ref_params.h
+	${SRC_DIR}/common/Sequence.h
+	${SRC_DIR}/common/studio_event.h
+	${SRC_DIR}/common/weaponinfo.h
+	${SRC_DIR}/pm_shared/pm_info.h
 	${SRC_DIR}/public/engine_launcher_api.h
 	${SRC_DIR}/public/interface.cpp
 	${SRC_DIR}/public/interface.h
+	${SRC_DIR}/public/keydefs.h
 	anorms.h
 	APIProxy.h
 	buildnum.cpp
@@ -91,7 +107,9 @@ add_library( ${PROJECT_NAME} SHARED ${PREP_SRCS} )
 
 target_include_directories( ${PROJECT_NAME} PRIVATE
 	${SRC_DIR}
+	${SRC_DIR}/cl_dll
 	${SRC_DIR}/common
+	${SRC_DIR}/pm_shared/
 	${SRC_DIR}/public
 	${SRC_DIR}/public/tier1
 	${SHARED_INCLUDE_PATHS}

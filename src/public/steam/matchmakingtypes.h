@@ -61,7 +61,7 @@ class servernetadr_t
 public:
 	
 	void	Init( unsigned int ip, uint16 usQueryPort, uint16 usConnectionPort );
-#ifdef NETADR_H
+#ifdef TIER1_NETADR_H
 	netadr_t	GetIPAndQueryPort();
 #endif
 	
@@ -106,7 +106,7 @@ inline void	servernetadr_t::Init( unsigned int ip, uint16 usQueryPort, uint16 us
 	m_usConnectionPort = usConnectionPort;
 }
 
-#ifdef NETADR_H
+#ifdef TIER1_NETADR_H
 inline netadr_t servernetadr_t::GetIPAndQueryPort()
 {
 	return netadr_t( m_unIP, m_usQueryPort );

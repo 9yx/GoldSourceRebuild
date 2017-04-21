@@ -18,6 +18,8 @@ typedef struct cmdalias_s
 	char	*value;
 } cmdalias_t;
 
+typedef int( *pfnUserMsgHook )( const char *pszName, int iSize, void *pbuf );
+
 
 // ********************************************************
 // Functions exported by the client .dll
