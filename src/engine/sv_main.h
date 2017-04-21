@@ -6,6 +6,7 @@
 AppId_t GetGameAppID();
 
 bool IsGameSubscribed( const char *game );
+bool BIsValveGame();
 
 extern bool g_bIsCStrike;
 extern bool g_bIsCZero;

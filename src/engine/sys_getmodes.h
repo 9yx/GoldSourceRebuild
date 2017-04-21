@@ -39,6 +39,8 @@ public:
 
 extern IVideoMode* videomode;
 
+bool BUsesSDLInput();
+
 void VideoMode_Create();
 
 bool VideoMode_IsWindowed();

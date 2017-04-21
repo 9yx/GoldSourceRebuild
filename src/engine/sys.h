@@ -68,6 +68,10 @@ void Sys_Shutdown();
 bool Sys_InitGame( char *lpOrgCmdLine, char *pBaseDir, void *pwnd, bool bIsDedicated );
 void Sys_ShutdownGame();
 
+extern int giActive;
+extern int giStateInfo;
+extern int giSubState;
+
 extern bool g_bIsDedicatedServer;
 
 extern SDL_Window* pmainwindow;

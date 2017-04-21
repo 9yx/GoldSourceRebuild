@@ -69,6 +69,21 @@ bool IsGameSubscribed( const char *game )
 	return ISteamApps_BIsSubscribedApp( appId );
 }
 
+
+bool BIsValveGame()
+{
+	for( const auto& data : g_GameToAppIDMap )
+	{
+		if( !stricmp( data.pGameDir, com_gamedir ) )
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
+
 static bool g_bCS_CZ_Flags_Initialized = false;
 
 bool g_bIsCStrike = false;

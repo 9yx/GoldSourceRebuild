@@ -8,9 +8,14 @@ enum redirect_t
 	RD_PACKET = 2,
 };
 
+extern bool con_forcedup;	// because no entities to refresh
 extern bool con_initialized;
+
+extern cvar_t con_shifttoggleconsole;
 
 void Con_Printf( const char* fmt, ... );
 void Con_DPrintf( const char* fmt, ... );
+
+void Con_ToggleConsole_f();
 
 #endif //ENGINE_CONSOLE_H

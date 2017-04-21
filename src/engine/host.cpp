@@ -55,8 +55,11 @@ bool Host_Init( quakeparms_t* parms )
 
 	W_LoadWadFile( "gfx.wad" );
 	W_LoadWadFile( "fonts.wad" );
+	*/
 
 	Key_Init();
+	//TODO: implement - Solokiller
+	/*
 	Con_Init();
 	Decal_Init();
 	Mod_Init();

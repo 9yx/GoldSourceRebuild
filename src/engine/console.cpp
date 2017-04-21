@@ -7,9 +7,13 @@ static redirect_t sv_redirected = RD_NONE;
 
 static char outputbuf[ NET_MAX_FRAG_BUFFER ] = {};
 
+bool con_forcedup = false;		// because no entities to refresh
+
 bool con_debuglog = false;
 
 bool con_initialized = false;
+
+cvar_t con_shifttoggleconsole = { "con_shifttoggleconsole", "0" };
 
 void Con_Printf( const char* fmt, ... )
 {
@@ -71,5 +75,25 @@ void Con_DPrintf( const char* fmt, ... )
 	}
 
 	va_end( va );
+	*/
+}
+
+/*
+================
+Con_ToggleConsole_f
+================
+*/
+void Con_ToggleConsole_f()
+{
+	//TODO: implement - Solokiller
+	/*
+	if( VGuiWrap2_IsConsoleVisible() )
+	{
+		VGuiWrap2_HideConsole();
+	}
+	else
+	{
+		VGuiWrap2_ShowConsole();
+	}
 	*/
 }

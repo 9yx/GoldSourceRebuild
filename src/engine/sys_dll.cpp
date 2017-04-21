@@ -24,6 +24,11 @@
 #error
 #endif
 
+//TODO: define flags for these - Solokiller
+int giActive = 0;
+int giStateInfo = 0;
+int giSubState = 0;
+
 PrintfFunc Launcher_ConsolePrintf = nullptr;
 
 jmp_buf host_abortserver;

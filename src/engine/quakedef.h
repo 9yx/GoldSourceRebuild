@@ -69,6 +69,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "info.h"
 #include "sv_steam3.h"
 #include "com_model.h"
+#include "keys.h"
 
 /**
 *	the host system specifies the base of the directory tree, the

@@ -33,10 +33,16 @@ add_sources(
 	${SRC_DIR}/public/interface.cpp
 	${SRC_DIR}/public/interface.h
 	${SRC_DIR}/public/keydefs.h
+	${CMAKE_CURRENT_SOURCE_DIR}/vgui2/BaseUISurface.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/vgui2/BaseUISurface.h
 	anorms.h
 	APIProxy.h
 	buildnum.cpp
 	buildnum.h
+	cdll_int.cpp
+	cdll_int.h
+	cl_main.cpp
+	client.h
 	cmd.cpp
 	cmd.h
 	common.cpp
@@ -60,6 +66,8 @@ add_sources(
 	IGame.h
 	info.cpp
 	info.h
+	keys.cpp
+	keys.h
 	mathlib.cpp
 	mathlib.h
 	mem.cpp
@@ -96,6 +104,10 @@ add_sources(
 	sys_sdlwind.cpp
 	traceinit.cpp
 	traceinit.h
+	vgui_int.cpp
+	vgui_int.h
+	vgui_intwrap.cpp
+	vgui_intwrap2.cpp
 	vid.h
 	zone.cpp
 	zone.h
@@ -106,6 +118,7 @@ preprocess_sources()
 add_library( ${PROJECT_NAME} SHARED ${PREP_SRCS} )
 
 target_include_directories( ${PROJECT_NAME} PRIVATE
+	${CMAKE_CURRENT_SOURCE_DIR}
 	${SRC_DIR}
 	${SRC_DIR}/cl_dll
 	${SRC_DIR}/common

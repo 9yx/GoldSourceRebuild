@@ -3,9 +3,38 @@
 #include <SDL2/SDL.h>
 
 #include "quakedef.h"
+#include "client.h"
+
+#include "vgui2/BaseUISurface.h"
+
 #include "IGame.h"
 #include "qgl.h"
 #include "render.h"
+#include "IEngine.h"
+#include "sys_getmodes.h"
+#include "vgui_int.h"
+
+uint32 mouseCode = 0;
+
+bool BUsesSDLInput()
+{
+	static bool s_bUseRawInput;
+
+	s_bUseRawInput = false;
+
+	if( BIsValveGame() ||
+		Q_strstr( g_szfullClientName, "valve/cl_dlls/client" ) ||
+		Q_strstr( g_szfullClientName, "cstrike/cl_dlls/client" ) ||
+		Q_strstr( g_szfullClientName, "tfc/cl_dlls/client" ) ||
+		Q_strstr( g_szfullClientName, "dod/cl_dlls/client" ) ||
+		Q_strstr( g_szfullClientName, "gearbox/cl_dlls/client" ) ||
+		Q_strstr( g_szfullClientName, "bshift/cl_dlls/client" ) )
+	{
+		s_bUseRawInput = true;
+	}
+
+	return s_bUseRawInput;
+}
 
 class CGame final : public IGame
 {
@@ -235,263 +264,218 @@ bool CGame::CreateGameWindow()
 void CGame::SleepUntilInput( int time )
 {
 	//TODO: implement - Solokiller
-	/*
-	int v2; // eax@21
-	int v3; // edx@21
-	int v4; // ecx@23
-	int v5; // edx@33
-	int v6; // edx@36
-	uint32 v7; // edx@41
-	char *v8; // edx@44
-	size_t v9; // edi@44
-	int v10; // ecx@45
-	unsigned int v11; // eax@45
-	int v12; // edx@50
-	long double v13; // fst6@81
-	SDL_Event_0 ev; // [sp+20h] [bp-5Ch]@1
-	int deltaX; // [sp+58h] [bp-24h]@82
-	int deltaY; // [sp+5Ch] [bp-20h]@82
-
 	SDL_PumpEvents();
+
+	SDL_Event ev;
+
 	if( SDL_WaitEventTimeout( &ev, time ) > 0 )
 	{
 		do
 		{
-			if( ev.type == 771 )
+			switch( ev.type )
 			{
-				if( key_dest == 1 )
+			case SDL_TEXTINPUT:
 				{
-					v8 = ev.edit.text;
-					v9 = 119 - chat_bufferlen;
-					do
+					if( key_dest == key_message )
 					{
-						v10 = *( _DWORD * ) v8;
-						v8 += 4;
-						v11 = ~v10 & ( v10 - 16843009 ) & 0x80808080;
+						size_t uiSpaceLeft = ( MAX_CHAT_BUFFER - 1 ) - chat_bufferlen;
+
+						const int iLength = Q_strlen( ev.text.text );
+
+						if( static_cast<size_t>( iLength ) <= uiSpaceLeft )
+							uiSpaceLeft = iLength;
+
+						Q_strncpy( chat_buffer, ev.edit.text, ARRAYSIZE( chat_buffer ) );
+						chat_bufferlen += uiSpaceLeft;
 					}
-					while( !v11 );
-					if( !( ~v10 & ( v10 - 16843009 ) & 0x8080 ) )
-						v11 >>= 16;
-					if( !( ~v10 & ( v10 - 16843009 ) & 0x8080 ) )
-						v8 += 2;
-					v12 = &v8[ -__CFADD__( ( _BYTE ) v11, ( _BYTE ) v11 ) - 3 ] - ( char * ) &ev.jhat.hat;
-					if( v12 <= ( signed int ) v9 )
-						v9 = v12;
-					Q_strncpy( &chat_buffer[ chat_bufferlen ], ev.edit.text, v9 );
-					chat_bufferlen += v9;
-					chat_buffer[ chat_bufferlen ] = 0;
+
+					break;
 				}
-				goto LABEL_6;
-			}
-			if( ev.type <= 771 )
-			{
-				if( ev.type == 512 )
+
+			case SDL_WINDOWEVENT:
 				{
 					switch( ev.window.event )
 					{
-					default:
-						goto LABEL_6;
-					case 0xEu:
-						if( ( ( int( __cdecl * )( IEngine * ) )eng->_vptr_IEngine->GetState )( eng ) == 1 )
-							( ( void( __cdecl * )( IEngine *, signed int ) )eng->_vptr_IEngine->SetQuitting )( eng, 1 );
-						SDL_DestroyWindow( this->m_hSDLWindow );
-						this->m_hSDLWindow = 0;
+					case SDL_WINDOWEVENT_CLOSE:
+						if( eng->GetState() == 1 )
+							eng->SetQuitting( IEngine::QUIT_TODESKTOP );
+						SDL_DestroyWindow( m_hSDLWindow );
+						m_hSDLWindow = nullptr;
 						return;
-					case 2u:
-					case 0xDu:
-						CGame::AppActivate( 0 );
+
+					case SDL_WINDOWEVENT_HIDDEN:
+					case SDL_WINDOWEVENT_FOCUS_LOST:
+						AppActivate( false );
 						break;
-					case 1u:
-					case 0xCu:
-						CGame::AppActivate( 1 );
+
+					case SDL_WINDOWEVENT_SHOWN:
+					case SDL_WINDOWEVENT_FOCUS_GAINED:
+						AppActivate( true );
 						break;
-					case 5u:
-						( ( void( __cdecl * )( IGame *, Sint32, Sint32 ) )game->_vptr.IGame->SetWindowSize )(
-							game,
-							ev.window.data1,
-							ev.window.data2 );
-						( *( void( __cdecl ** )( IVideoMode * ) )( ( void( __cdecl ** )( _DWORD ) )videomode->_vptr.IVideoMode + 10 ) )( videomode );
+
+					case SDL_WINDOWEVENT_RESIZED:
+						game->SetWindowSize( ev.window.data1, ev.window.data2 );
+
+						videomode->UpdateWindowPosition();
 						break;
-					case 4u:
-						if( ( unsigned __int8 ) ( *( int( __cdecl ** )( IVideoMode * ) )( ( int( __cdecl ** )( _DWORD ) )videomode->_vptr.IVideoMode
-																						  + 7 ) )( videomode ) )
+
+					case SDL_WINDOWEVENT_MOVED:
+						if( videomode->IsWindowedMode() )
 						{
-							( ( void( __cdecl * )( IGame *, Sint32, Sint32 ) )game->_vptr.IGame->SetWindowXY )(
-								game,
-								ev.window.data1,
-								ev.window.data2 );
-							( *( void( __cdecl ** )( IVideoMode * ) )( ( void( __cdecl ** )( _DWORD ) )videomode->_vptr.IVideoMode + 10 ) )( videomode );
+							game->SetWindowXY( ev.window.data1, ev.window.data2 );
+							videomode->UpdateWindowPosition();
 						}
 						break;
+
+					default: break;
 					}
+					break;
 				}
-				else if( ev.type > 512 )
+
+			case SDL_KEYDOWN:
 				{
-					if( ev.type == 768 )
+					eng->TrapKey_Event( GetEngineKeyFromSDLScancode( ev.key.keysym.scancode ), true );
+					break;
+				}
+			case SDL_KEYUP:
+				{
+					eng->TrapKey_Event( GetEngineKeyFromSDLScancode( ev.key.keysym.scancode ), false );
+					break;
+				}
+
+			case SDL_QUIT:
+				{
+					if( eng->GetState() == 1 )
 					{
-						v6 = 0;
-						if( ( unsigned int ) ( ev.window.data1 - 4 ) <= 0xE3 )
-							v6 = ( unsigned __int8 ) CSWTCH_74[ ev.window.data1 - 4 ];
-						( ( void( __cdecl * )( IEngine *, int, signed int ) )eng->_vptr_IEngine->TrapKey_Event )( eng, v6, 1 );
+						eng->SetQuitting( IEngine::QUIT_TODESKTOP );
 					}
-					else if( ev.type == 769 )
+					break;
+				}
+
+			case SDL_MOUSEWHEEL:
+				{
+					eng->TrapKey_Event(
+						( ev.wheel.y > 0 ) ? K_MWHEELUP : K_MWHEELDOWN, true );
+
+					eng->TrapKey_Event(
+						( ev.wheel.y > 0 ) ? K_MWHEELUP : K_MWHEELDOWN, false );
+					break;
+				}
+
+			case SDL_MOUSEBUTTONDOWN:
+			case SDL_MOUSEBUTTONUP:
+				{
+					switch( ev.button.button )
 					{
-						v5 = 0;
-						if( ( unsigned int ) ( ev.window.data1 - 4 ) <= 0xE3 )
-							v5 = ( unsigned __int8 ) CSWTCH_74[ ev.window.data1 - 4 ];
-						( ( void( __cdecl * )( IEngine *, int, _DWORD ) )eng->_vptr_IEngine->TrapKey_Event )( eng, v5, 0 );
-					}
-				}
-				else if( ev.type == 256 && ( ( int( __cdecl * )( IEngine * ) )eng->_vptr_IEngine->GetState )( eng ) == 1 )
-				{
-					( ( void( __cdecl * )( IEngine *, signed int ) )eng->_vptr_IEngine->SetQuitting )( eng, 1 );
-				}
-				goto LABEL_6;
-			}
-			if( ev.type > 1026 )
-			{
-				if( ev.type == 1027 )
-				{
-					( ( void( __cdecl * )( _DWORD, int, signed int ) )eng->_vptr_IEngine->TrapKey_Event )(
-						eng,
-						( *( ( _WORD * ) &ev.syswm + 10 ) > 0 ) + 239,
-						1 );
-					( ( void( __cdecl * )( IEngine *, int, _DWORD ) )eng->_vptr_IEngine->TrapKey_Event )(
-						eng,
-						( *( ( _WORD * ) &ev.syswm + 10 ) > 0 ) + 239,
-						0 );
-				}
-				goto LABEL_6;
-			}
-			if( ev.type >= 1025 )
-			{
-				if( ev.edit.text[ 4 ] <= 9u )
-				{
-					switch( ev.edit.text[ 4 ] )
-					{
-					default:
-						goto LABEL_41;
-					case 1:
-						if( ev.type == 1025 )
+					case SDL_BUTTON_LEFT:
+						if( ev.type == SDL_MOUSEBUTTONDOWN )
 						{
-							v7 = mouseCode | 1;
 							mouseCode |= 1u;
 						}
 						else
 						{
-							v7 = mouseCode & 0xFFFFFFFE;
 							mouseCode &= 0xFFFFFFFE;
 						}
 						break;
-					case 5:
+					case SDL_BUTTON_X2:
 					case 7:
 					case 9:
-						if( ev.type == 1025 )
+						if( ev.type == SDL_MOUSEBUTTONDOWN )
 						{
-							v7 = mouseCode | 0x10;
 							mouseCode |= 0x10u;
 						}
 						else
 						{
-							v7 = mouseCode & 0xFFFFFFEF;
 							mouseCode &= 0xFFFFFFEF;
 						}
 						break;
-					case 4:
+					case SDL_BUTTON_X1:
 					case 6:
 					case 8:
-						if( ev.type == 1025 )
+						if( ev.type == SDL_MOUSEBUTTONDOWN )
 						{
-							v7 = mouseCode | 8;
 							mouseCode |= 8u;
 						}
 						else
 						{
-							v7 = mouseCode & 0xFFFFFFF7;
 							mouseCode &= 0xFFFFFFF7;
 						}
 						break;
-					case 3:
-						if( ev.type == 1025 )
+					case SDL_BUTTON_RIGHT:
+						if( ev.type == SDL_MOUSEBUTTONDOWN )
 						{
-							v7 = mouseCode | 2;
 							mouseCode |= 2u;
 						}
 						else
 						{
-							v7 = mouseCode & 0xFFFFFFFD;
 							mouseCode &= 0xFFFFFFFD;
 						}
 						break;
-					case 2:
-						if( ev.type == 1025 )
+					case SDL_BUTTON_MIDDLE:
+						if( ev.type == SDL_MOUSEBUTTONDOWN )
 						{
-							v7 = mouseCode | 4;
 							mouseCode |= 4u;
 						}
 						else
 						{
-							v7 = mouseCode & 0xFFFFFFFB;
 							mouseCode &= 0xFFFFFFFB;
 						}
 						break;
+
+					default: break;
 					}
+
+					eng->TrapMouse_Event( mouseCode, ev.type == SDL_MOUSEBUTTONDOWN );
+					break;
 				}
-				else
+
+			case SDL_MOUSEMOTION:
 				{
-				LABEL_41:
-					v7 = mouseCode;
-				}
-				( ( void( __cdecl * )( IEngine *, uint32, _DWORD ) )eng->_vptr_IEngine->TrapMouse_Event )( eng, v7, ev.type == 1025 );
-				goto LABEL_6;
-			}
-			if( ev.type == 1024 )
-			{
-				if( cl_mousegrab.value == 0.0 )
-				{
-					if( !this->m_bActiveApp )
-						goto LABEL_6;
-				}
-				else if( m_rawinput.value != 0.0 || !this->m_bActiveApp )
-				{
-					goto LABEL_6;
-				}
-				if( !BaseUISurface::IsCursorVisible( &g_BaseUISurface ) && !s_bCursorVisible && BUsesSDLInput() )
-				{
-					if( this->m_bExpectSyntheticMouseMotion
-						&& *( _QWORD * ) ( ( char * ) &ev.syswm + 20 ) == *( _QWORD * )&this->m_nMouseTargetX )
+					if( !cl_mousegrab.value && !m_bActiveApp )
+						break;
+
+					if( m_rawinput.value || !m_bActiveApp )
+						break;
+
+					if( g_BaseUISurface.IsCursorVisible() && !s_bCursorVisible && BUsesSDLInput() )
 					{
-						v13 = m_rawinput.value;
-						this->m_bExpectSyntheticMouseMotion = 0;
-						if( v13 == 0.0 )
-							SDL_GetRelativeMouseState( &deltaX, &deltaY );
-						continue;
-					}
-					if( !this->m_bCursorVisible )
-					{
-						v2 = this->m_nMouseTargetX;
-						v3 = this->m_nWarpDelta;
-						if( ev.window.data2 < this->m_nMouseTargetX - v3 || ev.window.data2 > v2 + v3 )
+						if( m_bExpectSyntheticMouseMotion &&
+							ev.motion.x == m_nMouseTargetX &&
+							ev.motion.y == m_nMouseTargetY )
 						{
-							v4 = this->m_nMouseTargetY;
+							m_bExpectSyntheticMouseMotion = false;
+
+							if( !m_rawinput.value )
+							{
+								int deltaX, deltaY;
+								SDL_GetRelativeMouseState( &deltaX, &deltaY );
+							}
+							continue;
 						}
-						else
+
+						if( !m_bCursorVisible )
 						{
-							v4 = this->m_nMouseTargetY;
-							if( ev.motion.y >= this->m_nMouseTargetY - v3 && ev.motion.y <= v4 + v3 )
-								goto LABEL_6;
+							if( ev.window.data2 >= m_nMouseTargetX - m_nWarpDelta &&
+								ev.window.data2 >= m_nMouseTargetX + m_nWarpDelta &&
+								ev.motion.y >= m_nMouseTargetY - m_nWarpDelta &&
+								ev.motion.y <= m_nMouseTargetY + m_nWarpDelta )
+							{
+									break;
+							}
+
+							SDL_WarpMouseInWindow( m_hSDLWindow, m_nMouseTargetX, m_nMouseTargetY );
+							m_bExpectSyntheticMouseMotion = true;
 						}
-						SDL_WarpMouseInWindow( this->m_hSDLWindow, v2, v4 );
-						this->m_bExpectSyntheticMouseMotion = 1;
 					}
+
+					break;
 				}
 			}
-		LABEL_6:
+
 			VGui_CallEngineSurfaceAppHandler( &ev, 0 );
 		}
 		while( SDL_PollEvent( &ev ) > 0 );
 	}
-	*/
 }
 
 void* CGame::GetMainWindow()

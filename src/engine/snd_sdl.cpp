@@ -1,5 +1,7 @@
 #include "snd.h"
 
+bool g_fUseDInput = false;
+
 void Snd_AcquireBuffer()
 {
 	//TODO: implement - Solokiller
