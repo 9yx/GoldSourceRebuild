@@ -462,7 +462,8 @@ void CVideoMode_Common::DrawStartupGraphic( SDL_Window* window )
 			{
 				for( int x = 0; x < pImage->width; ++x )
 				{
-					pToUse[ 4 * ( x + ( y * pow2Width ) ) ] = pImage->buffer[ 4 * ( x + ( y * pow2Width ) ) ];
+					//Copy 4 bytes at a time, one pixel.
+					*reinterpret_cast<uint32*>( &pToUse[ 4 * ( x + ( y * pow2Width ) ) ] ) = *reinterpret_cast<uint32*>( &pImage->buffer[ 4 * ( x + ( y * pow2Width ) ) ] );
 				}
 			}
 
