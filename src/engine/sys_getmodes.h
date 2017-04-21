@@ -37,6 +37,8 @@ public:
 	virtual void ReleaseVideo() = 0;
 };
 
+extern bool bNeedsFullScreenModeSwitch;
+
 extern IVideoMode* videomode;
 
 bool BUsesSDLInput();

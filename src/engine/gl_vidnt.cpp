@@ -35,8 +35,6 @@ const char* gl_extensions = "";
 static FBO_Container_t s_MSAAFBO;
 static FBO_Container_t s_BackBufferFBO;
 
-bool bNeedsFullScreenModeSwitch = false;
-
 #ifdef WIN32
 //Note: this code is obsolete and won't have any effect.
 //The cross-platform OpenGL context creation code supersedes this. - Solokiller

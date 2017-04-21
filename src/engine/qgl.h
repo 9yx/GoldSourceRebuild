@@ -32,8 +32,6 @@ struct glwstate_t
 
 extern glwstate_t glw_state;
 
-extern bool bNeedsFullScreenModeSwitch;
-
 void* QGL_Init();
 void QGL_Shutdown();
 

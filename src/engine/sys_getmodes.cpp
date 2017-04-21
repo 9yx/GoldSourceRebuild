@@ -3,14 +3,16 @@
 
 #include <UtlVector.h>
 
-#include "common.h"
-#include "filesystem.h"
+#include "quakedef.h"
+
 #include "IGame.h"
 #include "IRegistry.h"
 #include "render.h"
 #include "snd.h"
 #include "sys_getmodes.h"
 #include "vid.h"
+
+bool bNeedsFullScreenModeSwitch = false;
 
 IVideoMode* videomode = nullptr;
 
@@ -34,7 +36,7 @@ public:
 
 	bool Init( void* pvInstance ) override;
 
-private:
+protected:
 	void LoadStartupGraphic();
 	void AdjustWindowForMode();
 	void DrawStartupGraphic( SDL_Window* window );
@@ -610,18 +612,87 @@ void CVideoMode_Common::ChangeDisplaySettingsToFullscreen()
 	//Nothing
 }
 
-//TODO: implement OpenGL VideoMode - Solokiller
 class CVideoMode_OpenGL final : public CVideoMode_Common
 {
 public:
 	CVideoMode_OpenGL( bool windowed );
 
+	bool Init( void* pvInstance ) override;
+
 	const char* GetName() override { return "gl"; }
+
+	void FlipScreen() override;
+
+	void RestoreVideo() override;
+	void ReleaseVideo() override;
+
+	void ReleaseFullScreen() override;
+	void ChangeDisplaySettingsToFullscreen() override;
 };
 
 CVideoMode_OpenGL::CVideoMode_OpenGL( bool windowed )
 {
 	m_bWindowed = windowed;
+}
+
+bool CVideoMode_OpenGL::Init( void* pvInstance )
+{
+	const bool result = CVideoMode_Common::Init( pvInstance );
+
+	SetInitialized( result );
+
+	return result;
+}
+
+void CVideoMode_OpenGL::FlipScreen()
+{
+	Sys_Error( "This shouldn't be called\n" );
+}
+
+void CVideoMode_OpenGL::RestoreVideo()
+{
+	if( !IsWindowedMode() )
+	{
+		AdjustWindowForMode();
+		SDL_ShowWindow( reinterpret_cast<SDL_Window*>( game->GetMainWindow() ) );
+	}
+}
+
+void CVideoMode_OpenGL::ReleaseVideo()
+{
+	if( !IsWindowedMode() )
+		ReleaseFullScreen();
+}
+
+void CVideoMode_OpenGL::ReleaseFullScreen()
+{
+	if( !IsWindowedMode() )
+	{
+		SDL_SetWindowFullscreen( reinterpret_cast<SDL_Window*>( game->GetMainWindow() ), 0 );
+	}
+}
+
+void CVideoMode_OpenGL::ChangeDisplaySettingsToFullscreen()
+{
+	static Uint32 iLastScreenMode = SDL_WINDOW_FULLSCREEN_DESKTOP;
+
+	if( !IsWindowedMode() && GetCurrentMode() )
+	{
+		Uint32 flags = SDL_WINDOW_FULLSCREEN;
+
+		if( !bNeedsFullScreenModeSwitch )
+			flags = SDL_WINDOW_FULLSCREEN_DESKTOP;
+
+		//Force to windowed first before switching to fullscreen mode to force full update.
+		if( iLastScreenMode != flags )
+		{
+			SDL_SetWindowFullscreen( reinterpret_cast<SDL_Window*>( game->GetMainWindow() ), 0 );
+		}
+
+		SDL_SetWindowFullscreen( reinterpret_cast<SDL_Window*>( game->GetMainWindow() ), flags );
+
+		iLastScreenMode = flags;
+	}
 }
 
 void VideoMode_Create()
