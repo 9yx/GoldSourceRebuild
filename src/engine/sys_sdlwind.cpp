@@ -369,6 +369,7 @@ void CGame::SleepUntilInput( int time )
 			case SDL_MOUSEBUTTONDOWN:
 			case SDL_MOUSEBUTTONUP:
 				{
+					//TODO: define constants for mouseCode - Solokiller
 					switch( ev.button.button )
 					{
 					case SDL_BUTTON_LEFT:

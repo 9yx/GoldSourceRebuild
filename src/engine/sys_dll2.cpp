@@ -33,6 +33,16 @@ const char* argv[ MAX_NUM_ARGVS ];
 
 SDL_Window* pmainwindow = nullptr;
 
+void SetRateRegistrySetting( const char* pchRate )
+{
+	registry->WriteString( "rate", pchRate );
+}
+
+const char* GetRateRegistrySetting( const char* pchDef )
+{
+	return registry->ReadString( "rate", pchDef );
+}
+
 int RunListenServer( void *instance, char *basedir, char *cmdline, char *postRestartCmdLineArgs, CreateInterfaceFn launcherFactory, CreateInterfaceFn filesystemFactory );
 
 class CEngineAPI final : public IEngineAPI
@@ -41,7 +51,7 @@ public:
 	int Run( void* instance, char* basedir, char* cmdline, char* postRestartCmdLineArgs, CreateInterfaceFn launcherFactory, CreateInterfaceFn filesystemFactory ) override;
 };
 
-EXPOSE_SINGLE_INTERFACE( CEngineAPI, IEngineAPi, ENGINE_LAUNCHER_INTERFACE_VERSION );
+EXPOSE_SINGLE_INTERFACE( CEngineAPI, IEngineAPI, ENGINE_LAUNCHER_INTERFACE_VERSION );
 
 int CEngineAPI::Run( void* instance, char* basedir, char* cmdline, char* postRestartCmdLineArgs, CreateInterfaceFn launcherFactory, CreateInterfaceFn filesystemFactory )
 {
@@ -101,7 +111,7 @@ int RunListenServer( void *instance, char *basedir, char *cmdline, char *postRes
 	eng->SetQuitting( IEngine::QUIT_NOTQUITTING );
 	registry->Init();
 	Steam_InitClient();
-	int result = 0;
+	int result = ENGRUN_QUITTING;
 
 	TraceInit( "FileSystem_Init(basedir, (void *)filesystemFactory)", "FileSystem_Shutdown()", 0 );
 
@@ -109,21 +119,21 @@ int RunListenServer( void *instance, char *basedir, char *cmdline, char *postRes
 	{
 		VideoMode_Create();
 
-		result = 2;
+		result = ENGRUN_UNSUPPORTED_VIDEOMODE;
 		registry->WriteInt( "CrashInitializingVideoMode", 1 );
 
 		if( videomode->Init( instance ) )
 		{
-			result = 0;
+			result = ENGRUN_CHANGED_VIDEOMODE;
 			registry->WriteInt( "CrashInitializingVideoMode", 0 );
 
 			if( game->Init(	instance ) )
 			{
-				result = 2;
+				result = ENGRUN_UNSUPPORTED_VIDEOMODE;
 
 				if( eng->Load( false, basedir, cmdline ) )
 				{
-					while( 1 )
+					while( true )
 					{
 						game->SleepUntilInput( 0 );
 
@@ -133,7 +143,7 @@ int RunListenServer( void *instance, char *basedir, char *cmdline, char *postRes
 						eng->Frame();
 					}
 
-					result = eng->GetQuitting() != IEngine::QUIT_TODESKTOP;
+					result = eng->GetQuitting() != IEngine::QUIT_TODESKTOP ? ENGRUN_CHANGED_VIDEOMODE : ENGRUN_QUITTING;
 
 					eng->Unload();
 				}
@@ -268,8 +278,8 @@ bool Sys_InitGame( char *lpOrgCmdLine, char *pBaseDir, void *pwnd, bool bIsDedic
 				//NET_Config( true );
 			}
 			else
-			{//TODO: implement - Solokiller
-				//ClientDLL_ActivateMouse();
+			{
+				ClientDLL_ActivateMouse();
 			}
 
 			bSuccess = true;
@@ -311,8 +321,7 @@ void Sys_ShutdownGame()
 {
 	if( !g_bIsDedicatedServer )
 	{
-		//TODO: implement - Solokiller
-		//ClientDLL_DeactivateMouse();
+		ClientDLL_DeactivateMouse();
 	}
 
 	TraceShutdown( "Host_Shutdown()", 0 );

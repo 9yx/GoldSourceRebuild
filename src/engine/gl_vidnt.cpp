@@ -12,6 +12,8 @@
 #include "strtools.h"
 #include "sys_getmodes.h"
 
+cvar_t gl_vsync = { "gl_vsync", "1", FCVAR_ARCHIVE };
+
 struct FBO_Container_t
 {
 	GLuint s_hBackBufferFBO;

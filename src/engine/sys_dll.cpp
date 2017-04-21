@@ -6,20 +6,14 @@
 #include <SDL2/SDL.h>
 
 #include "quakedef.h"
+#include "client.h"
 
-#include "com_model.h"
-#include "common.h"
+#include "qgl.h"
 #include "modinfo.h"
-#include "strtools.h"
-#include "sv_log.h"
-#include "sv_steam3.h"
-#include "sys.h"
 #include "sys_getmodes.h"
 
 #ifdef WIN32
-#undef ARRAYSIZE
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
+#include "winheaders.h"
 #else
 #error
 #endif
@@ -96,6 +90,30 @@ void Sys_Error( const char* error, ... )
 	fprintf( stderr, "%s\n", text );
 
 	longjmp( host_abortserver, 2 );
+}
+
+void ForceReloadProfile()
+{
+	Cbuf_AddText( "exec config.cfg\n" );
+	Cbuf_AddText( "+mlook\n" );
+	Cbuf_Execute();
+
+	if( COM_CheckParm( "-nomousegrab" ) )
+		Cvar_Set( "cl_mousegrab", "0" );
+
+	Key_SetBinding( '~', "toggleconsole" );
+	Key_SetBinding( '`', "toggleconsole" );
+	Key_SetBinding( K_ESCAPE, "cancelselect" );
+
+	SDL_GL_SetSwapInterval( ( gl_vsync.value <= 0.0 ) - 1 );
+
+	//TODO: implement - Solokiller
+	if( false/*( _DWORD ) cls.state*/ )
+	{
+		char szRate[ 32 ];
+		strncpy( szRate, GetRateRegistrySetting( rate.string ), ARRAYSIZE( szRate ) );
+		Cvar_DirectSet( &rate, szRate );
+	}
 }
 
 void DLL_SetModKey( modinfo_t *pinfo, char *pkey, char *pvalue )

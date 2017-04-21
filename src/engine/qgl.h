@@ -15,6 +15,8 @@ typedef void* HGLRC;
 
 #include "filesystem.h"
 
+extern cvar_t gl_vsync;
+
 extern const char* gl_renderer;
 
 struct glwstate_t

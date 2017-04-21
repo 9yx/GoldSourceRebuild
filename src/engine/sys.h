@@ -57,6 +57,8 @@ extern PrintfFunc Launcher_ConsolePrintf;
 
 /** @} */
 
+void ForceReloadProfile();
+
 double Sys_FloatTime();
 
 bool Sys_IsWin95();
@@ -69,6 +71,9 @@ bool Sys_InitGame( char *lpOrgCmdLine, char *pBaseDir, void *pwnd, bool bIsDedic
 void Sys_ShutdownGame();
 
 void ClearIOStates();
+
+void SetRateRegistrySetting( const char* pchRate );
+const char* GetRateRegistrySetting( const char* pchDef );
 
 extern int giActive;
 extern int giStateInfo;

@@ -61,8 +61,7 @@ bool CEngine::Load( bool dedicated, char* basedir, char* cmdline )
 
 	if( bInitialized )
 	{
-		//TODO: implement - Solokiller
-		//ForceReloadProfile();
+		ForceReloadProfile();
 	}
 
 	return bInitialized;
