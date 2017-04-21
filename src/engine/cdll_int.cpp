@@ -26,6 +26,15 @@ void ClientDLL_DeactivateMouse()
 	}
 }
 
+void ClientDLL_MouseEvent( int mstate )
+{
+	if( fClientLoaded )
+	{
+		if( cl_funcs.pIN_MouseEvent )
+			cl_funcs.pIN_MouseEvent( mstate );
+	}
+}
+
 void ClientDLL_ClearStates()
 {
 	if( fClientLoaded )

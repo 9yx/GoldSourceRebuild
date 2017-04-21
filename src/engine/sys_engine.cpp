@@ -1,7 +1,8 @@
+#include "quakedef.h"
+#include "cdll_int.h"
+
 #include "IEngine.h"
 #include "IGame.h"
-
-#include "sys.h"
 
 class CEngine final : public IEngine
 {
@@ -77,8 +78,7 @@ void CEngine::Unload()
 void CEngine::SetState( int iState )
 {
 	m_nDLLState = iState;
-	//TODO: implement - Solokiller
-	//GameSetState( iState );
+	GameSetState( iState );
 }
 
 int CEngine::GetState()
@@ -88,10 +88,9 @@ int CEngine::GetState()
 
 void CEngine::SetSubState( int iSubState )
 {
-	if( !iSubState != 1 )
+	if( iSubState != 1 )
 	{
-		//TODO: implement - Solokiller
-		//GameSetSubState( iSubState );
+		GameSetSubState( iSubState );
 	}
 }
 
@@ -139,8 +138,7 @@ void CEngine::TrapKey_Event( int key, bool down )
 
 	if( !bHandled )
 	{
-		//TODO: implement - Solokiller
-		//Key_Event( key, bIsDown );
+		Key_Event( key, bIsDown );
 	}
 }
 
@@ -155,8 +153,7 @@ void CEngine::TrapMouse_Event( int buttons, bool down )
 	}
 	else
 	{
-		//TODO: implement - Solokiller
-		//ClientDLL_MouseEvent();
+		ClientDLL_MouseEvent( buttons );
 	}
 }
 

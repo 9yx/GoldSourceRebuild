@@ -61,6 +61,9 @@ void ForceReloadProfile();
 
 double Sys_FloatTime();
 
+void GameSetSubState( int iSubState );
+void GameSetState( int iState );
+
 bool Sys_IsWin95();
 bool Sys_IsWin98();
 

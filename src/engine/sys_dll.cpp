@@ -345,6 +345,24 @@ void Sys_ShutdownFloatTime()
 	curtime = 0.0;
 }
 
+void GameSetSubState( int iSubState )
+{
+	//TODO: define constants - Solokiller
+	if( iSubState & 2 )
+	{
+		giSubState = 1;
+	}
+	else if( iSubState != 1 )
+	{
+		giSubState = iSubState;
+	}
+}
+
+void GameSetState( int iState )
+{
+	giActive = iState;
+}
+
 bool Sys_IsWin95()
 {
 	return g_bIsWin95;
