@@ -47,8 +47,37 @@ endif()
 set( ENGINE_BASE_PATH "${CMAKE_SOURCE_DIR}/test_game" CACHE PATH "Path to deploy binaries to. Equivalent to common/Half-Life, but defaults to test_game for testing only" )
 set( GAME_BASE_PATH "${ENGINE_BASE_PATH}/valve" )
 
-MESSAGE( STATUS "Base Engine Path: ${ENGINE_BASE_PATH}" )
-MESSAGE( STATUS "Base Game Path: ${GAME_BASE_PATH}" )
+message( STATUS "Base Engine Path: ${ENGINE_BASE_PATH}" )
+message( STATUS "Base Game Path: ${GAME_BASE_PATH}" )
+
+#Get the steam/steamapps/common directory
+set( STEAMCOMMON "$ENV{SteamCommon}" CACHE PATH "Steam common directory path" )
+
+if( "${STEAMCOMMON}" STREQUAL "" )
+	message( FATAL_ERROR "Unable to get Steam common directory path" )
+endif()
+
+set( STEAMCOMMON_DIR_NAME Half-Life )
+set( HL_DIR ${STEAMCOMMON}/${STEAMCOMMON_DIR_NAME} )
+set( GAME_NAME valve )
+set( GAME_DIR ${HL_DIR}/${GAME_NAME} )
+
+set( COPY_RESOURCES OFF CACHE BOOL "Flag used to track whether resources should be copied. Set to ON to force update, set to OFF to skip." )
+
+#To avoid including copyrighted content, we copy all resources from a Half-Life installation to the test directory.
+if( COPY_RESOURCES )
+	message( STATUS "Copying resources from game installation..." )
+	
+	set( DIRS_TO_COPY resource )
+	
+	foreach( dir IN LISTS DIRS_TO_COPY )
+		message( STATUS "Copying directory \"${dir}\"" )
+		#Go up one directory so nested paths end up where they belong.
+		file( COPY ${GAME_DIR}/${dir} DESTINATION ${ENGINE_BASE_PATH}/${GAME_NAME}/${dir}/.. )
+	endforeach()
+	
+	message( STATUS "Done copying resources" )
+endif()
 
 set( SRC_DIR ${CMAKE_SOURCE_DIR}/src )
 set( EXTERNAL_DIR ${SRC_DIR}/external )
@@ -65,7 +94,7 @@ elseif( UNIX )
 else()
 	set( LIB_DIR )
 	set( BIN_DIR ${LIB_DIR} )
-	MESSAGE( WARNING "Unknown target platform; cannot determine library directory" )
+	message( WARNING "Unknown target platform; cannot determine library directory" )
 endif()
 
 #Shared preprocessor definitions
