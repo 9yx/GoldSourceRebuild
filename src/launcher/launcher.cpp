@@ -14,6 +14,7 @@
 #include <WinSock2.h>
 
 #include "engine_launcher_api.h"
+#include "FilePaths.h"
 #include "FileSystem.h"
 #include "ICommandLine.h"
 #include "interface.h"
@@ -22,19 +23,6 @@
 char com_gamedir[ MAX_PATH ] = {};
 
 IFileSystem* g_pFileSystem = nullptr;
-
-//TODO: refactor - Solokiller
-#ifdef WIN32
-#define DEFAULT_SO_EXT ".dll"
-#elif defined( LINUX )
-#define DEFAULT_SO_EXT ".so"
-#elif defined( OSX )
-#define DEFAULT_SO_EXT ".dylib"
-#else
-#error "Unsupported platform"
-#endif
-
-const char FILESYSTEM_STDIO[] = "filesystem_stdio" DEFAULT_SO_EXT;
 
 bool LR_FileExists( const char* pszFilename )
 {
@@ -222,7 +210,7 @@ bool Sys_GetExecutableName( char* pszFilename, size_t uiSize )
 
 CSysModule* LoadFilesystemModule( const char* exename, bool bRunningSteam )
 {
-	auto pModule = Sys_LoadModule( FILESYSTEM_STDIO );
+	auto pModule = Sys_LoadModule( filepath::FILESYSTEM_STDIO );
 
 	if( !pModule )
 	{
@@ -234,7 +222,7 @@ CSysModule* LoadFilesystemModule( const char* exename, bool bRunningSteam )
 
 		struct _finddata_t find_data;
 
-		auto result = _findfirst( FILESYSTEM_STDIO, &find_data );
+		auto result = _findfirst( filepath::FILESYSTEM_STDIO, &find_data );
 
 		if( result == -1 )
 		{
@@ -333,7 +321,7 @@ int CALLBACK WinMain(
 )
 {
 	//If we aren't allowed to continue launching, exit now.
-	if( LR_VerifySteamStatus( lpCmdLine, FILESYSTEM_STDIO, FILESYSTEM_STDIO ) )
+	if( LR_VerifySteamStatus( lpCmdLine, filepath::FILESYSTEM_STDIO, filepath::FILESYSTEM_STDIO ) )
 		return EXIT_SUCCESS;
 
 	HANDLE hMutex = CreateMutexA( nullptr, FALSE, "ValveHalfLifeLauncherMutex" );

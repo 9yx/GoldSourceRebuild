@@ -6,12 +6,11 @@
 
 #include "steam/steam_api.h"
 
-#include "common.h"
-#include "filesystem.h"
+#include "quakedef.h"
+
+#include "FilePaths.h"
 #include "IRegistry.h"
-#include "strtools.h"
 #include "sv_main.h"
-#include "sys.h"
 
 static CSysModule* g_pFileSystemModule = nullptr;
 static CreateInterfaceFn g_FileSystemFactory = nullptr;
@@ -43,8 +42,7 @@ bool FileSystem_Init( char *basedir, void *voidfilesystemFactory )
 
 	if( !g_FileSystemFactory )
 	{
-		//TODO: refactory lib name from launcher - Solokiller
-		g_pFileSystemModule = Sys_LoadModule( "filesystem_stdio.so" );
+		g_pFileSystemModule = Sys_LoadModule( filepath::FILESYSTEM_STDIO );
 
 		if( !g_pFileSystemModule )
 			return false;

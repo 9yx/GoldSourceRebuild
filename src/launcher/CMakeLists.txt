@@ -6,15 +6,17 @@ set( PROJECT_NAME hl )
 
 #Add in the directories
 add_sources(
-	${SRC_DIR}/common/CRegistry.cpp
-	${SRC_DIR}/common/CRegistry.h
-	${SRC_DIR}/common/IRegistry.h
 	${SRC_DIR}/common/CCommandLine.cpp
 	${SRC_DIR}/common/CCommandLine.h
-	${SRC_DIR}/common/ICommandLine.h
+	${SRC_DIR}/common/CRegistry.cpp
+	${SRC_DIR}/common/CRegistry.h
 	${SRC_DIR}/public/engine_launcher_api.h
+	${SRC_DIR}/common/FilePaths.cpp
+	${SRC_DIR}/common/FilePaths.h
 	${SRC_DIR}/public/interface.cpp
 	${SRC_DIR}/public/interface.h
+	${SRC_DIR}/common/ICommandLine.h
+	${SRC_DIR}/common/IRegistry.h
 	launcher.cpp
 )
 

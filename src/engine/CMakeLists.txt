@@ -20,6 +20,8 @@ add_sources(
 	${SRC_DIR}/common/entity_state.h
 	${SRC_DIR}/common/event_args.h
 	${SRC_DIR}/common/event_flags.h
+	${SRC_DIR}/common/FilePaths.cpp
+	${SRC_DIR}/common/FilePaths.h
 	${SRC_DIR}/common/in_buttons.h
 	${SRC_DIR}/common/IRegistry.h
 	${SRC_DIR}/common/netadr.h
