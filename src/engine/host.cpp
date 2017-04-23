@@ -2,8 +2,20 @@
 
 #include "quakedef.h"
 #include "buildnum.h"
+#include "cdll_int.h"
+#include "chase.h"
+#include "cmodel.h"
+#include "decals.h"
+#include "delta.h"
+#include "hashpak.h"
+#include "net_chan.h"
+#include "qgl.h"
 #include "server.h"
 #include "sv_main.h"
+#include "SystemWrapper.h"
+#include "view.h"
+#include "voice.h"
+#include "wad.h"
 
 quakeparms_t host_parms = {};
 
@@ -13,6 +25,13 @@ double realtime = 0;
 cvar_t console = { "console", "0.0", FCVAR_ARCHIVE };
 
 byte* host_basepal = nullptr;
+
+int host_hunklevel = 0;
+
+void Host_InitLocal()
+{
+	//TODO: implement - Solokiller
+}
 
 void Host_Error( const char* error, ... )
 {
@@ -60,6 +79,28 @@ void Host_Error( const char* error, ... )
 	va_end( va );
 
 	Sys_Error( "Host_Error: recursively entered" );
+}
+
+void CheckGore()
+{
+	char szBuffer[ 128 ];
+
+	Q_memset( szBuffer, 0, sizeof( szBuffer ) );
+
+	if( bLowViolenceBuild )
+	{
+		Cvar_SetValue( "violence_hblood", 0 );
+		Cvar_SetValue( "violence_hgibs", 0 );
+		Cvar_SetValue( "violence_ablood", 0 );
+		Cvar_SetValue( "violence_agibs", 0 );
+	}
+	else
+	{
+		Cvar_SetValue( "violence_hblood", 1 );
+		Cvar_SetValue( "violence_hgibs", 1 );
+		Cvar_SetValue( "violence_ablood", 1 );
+		Cvar_SetValue( "violence_agibs", 1 );
+	}
 }
 
 void Host_Version()
@@ -132,8 +173,6 @@ void Host_Version()
 
 bool Host_Init( quakeparms_t* parms )
 {
-	char dest[ 128 ];
-
 	srand( time( nullptr ) );
 
 	host_parms = *parms;
@@ -145,15 +184,13 @@ bool Host_Init( quakeparms_t* parms )
 
 	Memory_Init( parms->membase, parms->memsize );
 
-	//TODO: implement - Solokiller
-	//Voice_RegisterCvars();
+	Voice_RegisterCvars();
 	Cvar_RegisterVariable( &console );
 
 	if( COM_CheckParm( "-console" ) || COM_CheckParm( "-toconsole" ) || COM_CheckParm( "-dev" ) )
 		Cvar_DirectSet( &console, "1.0" );
 
-	//TODO: implement - Solokiller
-	//Host_InitLocal();
+	Host_InitLocal();
 
 	if( COM_CheckParm( "-dev" ) )
 		Cvar_SetValue( "developer", 1.0 );
@@ -162,8 +199,7 @@ bool Host_Init( quakeparms_t* parms )
 	Cmd_Init();
 	Cvar_Init();
 	Cvar_CmdInit();
-	//TODO: implement - Solokiller
-	/*
+
 	V_Init();
 	Chase_Init();
 
@@ -173,11 +209,8 @@ bool Host_Init( quakeparms_t* parms )
 
 	W_LoadWadFile( "gfx.wad" );
 	W_LoadWadFile( "fonts.wad" );
-	*/
 
 	Key_Init();
-	//TODO: implement - Solokiller
-	/*
 	Con_Init();
 	Decal_Init();
 	Mod_Init();
@@ -189,7 +222,7 @@ bool Host_Init( quakeparms_t* parms )
 	Host_Version();
 
 	char versionString[ 256 ];
-	snprintf( versionString, sizeof( versionString ), "%s,%i,%i", gpszVersionString, PROTOCOL_VERSION, build_number() );
+	snprintf( versionString, ARRAYSIZE( versionString ), "%s,%i,%i", gpszVersionString, PROTOCOL_VERSION, build_number() );
 
 	Cvar_Set( "sv_version", versionString );
 
@@ -198,8 +231,10 @@ bool Host_Init( quakeparms_t* parms )
 	R_InitTextures();
 	HPAK_CheckIntegrity( "custom" );
 
-	Q_memset( &g_module, 0, 20 );
+	Q_memset( &g_module, 0, sizeof( g_module ) );
 
+	//TODO: implement - Solokiller
+	/*
 	if( ( _DWORD ) cls.state )
 	{
 		byte* v6 = COM_LoadHunkFile( "gfx/palette.lmp" );
@@ -249,34 +284,23 @@ bool Host_Init( quakeparms_t* parms )
 	{
 		Cvar_RegisterVariable( &suitvolume );
 	}
+	*/
 
 	Cbuf_InsertText( "exec valve.rc\n" );
 
+	//TODO: implement - Solokiller
+	/*
 	if( ( _DWORD ) cls.state )
 		GL_Config();
+		*/
 
 	Hunk_AllocName( 0, "-HOST_HUNKLEVEL-" );
 	host_hunklevel = Hunk_LowMark();
+	//TODO: define constants - Solokiller
 	giActive = 1;
-	scr_skipupdate = 0;
+	scr_skipupdate = false;
 
-	Q_memset( dest, 0, sizeof( dest ) );
-
-	if( bLowViolenceBuild )
-	{
-		Cvar_SetValue( "violence_hblood", 0.0 );
-		Cvar_SetValue( "violence_hgibs", 0.0 );
-		Cvar_SetValue( "violence_ablood", 0.0 );
-		Cvar_SetValue( "violence_agibs", 0.0 );
-	}
-	else
-	{
-		Cvar_SetValue( "violence_hblood", 1.0 );
-		Cvar_SetValue( "violence_hgibs", 1.0 );
-		Cvar_SetValue( "violence_ablood", 1.0 );
-		Cvar_SetValue( "violence_agibs", 1.0 );
-	}
-	*/
+	CheckGore();
 
 	host_initialized = true;
 

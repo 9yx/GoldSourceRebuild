@@ -210,3 +210,8 @@ void SV_ResetModInfo()
 		FS_Close( hLibListFile );
 	}
 }
+
+void SV_Init()
+{
+	//TODO: implement - Solokiller
+}

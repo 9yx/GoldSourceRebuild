@@ -78,6 +78,11 @@ void Con_DPrintf( const char* fmt, ... )
 	*/
 }
 
+void Con_Init()
+{
+	//TODO: implement - Solokiller
+}
+
 /*
 ================
 Con_ToggleConsole_f

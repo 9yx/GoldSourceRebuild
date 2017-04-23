@@ -16,6 +16,8 @@ extern cvar_t con_shifttoggleconsole;
 void Con_Printf( const char* fmt, ... );
 void Con_DPrintf( const char* fmt, ... );
 
+void Con_Init();
+
 void Con_ToggleConsole_f();
 
 #endif //ENGINE_CONSOLE_H

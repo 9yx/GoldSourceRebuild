@@ -4,6 +4,8 @@
 #include "public/FileSystem.h"
 #include "interface.h"
 
+extern bool bLowViolenceBuild;
+
 CreateInterfaceFn GetFileSystemFactory();
 const char* GetBaseDirectory();
 

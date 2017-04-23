@@ -17,27 +17,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-#ifndef ENGINE_NET_H
-#define ENGINE_NET_H
+#ifndef ENGINE_VIEW_H
+#define ENGINE_VIEW_H
 
-#include <cstdlib>
+void V_Init();
 
-#include "tier0/platform.h"
-#include "netadr.h"
-
-/**
-*	Maximum size for a fragment buffer.
-*/
-//TODO: unrelated to actual net constants, remove - Solokiller
-const size_t NET_MAX_FRAG_BUFFER = 1400;
-
-#define	MAX_MSGLEN		4000		// max length of a reliable message
-#define	MAX_DATAGRAM	4000		// max length of unreliable message
-
-extern sizebuf_t net_message;
-
-void NET_Config( bool multiplayer );
-
-void NET_Init();
-
-#endif //ENGINE_NET_H
+#endif //ENGINE_VIEW_H

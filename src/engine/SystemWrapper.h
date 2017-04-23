@@ -1,0 +1,6 @@
+#ifndef ENGINE_SYSTEMWRAPPER_H
+#define ENGINE_SYSTEMWRAPPER_H
+
+void SystemWrapper_Init();
+
+#endif //ENGINE_SYSTEMWRAPPER_H

@@ -94,6 +94,7 @@ char* COM_ParseLine( char* data );
 */
 int COM_CheckParm( const char* parm );
 void COM_InitArgv( int argc, const char** argv );
+void COM_Init();
 
 void COM_FileBase( const char *in, char *out );
 

@@ -53,10 +53,14 @@ add_sources(
 	buildnum.h
 	cdll_int.cpp
 	cdll_int.h
+	chase.cpp
+	chase.h
 	cl_main.cpp
 	client.h
 	cmd.cpp
 	cmd.h
+	cmodel.cpp
+	cmodel.h
 	common.cpp
 	common.h
 	console.cpp
@@ -65,14 +69,21 @@ add_sources(
 	customentity.h
 	cvar.cpp
 	cvar.h
+	decals.cpp
+	decals.h
+	delta.cpp
+	delta.h
 	edict.h
 	eiface.h
 	filesystem.cpp
 	filesystem.h
 	filesystem_internal.cpp
+	gl_rmisc.cpp
 	gl_screen.cpp
 	gl_vidnt.cpp
 	gl_warp.cpp
+	hashpak.cpp
+	hashpak.h
 	host.cpp
 	host_cmd.cpp
 	IEngine.h
@@ -86,8 +97,11 @@ add_sources(
 	mem.cpp
 	mem.h
 	modinfo.h
+	module.cpp
 	net.h
 	net_api.cpp
+	net_chan.cpp
+	net_chan.h
 	net_ws.cpp
 	pr_cmds.cpp
 	pr_cmds.h
@@ -117,6 +131,8 @@ add_sources(
 	sys_getmodes.cpp
 	sys_getmodes.h
 	sys_sdlwind.cpp
+	SystemWrapper.cpp
+	SystemWrapper.h
 	traceinit.cpp
 	traceinit.h
 	vgui_int.cpp
@@ -124,6 +140,12 @@ add_sources(
 	vgui_intwrap.cpp
 	vgui_intwrap2.cpp
 	vid.h
+	view.cpp
+	view.h
+	voice.cpp
+	voice.h
+	wad.cpp
+	wad.h
 	zone.cpp
 	zone.h
 )

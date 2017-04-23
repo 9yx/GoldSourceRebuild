@@ -76,3 +76,8 @@ LABEL_16:
 */
 	Cbuf_Execute();
 }
+
+void Host_ClearSaveDirectory()
+{
+	//TODO: implement - Solokiller
+}

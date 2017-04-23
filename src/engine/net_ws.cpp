@@ -25,3 +25,8 @@ void NET_Config( bool multiplayer )
 {
 	//TODO: implement - Solokiller
 }
+
+void NET_Init()
+{
+	//TODO: implement - Solokiller
+}

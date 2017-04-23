@@ -19,7 +19,7 @@ static char s_pBaseDir[ 512 ] = {};
 
 IFileSystem* g_pFileSystem = nullptr;
 
-static bool bLowViolenceBuild = false;
+bool bLowViolenceBuild = false;
 
 CUtlVector<char*> g_fallbackLocalizationFiles;
 

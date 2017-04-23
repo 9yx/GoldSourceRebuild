@@ -17,6 +17,8 @@ typedef void* HGLRC;
 
 extern cvar_t gl_vsync;
 
+extern bool scr_skipupdate;
+
 extern const char* gl_renderer;
 
 struct glwstate_t
@@ -36,5 +38,7 @@ void* QGL_Init();
 void QGL_Shutdown();
 
 bool GL_SetMode( SDL_Window* mainwindow, HDC* pmaindc, HGLRC* pbaseRC );
+
+void R_InitTextures();
 
 #endif //ENGINE_QGL_H

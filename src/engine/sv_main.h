@@ -20,4 +20,6 @@ void SetCStrikeFlags();
 
 void SV_ClearFrames( client_frame_t** frames );
 
+void SV_Init();
+
 #endif //ENGINE_SV_MAIN_H

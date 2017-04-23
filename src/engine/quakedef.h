@@ -110,4 +110,6 @@ void Host_Shutdown();
 */
 void Host_InitializeGameDLL();
 
+void Host_ClearSaveDirectory();
+
 #endif //ENGINE_QUAKEDEF_H

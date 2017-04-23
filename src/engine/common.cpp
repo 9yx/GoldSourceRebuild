@@ -343,6 +343,11 @@ void COM_InitArgv( int argc, const char** argv )
 	com_argv = largv;
 }
 
+void COM_Init()
+{
+	//TODO: implement - Solokiller
+}
+
 void COM_FileBase( const char *in, char *out )
 {
 	if( !in )

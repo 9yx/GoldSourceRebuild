@@ -14,6 +14,8 @@
 
 cvar_t gl_vsync = { "gl_vsync", "1", FCVAR_ARCHIVE };
 
+bool scr_skipupdate = false;
+
 struct FBO_Container_t
 {
 	GLuint s_hBackBufferFBO;
