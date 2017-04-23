@@ -273,9 +273,8 @@ bool Sys_InitGame( char *lpOrgCmdLine, char *pBaseDir, void *pwnd, bool bIsDedic
 
 			if( g_bIsDedicatedServer )
 			{
-				//TODO: implement - Solokiller
-				//Host_InitializeGameDLL();
-				//NET_Config( true );
+				Host_InitializeGameDLL();
+				NET_Config( true );
 			}
 			else
 			{
@@ -331,8 +330,7 @@ void Sys_ShutdownGame()
 
 	if( g_bIsDedicatedServer )
 	{
-		//TODO: implement - Solokiller
-		//Net_Config( false );
+		NET_Config( false );
 	}
 
 	TraceShutdown( "Sys_ShutdownLauncherInterface()", 0 );

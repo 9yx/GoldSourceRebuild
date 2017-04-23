@@ -104,4 +104,9 @@ void Host_Error( const char* error, ... );
 
 bool Host_Init( quakeparms_t* parms );
 
+/**
+*	Loads the server dll if needed.
+*/
+void Host_InitializeGameDLL();
+
 #endif //ENGINE_QUAKEDEF_H

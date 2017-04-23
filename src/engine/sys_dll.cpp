@@ -7,7 +7,9 @@
 
 #include "quakedef.h"
 #include "client.h"
+#include "server.h"
 
+#include "FilePaths.h"
 #include "qgl.h"
 #include "modinfo.h"
 #include "sys_getmodes.h"
@@ -23,9 +25,15 @@ int giActive = 0;
 int giStateInfo = 0;
 int giSubState = 0;
 
+DLL_FUNCTIONS gEntityInterface = {};
+NEW_DLL_FUNCTIONS gNewDLLFunctions = {};
+
 PrintfFunc Launcher_ConsolePrintf = nullptr;
 
 jmp_buf host_abortserver;
+
+int g_iextdllMac = 0;
+extensiondll_t g_rgextdll[ MAX_EXT_DLLS ] = {};
 
 void Sys_Printf( const char* fmt, ... )
 {
@@ -162,6 +170,29 @@ void ForceReloadProfile()
 	}
 }
 
+FIELDIOFUNCTION GetIOFunction( const char* pName, int* pOutIndex, int iStartIndex )
+{
+	//TODO: use a proper assert - Solokiller
+	assert( iStartIndex >= 0 );
+
+	FIELDIOFUNCTION result = nullptr;
+
+	int i;
+
+	for( i = iStartIndex >= 0 ? iStartIndex : 0; i < g_iextdllMac; ++i )
+	{
+		result = reinterpret_cast<FIELDIOFUNCTION>( Sys_GetProcAddress( g_rgextdll[ i ].pDLLHandle, pName ) );
+
+		if( result )
+			break;
+	}
+
+	if( pOutIndex )
+		*pOutIndex = i != g_iextdllMac ? i : -1;
+
+	return result;
+}
+
 void DLL_SetModKey( modinfo_t *pinfo, char *pkey, char *pvalue )
 {
 	if( !Q_stricmp( pkey, "url_info" ) )
@@ -236,12 +267,285 @@ void DLL_SetModKey( modinfo_t *pinfo, char *pkey, char *pvalue )
 	}
 }
 
+//TODO: implement all functions and add here - Solokiller
+static enginefuncs_t g_engfuncsExportedToDlls;
+
+#ifdef WIN32
+#define GIVEFNPTRSTODLL_CALLCONV __stdcall
+#else
+#define GIVEFNPTRSTODLL_CALLCONV
+#endif
+
+using GiveFnptrsToDllFn = void( GIVEFNPTRSTODLL_CALLCONV* )( enginefuncs_t* pengfuncsFromEngine, globalvars_t* pGlobals );
+
+/**
+*	Loads an entity DLL and passes the engine functions and global variables to it.
+*/
+static void LoadThisDll( const char* szDllFilename )
+{
+	CSysModule* pModule = Sys_LoadModule( szDllFilename );
+
+	if( pModule )
+	{
+		auto pFn = reinterpret_cast<GiveFnptrsToDllFn>( Sys_GetProcAddress( pModule, "GiveFnptrsToDll" ) );
+
+		if( pFn )
+		{
+			pFn( &g_engfuncsExportedToDlls, &gGlobalVariables );
+
+			if( g_iextdllMac == MAX_EXT_DLLS )
+			{
+				Con_Printf( "Too many DLLs, ignoring remainder\n" );
+				Sys_UnloadModule( pModule );
+			}
+			else
+			{
+				auto& extdll = g_rgextdll[ g_iextdllMac++ ];
+
+				Q_memset( &extdll, 0, sizeof( extdll ) );
+				extdll.pDLLHandle = pModule;
+			}
+		}
+		else
+		{
+			Con_Printf( "Couldn't get GiveFnptrsToDll in %s\n", szDllFilename );
+			Sys_UnloadModule( pModule );
+		}
+	}
+	else
+	{
+#ifdef WIN32
+		Con_Printf( "LoadLibrary failed on %s (%d)\n", szDllFilename, GetLastError() );
+#else
+		Con_Printf( "LoadLibrary failed on %s: %s\n", szDllFilename, dlerror() );
+#endif
+	}
+}
+
+void LoadEntityDLLs( const char* szBaseDir )
+{
+	SV_ResetModInfo();
+
+	g_iextdllMac = 0;
+	Q_memset( g_rgextdll, 0, sizeof( g_rgextdll ) );
+
+	char szGameDir[ 64 ];
+	Q_strncpy( szGameDir, com_gamedir, ARRAYSIZE( szGameDir ) );
+
+	if( Q_stricmp( szGameDir, "valve" ) )
+		gmodinfo.bIsMod = true;
+
+	char szDllFilename[ 8192 ];
+
+	//TODO: most of this code is copy pasted from SV_ResetModInfo - Solokiller
+	char szDllListFile[ FILENAME_MAX ];
+	snprintf( szDllListFile, ARRAYSIZE( szDllListFile ), "%s", "liblist.gam" );
+
+	FileHandle_t hLibListFile = FS_Open( szDllListFile, "rb" );
+
+	if( hLibListFile )
+	{
+		char szKey[ 64 ];
+		char szValue[ 256 ];
+
+		const int iSize = FS_Size( hLibListFile );
+
+		if( iSize > ( 512 * 512 ) || !iSize )
+			Sys_Error( "Game listing file size is bogus [%s: size %i]", "liblist.gam", iSize );
+
+		byte* pFileData = reinterpret_cast<byte*>( Mem_Malloc( iSize + 1 ) );
+
+		if( !pFileData )
+			Sys_Error( "Could not allocate space for game listing file of %i bytes", iSize + 1 );
+
+		const int iRead = FS_Read( pFileData, iSize, hLibListFile );
+
+		if( iRead != iSize )
+			Sys_Error( "Error reading in game listing file, expected %i bytes, read %i", iSize, iRead );
+
+		pFileData[ iSize ] = '\0';
+
+		char* pBuffer = ( char* ) pFileData;
+
+		com_ignorecolons = true;
+
+		while( 1 )
+		{
+			pBuffer = COM_Parse( pBuffer );
+
+			if( Q_strlen( com_token ) <= 0 )
+				break;
+
+			Q_strncpy( szKey, com_token, ARRAYSIZE( szKey ) );
+
+			pBuffer = COM_Parse( pBuffer );
+
+			Q_strncpy( szValue, com_token, ARRAYSIZE( szValue ) );
+
+			if( Q_stricmp( szKey, "gamedll_linux" ) )
+			{
+				DLL_SetModKey( &gmodinfo, szKey, szValue );
+			}
+			else
+			{
+				const int iDllOverride = COM_CheckParm( "-dll" );
+
+				if( iDllOverride && iDllOverride < com_argc - 1 )
+				{
+					Q_strncpy( szValue, com_argv[ iDllOverride + 1 ], ARRAYSIZE( szValue ) );
+				}
+
+#ifndef WIN32
+				//Find and remove architecture extensions from the filename.
+				char* pszUnderscore = strchr( szValue, '_' );
+
+				if( pszUnderscore )
+				{
+					*pszUnderscore = '\0';
+
+					//Append correct extension.
+					Q_strcat( szValue, DEFAULT_SO_EXT, ARRAYSIZE( szValue ) );
+				}
+#endif
+
+				if( Q_strstr( szValue, DEFAULT_SO_EXT ) )
+				{
+					FS_GetLocalPath( szValue, szDllFilename, ARRAYSIZE( szDllFilename ) );
+					Con_DPrintf( "\nAdding:  %s/%s\n", szGameDir, szValue );
+					LoadThisDll( szDllFilename );
+				}
+				else
+				{
+					Con_DPrintf( "Skipping non-shared library:  %s\n", szValue );
+				}
+			}
+		}
+		com_ignorecolons = false;
+		Mem_Free( pFileData );
+		FS_Close( hLibListFile );
+	}
+	else
+	{
+		char szDllWildcard[ FILENAME_MAX ];
+
+		snprintf( szDllWildcard, ARRAYSIZE( szDllFilename ), "%s/*" DEFAULT_SO_EXT, "valve/dlls" );
+
+		for( const char* i = Sys_FindFirst( szDllWildcard, nullptr ); i; i = Sys_FindNext( nullptr ) )
+		{
+			snprintf( szDllFilename, ARRAYSIZE( szDllFilename ), "%s/%s/%s", szBaseDir, "valve/dlls", i );
+			LoadThisDll( szDllFilename );
+		}
+
+		Sys_FindClose();
+	}
+
+	//Initialize the newest functions in case the dll doesn't provide it.
+	gNewDLLFunctions.pfnGameShutdown = nullptr;
+	gNewDLLFunctions.pfnShouldCollide = nullptr;
+	gNewDLLFunctions.pfnCvarValue = nullptr;
+	gNewDLLFunctions.pfnCvarValue2 = nullptr;
+	gNewDLLFunctions.pfnOnFreeEntPrivateData = nullptr;
+
+	int interface_version;
+
+	//First check if the dll supports the newest functions.
+	auto pGetNewDLLFunctions = reinterpret_cast<NEW_DLL_FUNCTIONS_FN>( GetIOFunction( "GetNewDLLFunctions" ) );
+
+	if( pGetNewDLLFunctions )
+	{
+		interface_version = NEW_DLL_FUNCTIONS_VERSION;
+
+		pGetNewDLLFunctions( &gNewDLLFunctions, &interface_version );
+	}
+
+	//Check if it supports the newer dll functions.
+	auto pGetEntityAPI2 = reinterpret_cast<APIFUNCTION2>( GetIOFunction( "GetEntityAPI2" ) );
+
+	if( pGetEntityAPI2 )
+	{
+		interface_version = INTERFACE_VERSION;
+
+		if( !pGetEntityAPI2( &gEntityInterface, &interface_version ) )
+		{
+			Con_Printf( "==================\n" );
+			Con_Printf( "Game DLL version mismatch\n" );
+			Con_Printf( "DLL version is %i, engine version is %i\n", interface_version, INTERFACE_VERSION );
+
+			if( interface_version > INTERFACE_VERSION )
+				Con_Printf( "Engine appears to be outdated, check for updates\n" );
+			else
+				Con_Printf( "The game DLL for %s appears to be outdated, check for updates\n", szGameDir );
+
+			Con_Printf( "==================\n" );
+			Host_Error( "\n" );
+		}
+	}
+	else
+	{
+		//Check if it provides the original dll functions.
+		auto pGetEntityAPI = reinterpret_cast<APIFUNCTION>( GetIOFunction( "GetEntityAPI" ) );
+
+		if( !pGetEntityAPI )
+			Host_Error( "Couldn't get DLL API from %s!", szDllFilename );
+
+		interface_version = INTERFACE_VERSION;
+
+		if( !pGetEntityAPI( &gEntityInterface, interface_version ) )
+		{
+			Con_Printf( "==================\n" );
+			Con_Printf( "Game DLL version mismatch\n" );
+			Con_Printf( "The game DLL for %s appears to be outdated, check for updates\n", szGameDir );
+			Con_Printf( "==================\n" );
+			Host_Error( "\n" );
+		}
+	}
+
+	const char* pszDescription = gEntityInterface.pfnGetGameDescription();
+
+	const char* pszType = "mod";
+
+	if( !gmodinfo.bIsMod )
+		pszType = "game";
+
+	Con_DPrintf( "Dll loaded for %s %s\n", pszType, pszDescription );
+}
+
+void ReleaseEntityDlls()
+{
+	if( svs.dll_initialized )
+	{
+		//TODO: implement - Solokiller
+		//FreeAllEntPrivateData();
+
+		if( gNewDLLFunctions.pfnGameShutdown )
+			gNewDLLFunctions.pfnGameShutdown();
+
+		Cvar_UnlinkExternals();
+
+		for( int i = 0; i < g_iextdllMac; ++i )
+		{
+			auto& extdll = g_rgextdll[ i ];
+
+			Sys_UnloadModule( extdll.pDLLHandle );
+			extdll.pDLLHandle = nullptr;
+
+			if( extdll.functionTable )
+				Mem_Free( extdll.functionTable );
+
+			extdll.functionTable = nullptr;
+		}
+
+		//TODO: this doesn't reset the extdll count, so it will eventually fill up all slots. Change? - Solokiller
+
+		svs.dll_initialized = false;
+	}
+}
+
 static bool s_bTimeInitialized = false;
 static double curtime = 0.0;
 static double lastcurtime = 0.0;
 
-//I have a funny feeling i remember this name. - Solokiller
-static bool g_bIsWin95OrGreater = false;
+static bool Win32AtLeastV4 = false;
 static bool g_bIsWin95 = false;
 static bool g_bIsWin98 = false;
 
@@ -433,7 +737,7 @@ void Sys_CheckOSVersion()
 	if( !GetVersionEx( &vinfo ) )
 		Sys_Error( "Couldn't get OS info" );
 
-	g_bIsWin95OrGreater = vinfo.dwMajorVersion >= 4;
+	Win32AtLeastV4 = vinfo.dwMajorVersion >= 4;
 
 	if( vinfo.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS && 
 		vinfo.dwMajorVersion == 4 )

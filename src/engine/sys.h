@@ -78,6 +78,42 @@ bool Sys_IsWin98();
 void Sys_Init();
 void Sys_Shutdown();
 
+const int MAX_EXT_DLLS = 50;
+
+struct functiontable_t
+{
+	uint32 pFunction;
+	char* pFunctionName;
+};
+
+struct extensiondll_t
+{
+	CSysModule* pDLLHandle;
+	functiontable_t* functionTable;
+	int functionCount;
+};
+
+using FIELDIOFUNCTION = void( * )();
+
+/**
+*	Gets a dllexported function from the first DLL that exports it.
+*	@param[ out ] pOutIndex Optional. The index of the extdll that contains the function, or -1 if none contained it
+*	@param iStartIndex Optional. Extdll index to start at
+*/
+FIELDIOFUNCTION GetIOFunction( const char* pName, int* piOutIndex = nullptr, int iStartIndex = 0 );
+
+/**
+*	Loads all entity DLLs.
+*	@param szBaseDir Base directory to look for entity dlls in if no liblist could be loaded
+*/
+void LoadEntityDLLs( const char* szBaseDir );
+
+/**
+*	Releases all entity dlls.
+*	Note: not repeatable, extdll info is not released and will not be reused.
+*/
+void ReleaseEntityDlls();
+
 bool Sys_InitGame( char *lpOrgCmdLine, char *pBaseDir, void *pwnd, bool bIsDedicated );
 void Sys_ShutdownGame();
 

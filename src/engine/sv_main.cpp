@@ -1,14 +1,13 @@
 #include "quakedef.h"
 
-#include "com_model.h"
-#include "common.h"
-#include "filesystem.h"
-#include "mem.h"
 #include "modinfo.h"
-#include "strtools.h"
 #include "sv_main.h"
-#include "sv_steam3.h"
-#include "sys.h"
+#include "server.h"
+
+server_static_t svs;
+//TODO: implement functions and add them - Solokiller
+playermove_t g_svmove;
+globalvars_t gGlobalVariables = {};
 
 struct GameToAppIDMapItem_t
 {
@@ -127,7 +126,7 @@ void SV_ResetModInfo()
 	Q_memset( &gmodinfo, 0, sizeof( gmodinfo ) );
 
 	gmodinfo.version = 1;
-	gmodinfo.svonly = 1;
+	gmodinfo.svonly = true;
 	gmodinfo.num_edicts = MAX_EDICTS;
 
 	char szDllListFile[ FILENAME_MAX ];
@@ -157,9 +156,9 @@ void SV_ResetModInfo()
 
 		pFileData[ iSize ] = '\0';
 
-		char* pBuffer = ( char * ) pFileData;
+		char* pBuffer = ( char* ) pFileData;
 
-		com_ignorecolons = 1;
+		com_ignorecolons = true;
 
 		while( 1 )
 		{
@@ -180,7 +179,7 @@ void SV_ResetModInfo()
 				DLL_SetModKey( &gmodinfo, szKey, szValue );
 		}
 
-		com_ignorecolons = 0;
+		com_ignorecolons = false;
 		Mem_Free( pFileData );
 		FS_Close( hLibListFile );
 	}

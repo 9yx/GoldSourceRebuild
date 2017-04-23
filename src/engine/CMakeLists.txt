@@ -74,6 +74,7 @@ add_sources(
 	gl_vidnt.cpp
 	gl_warp.cpp
 	host.cpp
+	host_cmd.cpp
 	IEngine.h
 	IGame.h
 	info.cpp
@@ -97,6 +98,7 @@ add_sources(
 	qgl.h
 	quakedef.h
 	render.h
+	server.h
 	shake.h
 	snd.h
 	snd_mix.cpp
