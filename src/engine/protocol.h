@@ -46,7 +46,12 @@ ELEMENTS COMMUNICATED ACROSS THE NET
 ==========================================================
 */
 
-#define	MAX_CLIENTS 32
+/**
+*	Default minimum number of clients for multiplayer servers
+*/
+#define MP_MIN_CLIENTS 6
+
+//See com_model.h for MAX_CLIENTS
 
 #define	MAX_PACKET_ENTITIES	64	// doesn't count nails
 struct packet_entities_t

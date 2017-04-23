@@ -18,8 +18,12 @@ extern bool g_bIsTFC;
 
 void SetCStrikeFlags();
 
+void SV_AllocClientFrames();
+
 void SV_ClearFrames( client_frame_t** frames );
 
 void SV_Init();
+
+void SV_SetMaxclients();
 
 #endif //ENGINE_SV_MAIN_H

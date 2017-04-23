@@ -29,9 +29,37 @@ unsigned short* host_basepal = nullptr;
 
 int host_hunklevel = 0;
 
+void Host_InitCommands();
+
 void Host_InitLocal()
 {
+	Host_InitCommands();
 	//TODO: implement - Solokiller
+	/*
+	Cvar_RegisterVariable( &host_killtime );
+	Cvar_RegisterVariable( &sys_ticrate );
+	Cvar_RegisterVariable( &fps_max );
+	Cvar_RegisterVariable( &fps_override );
+	Cvar_RegisterVariable( &host_name );
+	Cvar_RegisterVariable( &host_limitlocal );
+	sys_timescale.value = 1;
+	Cvar_RegisterVariable( &host_framerate );
+	Cvar_RegisterVariable( &host_speeds );
+	Cvar_RegisterVariable( &host_profile );
+	Cvar_RegisterVariable( &mp_logfile );
+	Cvar_RegisterVariable( &mp_logecho );
+	Cvar_RegisterVariable( &sv_log_onefile );
+	Cvar_RegisterVariable( &sv_log_singleplayer );
+	Cvar_RegisterVariable( &sv_logsecret );
+	Cvar_RegisterVariable( &sv_stats );
+	Cvar_RegisterVariable( &developer );
+	Cvar_RegisterVariable( &deathmatch );
+	Cvar_RegisterVariable( &coop );
+	Cvar_RegisterVariable( &pausable );
+	Cvar_RegisterVariable( &skill );
+	*/
+
+	SV_SetMaxclients();
 }
 
 void Host_Error( const char* error, ... )
@@ -404,4 +432,9 @@ void Host_Shutdown()
 		//sv.time = 0;
 		//cl.time = 0;
 	}
+}
+
+void Host_InitCommands()
+{
+	//TODO: implement - Solokiller
 }

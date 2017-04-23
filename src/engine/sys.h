@@ -25,9 +25,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "quakedef.h"
 
 //TODO: Ridiculously low memory size represent. change this. - Solokiller
-#define MINIMUM_MEMORY 0x0E00000	//~14 Mb
-#define MAXIMUM_MEMORY 0x8000000	//~134 Mb
-#define DEFAULT_MEMORY 0x2800000	//~42 Mb
+#define MINIMUM_MEMORY 0x0E00000						//~14 Mb
+#define LISTENSERVER_SAFE_MINIMUM_MEMORY 0x1000001		//~16 Mb
+#define MAXIMUM_MEMORY 0x8000000						//~134 Mb
+#define DEFAULT_MEMORY 0x2800000						//~42 Mb
 
 /**
 *	@file

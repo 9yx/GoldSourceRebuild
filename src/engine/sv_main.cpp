@@ -1,5 +1,6 @@
 #include "quakedef.h"
 
+#include "client.h"
 #include "modinfo.h"
 #include "sv_main.h"
 #include "server.h"
@@ -122,6 +123,17 @@ void SetCStrikeFlags()
 	}
 }
 
+void SV_AllocClientFrames()
+{
+	for( int i = 0; i < svs.maxclientslimit; ++i )
+	{
+		if( svs.clients[ i ].frames )
+			Con_DPrintf( "Allocating over frame pointer?\n" );
+
+		svs.clients[ i ].frames = reinterpret_cast<client_frame_t*>( Mem_ZeroMalloc( sizeof( client_frame_t ) * SV_UPDATE_BACKUP ) );
+	}
+}
+
 void SV_ClearFrames( client_frame_t** frames )
 {
 	if( *frames )
@@ -214,4 +226,82 @@ void SV_ResetModInfo()
 void SV_Init()
 {
 	//TODO: implement - Solokiller
+}
+
+void SV_SetMaxclients()
+{
+	for( int i = 0; i < svs.maxclientslimit; ++i )
+	{
+		SV_ClearFrames( &svs.clients[ i ].frames );
+	}
+
+	svs.maxclients = 1;
+
+	int iMaxPlayers;
+
+	const int iCmdMaxPlayers = COM_CheckParm( "-maxplayers" );
+
+	if( iCmdMaxPlayers )
+	{
+		//TODO: no range check? - Solokiller
+		iMaxPlayers = Q_atoi( com_argv[ iCmdMaxPlayers + 1 ] );
+		svs.maxclients = iMaxPlayers;
+	}
+	else
+	{
+		iMaxPlayers = svs.maxclients;
+	}
+
+	cls.state = g_bIsDedicatedServer ? ca_dedicated : ca_disconnected;
+
+	if( iMaxPlayers <= 0 )
+	{
+		iMaxPlayers = MP_MIN_CLIENTS;
+		svs.maxclients = MP_MIN_CLIENTS;
+	}
+	else if( iMaxPlayers > MAX_CLIENTS )
+	{
+		iMaxPlayers = MAX_CLIENTS;
+		svs.maxclients = MAX_CLIENTS;
+	}
+
+	int iMaxClientsLimit = MAX_CLIENTS;
+
+	//If we're a listen server and we're low on memory, reduce maximum player limit.
+	if( !g_bIsDedicatedServer && host_parms.memsize < LISTENSERVER_SAFE_MINIMUM_MEMORY )
+		iMaxClientsLimit = 4;
+
+	svs.maxclientslimit = iMaxClientsLimit;
+
+	//Increase the number of updates available for multiplayer.
+	SV_UPDATE_BACKUP = 8;
+
+	if( iMaxPlayers != 1 )
+		SV_UPDATE_BACKUP = 64;
+
+	SV_UPDATE_MASK = SV_UPDATE_BACKUP - 1;
+
+	svs.clients = reinterpret_cast<client_t*>( Hunk_AllocName( sizeof( client_t ) * iMaxClientsLimit, "clients" ) );
+
+	for( int i = 0; i < svs.maxclientslimit; ++i )
+	{
+		auto& client = svs.clients[ i ];
+
+		Q_memset( &client, 0, sizeof( client ) );
+		client.resourcesneeded.pPrev = &client.resourcesneeded;
+		client.resourcesneeded.pNext = &client.resourcesneeded;
+		client.resourcesonhand.pPrev = &client.resourcesonhand;
+		client.resourcesonhand.pNext = &client.resourcesonhand;
+	}
+
+	Cvar_SetValue( "deathmatch", svs.maxclients > 1 ? 1 : 0 );
+
+	SV_AllocClientFrames();
+
+	int maxclients = svs.maxclientslimit;
+
+	if( maxclients > svs.maxclients )
+		maxclients = svs.maxclients;
+
+	svs.maxclients = maxclients;
 }
