@@ -62,6 +62,74 @@ void Host_Error( const char* error, ... )
 	Sys_Error( "Host_Error: recursively entered" );
 }
 
+void Host_Version()
+{
+	Q_strcpy( gpszVersionString, "1.0.1.4" );
+	Q_strcpy( gpszProductString, "valve" );
+
+	char szFileName[ FILENAME_MAX ];
+
+	strcpy( szFileName, "steam.inf" );
+
+	FileHandle_t hFile = FS_Open( szFileName, "r" );
+
+	if( hFile != FILESYSTEM_INVALID_HANDLE )
+	{
+		const int iSize = FS_Size( hFile );
+		void* pFileData = Mem_Malloc( iSize + 1 );
+		FS_Read( pFileData, iSize, hFile );
+		FS_Close( hFile );
+
+		char* pBuffer = reinterpret_cast<char*>( pFileData );
+
+		pBuffer[ iSize ] = '\0';
+
+		const int iProductNameLength = Q_strlen( "ProductName=" );
+		const int iPatchVerLength = Q_strlen( "PatchVersion=" );
+
+		char szSteamVersionId[ 32 ];
+
+		//Parse out the version and name.
+		for( int i = 0; ( pBuffer = COM_Parse( pBuffer ) ) != nullptr && *com_token && i < 2; )
+		{
+			if( !Q_strnicmp( com_token, "PatchVersion=", iPatchVerLength ) )
+			{
+				++i;
+
+				Q_strncpy( gpszVersionString, &com_token[ iPatchVerLength ], ARRAYSIZE( gpszVersionString ) );
+
+				if( COM_CheckParm( "-steam" ) )
+				{
+					FS_GetInterfaceVersion( szSteamVersionId, ARRAYSIZE( szSteamVersionId ) - 1 );
+					snprintf( gpszVersionString, ARRAYSIZE( gpszVersionString ), "%s/%s", &com_token[ iPatchVerLength ], szSteamVersionId );
+				}
+			}
+			else if( !Q_strnicmp( com_token, "ProductName=", iProductNameLength ) )
+			{
+				++i;
+				Q_strncpy( gpszProductString, &com_token[ iProductNameLength ], ARRAYSIZE( gpszProductString ) );
+			}
+		}
+
+		if( pFileData )
+			Mem_Free( pFileData );
+	}
+
+	//TODO: implement - Solokiller
+	/*
+	if( ( _DWORD ) cls.state )
+	{
+		Con_DPrintf( "Protocol version %i\nExe version %s (%s)\n", PROTOCOL_VERSION, gpszVersionString, gpszProductString );
+		Con_DPrintf( "Exe build: " __TIME__ " " __DATE__ " (%i)\n", build_number() );
+	}
+	else
+	{
+		Con_Printf( "Protocol version %i\nExe version %s (%s)\n", PROTOCOL_VERSION, gpszVersionString, gpszProductString );
+		Con_Printf( "Exe build: " __TIME__ " " __DATE__ " (%i)\n", build_number() );
+	}
+	*/
+}
+
 bool Host_Init( quakeparms_t* parms )
 {
 	char dest[ 128 ];

@@ -62,6 +62,9 @@ void SZ_Write( sizebuf_t* buf, const void* data, int length );
 */
 void SZ_Print( sizebuf_t* buf, const char* data );
 
+extern char gpszProductString[ 32 ];
+extern char gpszVersionString[ 32 ];
+
 extern int com_argc;
 extern const char** com_argv;
 extern char com_gamedir[ FILENAME_MAX ];

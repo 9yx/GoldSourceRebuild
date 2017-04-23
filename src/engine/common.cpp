@@ -23,6 +23,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "quakedef.h"
 
+char gpszProductString[ 32 ] = {};
+char gpszVersionString[ 32 ] = {};
+
 void SZ_Alloc( const char* name, sizebuf_t* buf, int startsize )
 {
 	if( startsize < 256 )
