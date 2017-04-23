@@ -68,7 +68,7 @@ set( COPY_RESOURCES OFF CACHE BOOL "Flag used to track whether resources should 
 if( COPY_RESOURCES )
 	message( STATUS "Copying resources from game installation..." )
 	
-	set( DIRS_TO_COPY cl_dlls dlls resource )
+	set( DIRS_TO_COPY cl_dlls dlls gfx resource )
 	
 	foreach( dir IN LISTS DIRS_TO_COPY )
 		message( STATUS "Copying directory \"${dir}\"" )
