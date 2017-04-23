@@ -2,6 +2,8 @@
 
 #include "quakedef.h"
 #include "buildnum.h"
+#include "server.h"
+#include "sv_main.h"
 
 quakeparms_t host_parms = {};
 
@@ -211,4 +213,105 @@ bool Host_Init( quakeparms_t* parms )
 	host_initialized = true;
 
 	return true;
+}
+
+void Host_Shutdown()
+{
+	static bool isdown = false;
+
+	if( isdown )
+	{
+		puts( "recursive shutdown" );
+	}
+	else
+	{
+		isdown = true;
+
+		//TODO: implement - Solokiller
+		/*
+		if( host_initialized )
+			Host_WriteConfiguration();
+			*/
+
+		//TODO: implement - Solokiller
+		/*
+		SV_ServerShutdown();
+		Voice_Deinit();
+		*/
+
+		host_initialized = false;
+
+		//TODO: implement - Solokiller
+		/*
+		CDAudio_Shutdown();
+		VGui_Shutdown();
+
+		if( ( _DWORD ) cls.state )
+			ClientDLL_Shutdown();
+			*/
+
+		Cmd_RemoveGameCmds();
+		Cmd_Shutdown();
+		Cvar_Shutdown();
+
+		//TODO: implement - Solokiller
+		/*
+		HPAK_FlushHostQueue();
+		SV_DeallocateDynamicData();
+		*/
+
+		for( int i = 0; i < svs.maxclientslimit; ++i )
+		{
+			SV_ClearFrames( &svs.clients[ i ].frames );
+		}
+
+		//TODO: implement - Solokiller
+		/*
+		SV_Shutdown();
+		SystemWrapper_ShutDown();
+
+		NET_Shutdown();
+		S_Shutdown();
+		Con_Shutdown();
+		*/
+
+		ReleaseEntityDlls();
+
+		//TODO: implement - Solokiller
+		/*
+		CL_ShutDownClientStatic();
+		CM_FreePAS();
+
+		if( wadpath )
+		{
+			Mem_Free( wadpath );
+			wadpath = nullptr;
+		}
+
+		if( ( _DWORD ) cls.state )
+			Draw_Shutdown();
+
+		Draw_DecalShutdown();
+
+		W_Shutdown();
+		*/
+
+		Log_Printf( "Server shutdown\n" );
+		//TODO: implement - Solokiller
+		/*
+		Log_Close();
+
+		COM_Shutdown();
+		CL_Shutdown();
+		DELTA_Shutdown();
+		*/
+
+		Key_Shutdown();
+
+		realtime = 0;
+
+		//TODO: implement - Solokiller
+		//sv.time = 0;
+		//cl.time = 0;
+	}
 }

@@ -325,8 +325,7 @@ void Sys_ShutdownGame()
 
 	TraceShutdown( "Host_Shutdown()", 0 );
 
-	//TODO: implement - Solokiller
-	//Host_Shutdown();
+	Host_Shutdown();
 
 	if( g_bIsDedicatedServer )
 	{

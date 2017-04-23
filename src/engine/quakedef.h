@@ -103,6 +103,7 @@ extern double realtime;
 void Host_Error( const char* error, ... );
 
 bool Host_Init( quakeparms_t* parms );
+void Host_Shutdown();
 
 /**
 *	Loads the server dll if needed.

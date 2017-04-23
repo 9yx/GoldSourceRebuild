@@ -9,6 +9,9 @@ server_static_t svs;
 playermove_t g_svmove;
 globalvars_t gGlobalVariables = {};
 
+int SV_UPDATE_BACKUP = 1 << 3;
+int SV_UPDATE_MASK = SV_UPDATE_BACKUP - 1;
+
 struct GameToAppIDMapItem_t
 {
 	AppId_t iAppID;
@@ -68,7 +71,6 @@ bool IsGameSubscribed( const char *game )
 	return ISteamApps_BIsSubscribedApp( appId );
 }
 
-
 bool BIsValveGame()
 {
 	for( const auto& data : g_GameToAppIDMap )
@@ -81,7 +83,6 @@ bool BIsValveGame()
 
 	return true;
 }
-
 
 static bool g_bCS_CZ_Flags_Initialized = false;
 
@@ -118,6 +119,31 @@ void SetCStrikeFlags()
 		}
 
 		g_bCS_CZ_Flags_Initialized = true;
+	}
+}
+
+void SV_ClearFrames( client_frame_t** frames )
+{
+	if( *frames )
+	{
+		auto pFrame = *frames;
+
+		for( int i = 0; i < SV_UPDATE_BACKUP; ++i, ++pFrame )
+		{
+			if( pFrame->entities.entities )
+			{
+				Mem_Free( pFrame->entities.entities );
+			}
+
+			pFrame->entities.entities = nullptr;
+			pFrame->entities.num_entities = 0;
+
+			pFrame->senttime = 0;
+			pFrame->ping_time = -1;
+		}
+
+		Mem_Free( *frames );
+		*frames = nullptr;
 	}
 }
 
