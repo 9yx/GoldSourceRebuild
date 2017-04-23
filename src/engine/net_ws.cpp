@@ -18,3 +18,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 #include "quakedef.h"
+
+sizebuf_t net_message;
+
+void NET_Config( bool multiplayer )
+{
+	//TODO: implement - Solokiller
+}

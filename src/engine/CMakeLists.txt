@@ -87,6 +87,7 @@ add_sources(
 	modinfo.h
 	net.h
 	net_api.cpp
+	net_ws.cpp
 	pr_cmds.cpp
 	pr_cmds.h
 	progdefs.h
