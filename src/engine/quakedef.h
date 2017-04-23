@@ -100,6 +100,8 @@ extern bool host_initialized;
 */
 extern double realtime;
 
+void Host_Error( const char* error, ... );
+
 bool Host_Init( quakeparms_t* parms );
 
 #endif //ENGINE_QUAKEDEF_H

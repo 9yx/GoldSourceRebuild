@@ -12,6 +12,54 @@ cvar_t console = { "console", "0.0", FCVAR_ARCHIVE };
 
 byte* host_basepal = nullptr;
 
+void Host_Error( const char* error, ... )
+{
+	static bool inerror = false;
+
+	char string[ 1024 ];
+	va_list va;
+
+	va_start( va, error );
+
+	if( inerror == false )
+	{
+		inerror = true;
+
+		//TODO: implement - Solokiller
+		//SCR_EndLoadingPlaque();
+
+		vsnprintf( string, ARRAYSIZE( string ), error, va );
+
+		//TODO: implement - Solokiller
+		/*
+		if( !( _DWORD ) sv.active && developer.value != 0.0 )
+			CL_WriteMessageHistory( 0, 0 );
+			*/
+
+		Con_Printf( "Host_Error: %s\n", string );
+
+		//TODO: implement - Solokiller
+		/*
+		if( ( _DWORD ) sv.active )
+			Host_ShutdownServer( 0 );
+
+		if( ( _DWORD ) cls.state )
+		{
+			CL_Disconnect();
+			cls.demonum = -1;
+			inerror = false;
+			longjmp( host_abortserver, 1 );
+		}
+		*/
+
+		Sys_Error( "Host_Error: %s\n", string );
+	}
+
+	va_end( va );
+
+	Sys_Error( "Host_Error: recursively entered" );
+}
+
 bool Host_Init( quakeparms_t* parms )
 {
 	char dest[ 128 ];
