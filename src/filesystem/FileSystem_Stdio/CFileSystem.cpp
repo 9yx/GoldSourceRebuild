@@ -608,7 +608,7 @@ const char *CFileSystem::FindNext( FileFindHandle_t handle )
 				data.entry = *data.iterator;
 				data.szFileName = data.entry.path().u8string();
 
-				//Trim the search path so it returns uniform paths for use in I/O.
+				//Trim the search path so it returns uniform paths for use in wildcard searches.
 				if( *searchPath->szPath )
 				{
 					data.szFileName = data.szFileName.substr( strlen( searchPath->szPath ) + 1 );
@@ -618,7 +618,12 @@ const char *CFileSystem::FindNext( FileFindHandle_t handle )
 
 				//Matches the wildcard.
 				if( UTIL_TokenMatches( data.szFileName.c_str(), data.szFilter.c_str() ) )
+				{
+					//Trim to just the filename.
+					data.szFileName = data.entry.path().filename().u8string();
+
 					return data.szFileName.c_str();
+				}
 			}
 		}
 
