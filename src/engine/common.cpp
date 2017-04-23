@@ -596,6 +596,11 @@ void COM_FreeFile( void *buffer )
 		Mem_Free( buffer );
 }
 
+byte* COM_LoadHunkFile( const char* path )
+{
+	return COM_LoadFile( path, 1, nullptr );
+}
+
 /*
 ==============================================================================
 

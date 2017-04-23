@@ -119,6 +119,8 @@ byte* COM_LoadFile( const char* path, int usehunk, int* pLength );
 
 void COM_FreeFile( void *buffer );
 
+byte* COM_LoadHunkFile( const char* path );
+
 void MSG_WriteChar( sizebuf_t *sb, int c );
 void MSG_WriteByte( sizebuf_t *sb, int c );
 void MSG_WriteShort( sizebuf_t *sb, int c );
