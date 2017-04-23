@@ -92,6 +92,52 @@ void Sys_Error( const char* error, ... )
 	longjmp( host_abortserver, 2 );
 }
 
+static FileFindHandle_t g_hfind = FILESYSTEM_INVALID_FIND_HANDLE;
+
+const char* Sys_FindFirstPathID( const char* path, char* pathid )
+{
+	if( g_hfind != FILESYSTEM_INVALID_FIND_HANDLE )
+		Sys_Error( "Sys_FindFirst without close" );
+
+	return FS_FindFirst( path, &g_hfind, pathid );
+}
+
+const char* Sys_FindFirst( const char *path, char* basename )
+{
+	if( g_hfind != FILESYSTEM_INVALID_FIND_HANDLE )
+		Sys_Error( "Sys_FindFirst without close" );
+
+	const char* result = FS_FindFirst( path, &g_hfind, nullptr );
+
+	if( result && basename )
+	{
+		COM_FileBase( result, basename );
+	}
+
+	return result;
+}
+
+const char* Sys_FindNext( char* basename )
+{
+	const char* result = FS_FindNext( g_hfind );
+
+	if( result && basename )
+	{
+		COM_FileBase( result, basename );
+	}
+
+	return result;
+}
+
+void Sys_FindClose()
+{
+	if( g_hfind != FILESYSTEM_INVALID_FIND_HANDLE )
+	{
+		FS_FindClose( g_hfind );
+		g_hfind = FILESYSTEM_INVALID_FIND_HANDLE;
+	}
+}
+
 void ForceReloadProfile()
 {
 	Cbuf_AddText( "exec config.cfg\n" );

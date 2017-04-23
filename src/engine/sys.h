@@ -57,6 +57,14 @@ extern PrintfFunc Launcher_ConsolePrintf;
 
 /** @} */
 
+const char* Sys_FindFirstPathID( const char* path, char* pathid );
+
+const char* Sys_FindFirst( const char *path, char* basename );
+
+const char* Sys_FindNext( char* basename );
+
+void Sys_FindClose();
+
 void ForceReloadProfile();
 
 double Sys_FloatTime();
