@@ -4,6 +4,7 @@
 #include "buildnum.h"
 #include "cdll_int.h"
 #include "chase.h"
+#include "client.h"
 #include "cmodel.h"
 #include "decals.h"
 #include "delta.h"
@@ -24,7 +25,7 @@ double realtime = 0;
 
 cvar_t console = { "console", "0.0", FCVAR_ARCHIVE };
 
-byte* host_basepal = nullptr;
+unsigned short* host_basepal = nullptr;
 
 int host_hunklevel = 0;
 
@@ -233,32 +234,28 @@ bool Host_Init( quakeparms_t* parms )
 
 	Q_memset( &g_module, 0, sizeof( g_module ) );
 
-	//TODO: implement - Solokiller
-	/*
-	if( ( _DWORD ) cls.state )
+	if( cls.state != ca_dedicated )
 	{
-		byte* v6 = COM_LoadHunkFile( "gfx/palette.lmp" );
+		byte* pPalette = COM_LoadHunkFile( "gfx/palette.lmp" );
 
-		if( !v6 )
+		if( !pPalette )
 			Sys_Error( "Host_Init: Couldn't load gfx/palette.lmp" );
 
-		int v7 = ( int ) ( v6 + 2 );
-		unsigned short* v8 = ( unsigned short * ) Hunk_AllocName( 2048, "palette.lmp" );
-		int v9 = 0;
-		unsigned short v10;
-		for( host_basepal = v8; ; v8 = host_basepal )
+		byte* pSource = pPalette;
+
+		//Convert the palette from BGR to RGBA. TODO: these are the right formats, right? - Solokiller
+		host_basepal = reinterpret_cast<unsigned short*>( Hunk_AllocName( 4 * 256 * sizeof( unsigned short ), "palette.lmp" ) );
+
+		for( int i = 0; i < 256; ++i, pSource += 3 )
 		{
-			v8[ v9 ] = *( _BYTE * ) v7;
-			host_basepal[ v9 + 1 ] = *( _BYTE * ) ( v7 - 1 );
-			v10 = *( _BYTE * ) ( v7 - 2 );
-			v7 += 3;
-			host_basepal[ v9 + 2 ] = v10;
-			host_basepal[ v9 + 3 ] = 0;
-			v9 += 4;
-			if( v9 == 1024 )
-				break;
+			host_basepal[ ( 4 * i ) ] = *( pSource + 2 );
+			host_basepal[ ( 4 * i ) + 1 ] = *( pSource + 1 );
+			host_basepal[ ( 4 * i ) + 2 ] = *pSource;
+			host_basepal[ ( 4 * i ) + 3 ] = 0;
 		}
 
+		//TODO: implement - Solokiller
+		/*
 		GL_Init();
 		PM_Init( &g_clmove );
 		CL_InitEventSystem();
@@ -279,12 +276,13 @@ bool Host_Init( quakeparms_t* parms )
 		Voice_Init( "voice_speex", 1 );
 		DemoPlayer_Init();
 		CL_Init();
+		*/
 	}
 	else
 	{
-		Cvar_RegisterVariable( &suitvolume );
+		//TODO: implement - Solokiller
+		//Cvar_RegisterVariable( &suitvolume );
 	}
-	*/
 
 	Cbuf_InsertText( "exec valve.rc\n" );
 

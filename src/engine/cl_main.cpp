@@ -20,6 +20,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "quakedef.h"
 #include "client.h"
 
+client_static_t cls;
+
 cvar_t cl_mousegrab = { "cl_mousegrab", "1", FCVAR_ARCHIVE };
 cvar_t m_rawinput = { "m_rawinput", "1", FCVAR_ARCHIVE };
 cvar_t rate = { "rate", "30000", FCVAR_USERINFO };
