@@ -70,6 +70,8 @@ void ForceReloadProfile();
 
 double Sys_FloatTime();
 
+void Sys_ShutdownFloatTime();
+
 void GameSetSubState( int iSubState );
 void GameSetState( int iState );
 

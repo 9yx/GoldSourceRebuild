@@ -53,6 +53,11 @@ void GL_Init()
 	//TODO: implement - Solokiller
 }
 
+void FreeFBOObjects()
+{
+	//TODO: implement - Solokiller
+}
+
 #ifdef WIN32
 //Note: this code is obsolete and won't have any effect.
 //The cross-platform OpenGL context creation code supersedes this. - Solokiller
@@ -365,6 +370,11 @@ bool GL_SetMode( SDL_Window* mainwindow, HDC* pmaindc, HGLRC* pbaseRC )
 #else
 	return true;
 #endif
+}
+
+void GL_Shutdown( SDL_Window* mainwindow, HDC hdc, HGLRC hglrc )
+{
+	FreeFBOObjects();
 }
 
 bool VID_Init( unsigned short* palette )

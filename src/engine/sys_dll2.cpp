@@ -181,6 +181,16 @@ void Sys_InitAuthentication()
 	Sys_Printf( "STEAM Auth Server\r\n" );
 }
 
+static HDC maindc;
+static HGLRC baseRC;
+
+void Sys_Shutdown()
+{
+	Sys_ShutdownFloatTime();
+	Steam_ShutdownClient();
+	GL_Shutdown( pmainwindow, maindc, baseRC );
+}
+
 void Sys_InitMemory()
 {
 	// Take at least 14 Mb and no more than 134 Mb, unless they explicitly
@@ -221,9 +231,6 @@ void Sys_ShutdownMemory()
 	host_parms.membase = 0;
 	host_parms.memsize = 0;
 }
-
-static HDC maindc;
-static HGLRC baseRC;
 
 bool Sys_InitGame( char *lpOrgCmdLine, char *pBaseDir, void *pwnd, bool bIsDedicated )
 {

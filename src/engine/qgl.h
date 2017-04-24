@@ -45,6 +45,8 @@ void GL_Init();
 
 bool GL_SetMode( SDL_Window* mainwindow, HDC* pmaindc, HGLRC* pbaseRC );
 
+void GL_Shutdown( SDL_Window* mainwindow, HDC hdc, HGLRC hglrc );
+
 bool VID_Init( unsigned short* palette );
 
 void R_InitTextures();

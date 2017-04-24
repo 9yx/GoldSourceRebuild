@@ -784,11 +784,3 @@ void Sys_Init()
 
 	Sys_InitFloatTime();
 }
-
-void Sys_Shutdown()
-{
-	Sys_ShutdownFloatTime();
-	Steam_ShutdownClient();
-	//TODO: implement - Solokiller
-	//GL_Shutdown( pmainwindow, maindc, baseRC );
-}
