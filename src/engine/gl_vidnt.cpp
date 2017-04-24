@@ -141,7 +141,7 @@ bool bSetupPixelFormat( HDC hdc )
 }
 #endif
 
-bool GL_SetMode( SDL_Window* mainwindow, HDC* pmaindc, HGLRC* pbaseRC )
+bool GL_SetMode( SDL_Window* mainwindow, HDC* pmaindc, HGLRC* pbaseRC, const char* pszDriver, const char* pszCmdLine )
 {
 	gfMiniDriver = false;
 
@@ -151,6 +151,11 @@ bool GL_SetMode( SDL_Window* mainwindow, HDC* pmaindc, HGLRC* pbaseRC )
 	*pbaseRC = 0;
 	*pmaindc = 0;
 
+	//There's an if statement here in the Windows version to see if a global bool is false.
+	//It disables the second context creation.
+	//The boolean is only ever false, explaining why it's missing in the Linux version. - Solokiller
+	//if( !g_bDisableMSAAFBO )
+	//{
 	s_bEnforceAspect = COM_CheckParm( "-stretchaspect" ) == 0;
 
 	if( COM_CheckParm( "-nomsaa" ) )
@@ -200,11 +205,10 @@ bool GL_SetMode( SDL_Window* mainwindow, HDC* pmaindc, HGLRC* pbaseRC )
 #endif
 
 	//TODO: remove obsolete parameters - Solokiller
-	QGL_Init( "opengl32.dll", "" );
+	QGL_Init( pszDriver, pszCmdLine );
 	s_bSupportsBlitTexturing = false;
-	//TODO: implement - Solokiller
-	/*
-	gl_extensions = qglGetString( GL_EXTENSIONS );
+
+	gl_extensions = reinterpret_cast<const char*>( qglGetString( GL_EXTENSIONS ) );
 
 	if( gl_extensions && 
 		Q_strstr( gl_extensions, "GL_EXT_framebuffer_multisample_blit_scaled" ) )
@@ -248,33 +252,40 @@ bool GL_SetMode( SDL_Window* mainwindow, HDC* pmaindc, HGLRC* pbaseRC )
 		&& Q_strstr( gl_extensions, "GL_EXT_framebuffer_multisample" ) )
 	{
 		qglGenFramebuffersEXT( 1, &s_MSAAFBO.s_hBackBufferFBO );
-		qglBindFramebufferEXT( 0x8D40u, s_MSAAFBO.s_hBackBufferFBO );
+		qglBindFramebufferEXT( GL_FRAMEBUFFER, s_MSAAFBO.s_hBackBufferFBO );
+
 		qglGenRenderbuffersEXT( 1, &s_MSAAFBO.s_hBackBufferCB );
-		qglBindRenderbufferEXT( 0x8D41u, s_MSAAFBO.s_hBackBufferCB );
-		qglRenderbufferStorageMultisampleEXT( 0x8D41u, 4, 0x8058u, wide, tall );
-		qglFramebufferRenderbufferEXT( 0x8D40u, 0x8CE0u, 0x8D41u, s_MSAAFBO.s_hBackBufferCB );
+		qglBindRenderbufferEXT( GL_RENDERBUFFER, s_MSAAFBO.s_hBackBufferCB );
+
+		qglRenderbufferStorageMultisampleEXT( GL_RENDERBUFFER, 4, GL_RGBA8, wide, tall );
+		qglFramebufferRenderbufferEXT( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, s_MSAAFBO.s_hBackBufferCB );
+
 		qglGenRenderbuffersEXT( 1, &s_MSAAFBO.s_hBackBufferDB );
-		qglBindRenderbufferEXT( 0x8D41u, s_MSAAFBO.s_hBackBufferDB );
-		qglRenderbufferStorageMultisampleEXT( 0x8D41u, 4, 0x81A6u, wide, tall );
-		qglFramebufferRenderbufferEXT( 0x8D40u, 0x8D00u, 0x8D41u, s_MSAAFBO.s_hBackBufferDB );
-		if( qglCheckFramebufferStatusEXT( 0x8D40u ) != 36053 )
+		qglBindRenderbufferEXT( GL_RENDERBUFFER, s_MSAAFBO.s_hBackBufferDB );
+
+		qglRenderbufferStorageMultisampleEXT( GL_RENDERBUFFER, 4, GL_DEPTH_COMPONENT24, wide, tall );
+
+		qglFramebufferRenderbufferEXT( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, s_MSAAFBO.s_hBackBufferDB );
+
+		if( qglCheckFramebufferStatusEXT( GL_FRAMEBUFFER ) != GL_FRAMEBUFFER_COMPLETE )
 		{
 			if( s_MSAAFBO.s_hBackBufferFBO )
 				qglDeleteFramebuffersEXT( 1, &s_MSAAFBO.s_hBackBufferFBO );
 			s_MSAAFBO.s_hBackBufferFBO = 0;
+
 			if( s_MSAAFBO.s_hBackBufferCB )
 				qglDeleteRenderbuffersEXT( 1, &s_MSAAFBO.s_hBackBufferCB );
-
 			s_MSAAFBO.s_hBackBufferCB = 0;
+
 			if( s_MSAAFBO.s_hBackBufferDB )
 				qglDeleteRenderbuffersEXT( 1, &s_MSAAFBO.s_hBackBufferDB );
-
 			s_MSAAFBO.s_hBackBufferDB = 0;
+
 			if( s_MSAAFBO.s_hBackBufferTex )
 				qglDeleteTextures( 1, &s_MSAAFBO.s_hBackBufferTex );
 			s_MSAAFBO.s_hBackBufferTex = 0;
+
 			Con_Printf( "Error initializing MSAA frame buffer\n" );
-			s_MSAAFBO.s_hBackBufferFBO = 0;
 		}
 	}
 	else
@@ -286,31 +297,39 @@ bool GL_SetMode( SDL_Window* mainwindow, HDC* pmaindc, HGLRC* pbaseRC )
 	if( bDoScaledFBO )
 	{
 		if( s_MSAAFBO.s_hBackBufferFBO )
-			glEnable( 0x809Du );
-		glEnable( 0x84F5u );
+			glEnable( GL_MULTISAMPLE );
+
+		glEnable( GL_TEXTURE_RECTANGLE );
 		qglGenFramebuffersEXT( 1, &s_BackBufferFBO.s_hBackBufferFBO );
-		qglBindFramebufferEXT( 0x8D40u, s_BackBufferFBO.s_hBackBufferFBO );
+		qglBindFramebufferEXT( GL_FRAMEBUFFER, s_BackBufferFBO.s_hBackBufferFBO );
+
 		if( !s_MSAAFBO.s_hBackBufferFBO )
 		{
 			qglGenRenderbuffersEXT( 1, &s_BackBufferFBO.s_hBackBufferDB );
-			qglBindRenderbufferEXT( 0x8D41u, s_BackBufferFBO.s_hBackBufferDB );
-			qglRenderbufferStorageEXT( 0x8D41u, 0x81A6u, wide, tall );
-			qglFramebufferRenderbufferEXT( 0x8D40u, 0x8D00u, 0x8D41u, s_BackBufferFBO.s_hBackBufferDB );
+			qglBindRenderbufferEXT( GL_RENDERBUFFER, s_BackBufferFBO.s_hBackBufferDB );
+			qglRenderbufferStorageEXT( GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, wide, tall );
+			qglFramebufferRenderbufferEXT( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, s_BackBufferFBO.s_hBackBufferDB );
 		}
+
 		glGenTextures( 1, &s_BackBufferFBO.s_hBackBufferTex );
-		glBindTexture( 0x84F5u, s_BackBufferFBO.s_hBackBufferTex );
-		glTexParameteri( 0x84F5u, 0x2800u, 9729 );
-		glTexParameteri( 0x84F5u, 0x2801u, 9729 );
-		glTexParameteri( 0x84F5u, 0x2802u, 33071 );
-		glTexParameteri( 0x84F5u, 0x2803u, 33071 );
-		glTexEnvi( 0x2300u, 0x2200u, 7681 );
-		glTexImage2D( 0x84F5u, 0, 6408, wide, tall, 0, 0x1908u, 0x1401u, 0 );
-		qglFramebufferTexture2DEXT( 0x8D40u, 0x8CE0u, 0x84F5u, s_BackBufferFBO.s_hBackBufferTex, 0 );
-		glBindTexture( 0x84F5u, 0 );
-		glDisable( 0x84F5u );
+
+		glBindTexture( GL_TEXTURE_RECTANGLE, s_BackBufferFBO.s_hBackBufferTex );
+		glTexParameteri( GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+		glTexParameteri( GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+		glTexParameteri( GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
+		glTexParameteri( GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
+		glTexEnvi( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE );
+
+		glTexImage2D( GL_TEXTURE_RECTANGLE, 0, GL_RGBA, wide, tall, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr );
+
+		qglFramebufferTexture2DEXT( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_RECTANGLE, s_BackBufferFBO.s_hBackBufferTex, 0 );
+
+		glBindTexture( GL_TEXTURE_RECTANGLE, 0 );
+
+		glDisable( GL_TEXTURE_RECTANGLE );
 	}
 
-	if( !bDoScaledFBO || qglCheckFramebufferStatusEXT( 0x8D40u ) != 36053 )
+	if( !bDoScaledFBO || qglCheckFramebufferStatusEXT( GL_FRAMEBUFFER ) != GL_FRAMEBUFFER_COMPLETE )
 	{
 		FreeFBOObjects();
 
@@ -330,15 +349,17 @@ bool GL_SetMode( SDL_Window* mainwindow, HDC* pmaindc, HGLRC* pbaseRC )
 			Con_Printf( "FBO backbuffer rendering disabled.\n" );
 		SDL_SetWindowDisplayMode( mainwindow, &mode );
 
-		bNeedsFullScreenModeSwitch = 1;
+		bNeedsFullScreenModeSwitch = true;
 		VideoMode_RestoreVideo();
 	}
 
 	if( bDoScaledFBO )
 	{
-		qglBindFramebufferEXT( 0x8D40u, 0 );
+		qglBindFramebufferEXT( GL_FRAMEBUFFER, 0 );
 	}
-	*/
+
+	return true;
+	//} //!g_bDisableMSAAFBO
 
 #ifdef WIN32
 	SDL_SysWMinfo wmInfo;
@@ -351,14 +372,12 @@ bool GL_SetMode( SDL_Window* mainwindow, HDC* pmaindc, HGLRC* pbaseRC )
 
 	*pmaindc = hDC;
 
-	//TODO: implement - Solokiller
-	//dword_27B4240 = 0;
+	//TODO: why? - Solokiller
+	s_BackBufferFBO.s_hBackBufferFBO = 0;
 
 	if( !bSetupPixelFormat( hDC ) )
 		return false;
 
-	//TODO: implement - Solokiller
-	/*
 	auto context = qwglCreateContext( hDC );
 
 	*pbaseRC = context;
@@ -367,8 +386,6 @@ bool GL_SetMode( SDL_Window* mainwindow, HDC* pmaindc, HGLRC* pbaseRC )
 		return false;
 
 	return qwglMakeCurrent( hDC, context ) != FALSE;
-	*/
-	return true;
 #else
 	return true;
 #endif

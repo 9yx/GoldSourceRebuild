@@ -411,6 +411,20 @@ void ( APIENTRY * qglClientActiveTextureARB )( GLenum texture );
 void ( APIENTRY * qglLockArraysEXT ) ( GLint, GLint );
 void ( APIENTRY * qglUnlockArraysEXT ) ( void );
 
+GLboolean ( APIENTRY * qglIsRenderbufferEXT )( GLuint );
+void ( APIENTRY * qglBindRenderbufferEXT )( GLenum, GLuint );
+void ( APIENTRY * qglDeleteRenderbuffersEXT )( GLsizei, const GLuint* );
+void ( APIENTRY * qglGenRenderbuffersEXT )( GLsizei, GLuint* );
+void ( APIENTRY * qglRenderbufferStorageEXT )( GLenum, GLenum, GLsizei, GLsizei );
+void ( APIENTRY * qglGetRenderbufferParameterivEXT )( GLenum, GLenum, GLint* );
+void ( APIENTRY * qglBindFramebufferEXT )( GLenum, GLuint );
+void ( APIENTRY * qglDeleteFramebuffersEXT )( GLsizei, const GLuint* );
+void ( APIENTRY * qglGenFramebuffersEXT )( GLsizei, GLuint* );
+GLenum( APIENTRY * qglCheckFramebufferStatusEXT )( GLenum );
+void ( APIENTRY * qglFramebufferTexture2DEXT )( GLenum, GLenum, GLenum, GLuint, GLint );
+void ( APIENTRY * qglFramebufferRenderbufferEXT )( GLenum, GLenum, GLenum, GLuint );
+void ( APIENTRY * qglBlitFramebufferEXT )( GLint, GLint, GLint, GLint, GLint, GLint, GLint, GLint, GLbitfield, GLenum );
+void ( APIENTRY * qglRenderbufferStorageMultisampleEXT )( GLenum, GLsizei, GLenum, GLsizei, GLsizei );
 
 static void ( APIENTRY * dllAccum )( GLenum op, GLfloat value );
 static void ( APIENTRY * dllAlphaFunc )( GLenum func, GLclampf ref );
@@ -3339,12 +3353,12 @@ bool QGL_Init( const char* pdllname, const char* pszCmdLine )
 	qglFogiv = dllFogiv = GPA( glFogiv );
 	qglFrontFace = dllFrontFace = GPA( glFrontFace );
 	qglFrustum = dllFrustum = GPA( glFrustum );
-	qglGenLists = dllGenLists = ( GLuint( __stdcall * )( int ) ) GPA( glGenLists );
+	qglGenLists = dllGenLists = GPA( glGenLists );
 	qglGenTextures = dllGenTextures = GPA( glGenTextures );
 	qglGetBooleanv = dllGetBooleanv = GPA( glGetBooleanv );
 	qglGetClipPlane = dllGetClipPlane = GPA( glGetClipPlane );
 	qglGetDoublev = dllGetDoublev = GPA( glGetDoublev );
-	qglGetError = dllGetError = ( GLenum( __stdcall * )( void ) ) GPA( glGetError );
+	qglGetError = dllGetError = GPA( glGetError );
 	qglGetFloatv = dllGetFloatv = GPA( glGetFloatv );
 	qglGetIntegerv = dllGetIntegerv = GPA( glGetIntegerv );
 	qglGetLightfv = dllGetLightfv = GPA( glGetLightfv );
@@ -3576,6 +3590,21 @@ bool QGL_Init( const char* pdllname, const char* pszCmdLine )
 	qglVertex4sv = dllVertex4sv = GPA( glVertex4sv );
 	qglVertexPointer = dllVertexPointer = GPA( glVertexPointer );
 	qglViewport = dllViewport = GPA( glViewport );
+
+	qglIsRenderbufferEXT = GPA( glIsRenderbufferEXT );
+	qglBindRenderbufferEXT = GPA( glBindRenderbufferEXT );
+	qglDeleteRenderbuffersEXT = GPA( glDeleteRenderbuffersEXT );
+	qglGenRenderbuffersEXT = GPA( glGenRenderbuffersEXT );
+	qglRenderbufferStorageEXT = GPA( glRenderbufferStorageEXT );
+	qglGetRenderbufferParameterivEXT = GPA( glGetRenderbufferParameterivEXT );
+	qglBindFramebufferEXT = GPA( glBindFramebufferEXT );
+	qglDeleteFramebuffersEXT = GPA( glDeleteFramebuffersEXT );
+	qglGenFramebuffersEXT = GPA( glGenFramebuffersEXT );
+	qglCheckFramebufferStatusEXT = GPA( glCheckFramebufferStatusEXT );
+	qglFramebufferTexture2DEXT = GPA( glFramebufferTexture2DEXT );
+	qglFramebufferRenderbufferEXT = GPA( glFramebufferRenderbufferEXT );
+	qglBlitFramebufferEXT = GPA( glBlitFramebufferEXT );
+	qglRenderbufferStorageMultisampleEXT = GPA( glRenderbufferStorageMultisampleEXT );
 
 	qwglCopyContext = GPA( wglCopyContext );
 	qwglCreateContext = GPA( wglCreateContext );

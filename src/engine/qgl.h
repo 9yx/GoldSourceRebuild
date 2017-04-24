@@ -20,9 +20,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "quakedef.h"
 
-#include <SDL2/SDL.h>
-#include <GL/glew.h>
-
 //TODO: remove - Solokiller
 #ifdef WIN32
 #include "winheaders.h"
@@ -30,6 +27,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 typedef void* HDC;
 typedef void* HGLRC;
 #endif
+
+#include <SDL2/SDL.h>
+#include <GL/GL.h>
 
 #include "filesystem.h"
 
@@ -64,7 +64,7 @@ void GL_Config();
 
 void GL_Init();
 
-bool GL_SetMode( SDL_Window* mainwindow, HDC* pmaindc, HGLRC* pbaseRC );
+bool GL_SetMode( SDL_Window* mainwindow, HDC* pmaindc, HGLRC* pbaseRC, const char* pszDriver, const char* pszCmdLine );
 
 void GL_Shutdown( SDL_Window* mainwindow, HDC hdc, HGLRC hglrc );
 
@@ -165,6 +165,21 @@ extern	void ( APIENTRY * qglClientActiveTextureARB )( GLenum texture );
 
 extern	void ( APIENTRY * qglLockArraysEXT ) ( GLint, GLint );
 extern	void ( APIENTRY * qglUnlockArraysEXT ) ( void );
+
+extern	GLboolean ( APIENTRY * qglIsRenderbufferEXT )( GLuint );
+extern	void ( APIENTRY * qglBindRenderbufferEXT )( GLenum, GLuint );
+extern	void ( APIENTRY * qglDeleteRenderbuffersEXT )( GLsizei, const GLuint* );
+extern	void ( APIENTRY * qglGenRenderbuffersEXT )( GLsizei, GLuint* );
+extern	void ( APIENTRY * qglRenderbufferStorageEXT )( GLenum, GLenum, GLsizei, GLsizei );
+extern	void ( APIENTRY * qglGetRenderbufferParameterivEXT )( GLenum, GLenum, GLint* );
+extern	void ( APIENTRY * qglBindFramebufferEXT )( GLenum, GLuint );
+extern	void ( APIENTRY * qglDeleteFramebuffersEXT )( GLsizei, const GLuint* );
+extern	void ( APIENTRY * qglGenFramebuffersEXT )( GLsizei, GLuint* );
+extern	GLenum ( APIENTRY * qglCheckFramebufferStatusEXT )( GLenum );
+extern	void ( APIENTRY * qglFramebufferTexture2DEXT )( GLenum, GLenum, GLenum, GLuint, GLint );
+extern	void ( APIENTRY * qglFramebufferRenderbufferEXT )( GLenum, GLenum, GLenum, GLuint );
+extern	void ( APIENTRY * qglBlitFramebufferEXT )( GLint, GLint, GLint, GLint, GLint, GLint, GLint, GLint, GLbitfield, GLenum );
+extern	void ( APIENTRY * qglRenderbufferStorageMultisampleEXT )( GLenum, GLsizei, GLenum, GLsizei, GLsizei );
 
 //===========================================================================
 

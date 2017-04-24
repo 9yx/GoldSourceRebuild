@@ -317,7 +317,7 @@ bool Sys_InitGame( char *lpOrgCmdLine, char *pBaseDir, void *pwnd, bool bIsDedic
 	
 	Sys_InitLauncherInterface();
 
-	if( GL_SetMode( pmainwindow, &maindc, &baseRC ) )
+	if( GL_SetMode( pmainwindow, &maindc, &baseRC, "opengl32.dll", lpOrgCmdLine ) )
 	{
 		TraceInit( "Host_Init( &host_parms )", "Host_Shutdown()", 0 );
 		
