@@ -95,6 +95,7 @@ add_sources(
 	host.cpp
 	host_cmd.cpp
 	IEngine.h
+	IEngineSurface.h
 	IGame.h
 	info.cpp
 	info.h
@@ -146,6 +147,8 @@ add_sources(
 	SystemWrapper.h
 	traceinit.cpp
 	traceinit.h
+	VGUI_EngineSurfaceWrap.cpp
+	VGUI_EngineSurfaceWrap.h
 	vgui_int.cpp
 	vgui_int.h
 	vgui_intwrap.cpp

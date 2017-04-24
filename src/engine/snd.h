@@ -12,6 +12,8 @@ void S_Shutdown();
 void Snd_AcquireBuffer();
 void Snd_ReleaseBuffer();
 
+void SetMouseEnable( bool fState );
+
 void VOX_Init();
 
 #endif //ENGINE_SND_H

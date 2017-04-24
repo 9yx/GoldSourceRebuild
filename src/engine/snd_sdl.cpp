@@ -12,3 +12,8 @@ void Snd_ReleaseBuffer()
 {
 	//TODO: implement - Solokiller
 }
+
+void SetMouseEnable( bool fState )
+{
+	//Nothing
+}

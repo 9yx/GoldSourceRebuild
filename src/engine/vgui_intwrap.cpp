@@ -5,28 +5,88 @@
 #undef main
 #include <VGUI_App.h>
 
+#include "cdll_int.h"
+
+#include "interface.h"
+
+#include "IEngineSurface.h"
+#include "snd.h"
+#include "sys_getmodes.h"
+#include "VGUI_EngineSurfaceWrap.h"
+
+static EngineSurfaceWrap* staticEngineSurface = nullptr;
+
+static vgui::Panel* staticPanel = nullptr;
+
 void VGuiWrap_SetRootPanelSize()
 {
-	//TODO: implement - Solokiller
+	auto pRoot = VGuiWrap_GetPanel();
+
+	if( pRoot )
+	{
+		int x = 0, y = 0;
+		Rect_t rect;
+
+		rect.y = 0;
+
+		if( VideoMode_IsWindowed() )
+		{
+			SDL_GetWindowPosition( pmainwindow, &x, &y );
+			SDL_GetWindowSize( pmainwindow, &rect.width, &rect.height );
+		}
+		else
+		{
+			VideoMode_GetCurrentVideoMode( &rect.width, &rect.height, nullptr );
+		}
+
+		rect.height += rect.y;
+
+		pRoot->setBounds( x, y, rect.width, rect.height );
+	}
 }
 
 void VGuiWrap_Startup()
 {
-	//TODO: implement - Solokiller
+	if( staticEngineSurface )
+		return;
+
+	auto pApp = vgui::App::getInstance();
+
+	pApp->reset();
+
+	staticPanel = new vgui::Panel( 0, 0, 320, 240 );
+
+	auto pScheme = pApp->getScheme();
+
+	staticPanel->setPaintBorderEnabled( false );
+	staticPanel->setPaintBackgroundEnabled( false );
+	staticPanel->setPaintEnabled( false );
+	staticPanel->setCursor( pScheme->getCursor( vgui::Scheme::scu_none ) );
+
+	auto factoryFn = Sys_GetFactoryThis();
+
+	auto pSurface = static_cast<IEngineSurface*>( factoryFn( ENGINESURFACE_INTERFACE_VERSION, nullptr ) );
+
+	staticEngineSurface = new EngineSurfaceWrap( staticPanel, pSurface );
+
+	VGuiWrap_SetRootPanelSize();
 }
 
 void VGuiWrap_Shutdown()
 {
-	//TODO: implement - Solokiller
+	delete staticPanel;
+	staticPanel = nullptr;
+
+	if( staticEngineSurface )
+		delete staticEngineSurface;
+
+	staticEngineSurface = nullptr;
 }
 
 bool VGuiWrap_CallEngineSurfaceAppHandler( void* event, void* userData )
 {
-	//TODO: implement - Solokiller
-	/*
 	if( staticEngineSurface )
 		staticEngineSurface->AppHandler( event, userData );
-		*/
 
 	return false;
 }
@@ -35,28 +95,76 @@ vgui::Panel* VGuiWrap_GetPanel()
 {
 	//TODO: implement - Solokiller
 	//g_engdstAddrs.VGui_GetPanel();
-	//return staticPanel;
-	return nullptr;
+	return staticPanel;
 }
 
 void VGuiWrap_ReleaseMouse()
 {
-	//TODO: implement - Solokiller
+	if( vgui::App::getInstance() && staticEngineSurface )
+	{
+		if( VGuiWrap2_UseVGUI1() )
+		{
+			staticEngineSurface->setCursor( 
+				vgui::App::getInstance()->
+					getScheme()->
+						getCursor( vgui::Scheme::scu_arrow ) );
+
+			staticEngineSurface->lockCursor();
+		}
+
+		ClientDLL_DeactivateMouse();
+		SetMouseEnable( false );
+	}
 }
 
 void VGuiWrap_GetMouse()
 {
-	//TODO: implement - Solokiller
+	if( staticEngineSurface )
+	{
+		if( VGuiWrap2_UseVGUI1() )
+			staticEngineSurface->unlockCursor();
+
+		ClientDLL_ActivateMouse();
+		SetMouseEnable( true );
+	}
 }
 
 void VGuiWrap_SetVisible( bool state )
 {
-	//TODO: implement - Solokiller
+	if( staticPanel )
+	{
+		staticPanel->setVisible( state );
+	}
 }
 
 void VGuiWrap_Paint( bool paintAll )
 {
-	//TODO: implement - Solokiller
+	auto pRoot = VGuiWrap_GetPanel();
+
+	if( pRoot )
+	{
+		VGuiWrap_SetRootPanelSize();
+
+		vgui::App::getInstance()->externalTick();
+
+		if( paintAll )
+		{
+			pRoot->paintTraverse();
+		}
+		else
+		{
+			int extents[ 4 ];
+
+			pRoot->getAbsExtents(
+				extents[ 0 ],
+				extents[ 1 ],
+				extents[ 2 ],
+				extents[ 3 ]
+			);
+
+			VGui_ViewportPaintBackground( extents );
+		}
+	}
 }
 
 class CDummyApp : public vgui::App
