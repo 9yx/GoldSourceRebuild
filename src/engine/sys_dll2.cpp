@@ -165,15 +165,66 @@ int RunListenServer( void *instance, char *basedir, char *cmdline, char *postRes
 	return result;
 }
 
-void Sys_InitLauncherInterface()
+//TODO: from d_local.h - Solokiller
+const int SURFCACHE_SIZE_AT_320X200 = 3072 * 1024;
+
+int Sys_GetSurfaceCacheSize( int width, int height )
 {
+	const int iParm = COM_CheckParm( "-surfcachesize" );
+
+	if( iParm )
+	{
+		//TODO: no range check? - Solokiller
+		return Q_atoi( com_argv[ iParm + 1 ] ) * 1024;
+	}
+
+	int size = SURFCACHE_SIZE_AT_320X200;
+
+	const int pix = width*height;
+	if( pix > 64000 )
+		size += ( pix - 64000 ) * 3;
+
+	return size;
+}
+
+void Legacy_Sys_Printf( const char* fmt, ... )
+{
+	char text[ 1024 ];
+	va_list va;
+
+	va_start( va, fmt );
+	vsnprintf( text, ARRAYSIZE( text ), fmt, va );
+	va_end( va );
+
 	//TODO: implement - Solokiller
 	/*
-	gHasMMXTechnology = 1;
-	VID_FlipScreen = Sys_VID_FlipScreen;
-	D_SurfaceCacheForRes = ( int( *)( int, int ) )Sys_GetSurfaceCacheSize;
-	Launcher_ConsolePrintf = Legacy_Sys_Printf;
-	*/
+	if( dedicated )
+		dedicated->AddConsoleText( text );
+		*/
+}
+
+void Sys_VID_FlipScreen()
+{
+	if( pmainwindow )
+		SDL_GL_SwapWindow( pmainwindow );
+}
+
+//TODO: probably only used by software mode - Solokiller
+using SurfaceCacheForResFn = int ( * )( int, int );
+
+static SurfaceCacheForResFn D_SurfaceCacheForRes = nullptr;
+
+void Sys_SetupLegacyAPIs()
+{
+	VID_FlipScreen = &Sys_VID_FlipScreen;
+	D_SurfaceCacheForRes = &Sys_GetSurfaceCacheSize;
+	Launcher_ConsolePrintf = &Legacy_Sys_Printf;
+}
+
+void Sys_InitLauncherInterface()
+{
+	gHasMMXTechnology = true;
+	Sys_SetupLegacyAPIs();
 }
 
 void Sys_InitAuthentication()

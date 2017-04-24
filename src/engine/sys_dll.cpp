@@ -20,6 +20,10 @@
 #error
 #endif
 
+bool gHasMMXTechnology = false;
+
+FlipScreenFn VID_FlipScreen = nullptr;
+
 //TODO: define flags for these - Solokiller
 int giActive = 0;
 int giStateInfo = 0;

@@ -123,6 +123,12 @@ void ClearIOStates();
 void SetRateRegistrySetting( const char* pchRate );
 const char* GetRateRegistrySetting( const char* pchDef );
 
+extern bool gHasMMXTechnology;
+
+using FlipScreenFn = void ( * )();
+
+extern FlipScreenFn VID_FlipScreen;
+
 extern int giActive;
 extern int giStateInfo;
 extern int giSubState;
