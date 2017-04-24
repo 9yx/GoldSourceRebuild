@@ -22,6 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 client_static_t cls;
 
+//TODO: implement API and add here - Solokiller
 playermove_t g_clmove;
 
 cvar_t cl_mousegrab = { "cl_mousegrab", "1", FCVAR_ARCHIVE };
@@ -41,4 +42,7 @@ void CL_Shutdown()
 void CL_Init()
 {
 	//TODO: implement - Solokiller
+	Cvar_RegisterVariable( &rate );
+	Cvar_RegisterVariable( &cl_mousegrab );
+	Cvar_RegisterVariable( &m_rawinput );
 }
