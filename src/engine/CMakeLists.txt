@@ -173,6 +173,7 @@ target_include_directories( ${PROJECT_NAME} PRIVATE
 	${SRC_DIR}/pm_shared/
 	${SRC_DIR}/public
 	${SRC_DIR}/public/tier1
+	${SRC_DIR}/utils/vgui/include
 	${SHARED_INCLUDE_PATHS}
 	${EXTERNAL_DIR}/SDL2/include
 	${EXTERNAL_DIR}/GLEW/include
@@ -192,6 +193,22 @@ if( WIN32 )
 	set( PROJECT_LIBS ${PROJECT_LIBS} wsock32 ws2_32 )
 endif()
 
+if( UNIX )
+	if ( OSX )
+		set( VGUI1_NAME "vgui.dylib" )
+	else()
+		set( VGUI1_NAME "vgui.so" )
+	endif()
+else()
+	set( VGUI1_NAME "vgui.lib" )
+endif()
+
+#VGUI1 has issues linking due to its non-standard filename. To work around this, we can instead import it and manually specify the location.
+#That sets the correct linker path and filename.
+add_library( vgui SHARED IMPORTED )
+set_property( TARGET vgui PROPERTY IMPORTED_LOCATION ${ENGINE_BASE_PATH}/${VGUI1_NAME} )
+set_property( TARGET vgui PROPERTY IMPORTED_IMPLIB ${SRC_DIR}/utils/vgui/lib/win32_vc6/vgui.lib )
+
 #Link with dependencies
 target_link_libraries( ${PROJECT_NAME} 
 	${SDL2}
@@ -199,6 +216,7 @@ target_link_libraries( ${PROJECT_NAME}
 	${OPENGL_LIBRARIES}
 	tier1
 	tier0
+	vgui
 	${STEAM_API}
 	${PROJECT_LIBS}
 	${SHARED_DEPENDENCIES}
