@@ -3,4 +3,6 @@
 
 void SystemWrapper_Init();
 
+void SystemWrapper_ShutDown();
+
 #endif //ENGINE_SYSTEMWRAPPER_H

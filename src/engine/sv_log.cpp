@@ -96,3 +96,8 @@ void Log_Printf( const char* fmt, ... )
 
 	va_end( va );
 }
+
+void Log_Close()
+{
+	//TODO: implement - Solokiller
+}

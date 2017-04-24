@@ -38,6 +38,8 @@ extern sizebuf_t net_message;
 
 void NET_Config( bool multiplayer );
 
+void NET_Shutdown();
+
 void NET_Init();
 
 #endif //ENGINE_NET_H

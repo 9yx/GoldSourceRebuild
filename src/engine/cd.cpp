@@ -24,3 +24,8 @@ void CDAudio_Init()
 {
 	//TODO: implement - Solokiller
 }
+
+void CDAudio_Shutdown()
+{
+	//TODO: implement - Solokiller
+}

@@ -141,6 +141,10 @@ extern cvar_t rate;
 
 extern char g_szfullClientName[ 512 ];
 
+void CL_ShutDownClientStatic();
+
+void CL_Shutdown();
+
 void CL_Init();
 
 #endif //ENGINE_CLIENT_H

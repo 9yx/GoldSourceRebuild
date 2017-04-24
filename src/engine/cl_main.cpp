@@ -28,6 +28,16 @@ cvar_t cl_mousegrab = { "cl_mousegrab", "1", FCVAR_ARCHIVE };
 cvar_t m_rawinput = { "m_rawinput", "1", FCVAR_ARCHIVE };
 cvar_t rate = { "rate", "30000", FCVAR_USERINFO };
 
+void CL_ShutDownClientStatic()
+{
+	//TODO: implement - Solokiller
+}
+
+void CL_Shutdown()
+{
+	//TODO: implement - Solokiller
+}
+
 void CL_Init()
 {
 	//TODO: implement - Solokiller

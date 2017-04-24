@@ -32,3 +32,8 @@ void S_Init()
 {
 	//TODO: implement - Solokiller
 }
+
+void S_Shutdown()
+{
+	//TODO: implement - Solokiller
+}

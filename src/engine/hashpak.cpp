@@ -1,6 +1,11 @@
 #include "quakedef.h"
 #include "hashpak.h"
 
+void HPAK_FlushHostQueue()
+{
+	//TODO: implement - Solokiller
+}
+
 void HPAK_Init()
 {
 	//TODO: implement - Solokiller

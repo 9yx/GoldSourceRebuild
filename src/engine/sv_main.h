@@ -18,11 +18,17 @@ extern bool g_bIsTFC;
 
 void SetCStrikeFlags();
 
+void SV_DeallocateDynamicData();
+
 void SV_AllocClientFrames();
 
 void SV_ClearFrames( client_frame_t** frames );
 
+void SV_ServerShutdown();
+
 void SV_Init();
+
+void SV_Shutdown();
 
 void SV_SetMaxclients();
 

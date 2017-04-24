@@ -7,6 +7,8 @@ extern bool g_fUseDInput;
 
 void S_Init();
 
+void S_Shutdown();
+
 void Snd_AcquireBuffer();
 void Snd_ReleaseBuffer();
 

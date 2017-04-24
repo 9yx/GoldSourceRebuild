@@ -17,10 +17,15 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-#ifndef ENGINE_CDAUDIO_H
-#define ENGINE_CDAUDIO_H
+/**
+*	@file
+*
+*	model loading and caching
+*
+*	models are the only shared resource between a client and server running
+*	on the same machine.
+*/
+#include "quakedef.h"
+#include "qgl.h"
 
-void CDAudio_Init();
-void CDAudio_Shutdown();
-
-#endif //ENGINE_CDAUDIO_H
+char* wadpath = nullptr;

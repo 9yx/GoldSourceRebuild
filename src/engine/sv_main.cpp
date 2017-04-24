@@ -123,6 +123,11 @@ void SetCStrikeFlags()
 	}
 }
 
+void SV_DeallocateDynamicData()
+{
+	//TODO: implement - Solokiller
+}
+
 void SV_AllocClientFrames()
 {
 	for( int i = 0; i < svs.maxclientslimit; ++i )
@@ -223,7 +228,17 @@ void SV_ResetModInfo()
 	}
 }
 
+void SV_ServerShutdown()
+{
+	//TODO: implement - Solokiller
+}
+
 void SV_Init()
+{
+	//TODO: implement - Solokiller
+}
+
+void SV_Shutdown()
 {
 	//TODO: implement - Solokiller
 }

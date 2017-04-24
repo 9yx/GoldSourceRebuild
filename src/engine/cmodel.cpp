@@ -5,3 +5,8 @@ void Mod_Init()
 {
 	//TODO: implement - Solokiller
 }
+
+void CM_FreePAS()
+{
+	//TODO: implement - Solokiller
+}

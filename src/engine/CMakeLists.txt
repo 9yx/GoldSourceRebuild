@@ -85,6 +85,7 @@ add_sources(
 	filesystem.h
 	filesystem_internal.cpp
 	gl_draw.cpp
+	gl_model.cpp
 	gl_rmisc.cpp
 	gl_screen.cpp
 	gl_vidnt.cpp

@@ -68,6 +68,11 @@ void Host_InitLocal()
 	SV_SetMaxclients();
 }
 
+void Host_WriteConfiguration()
+{
+	//TODO: implement - Solokiller
+}
+
 void Host_Error( const char* error, ... )
 {
 	static bool inerror = false;
@@ -344,61 +349,41 @@ void Host_Shutdown()
 	{
 		isdown = true;
 
-		//TODO: implement - Solokiller
-		/*
 		if( host_initialized )
 			Host_WriteConfiguration();
-			*/
 
-		//TODO: implement - Solokiller
-		/*
 		SV_ServerShutdown();
 		Voice_Deinit();
-		*/
 
 		host_initialized = false;
 
-		//TODO: implement - Solokiller
-		/*
 		CDAudio_Shutdown();
-		*/
 		VGui_Shutdown();
 
-		//TODO: implement - Solokiller
-		/*
-		if( ( _DWORD ) cls.state )
+		if( cls.state != ca_dedicated )
 			ClientDLL_Shutdown();
-			*/
 
 		Cmd_RemoveGameCmds();
 		Cmd_Shutdown();
 		Cvar_Shutdown();
 
-		//TODO: implement - Solokiller
-		/*
 		HPAK_FlushHostQueue();
 		SV_DeallocateDynamicData();
-		*/
 
 		for( int i = 0; i < svs.maxclientslimit; ++i )
 		{
 			SV_ClearFrames( &svs.clients[ i ].frames );
 		}
 
-		//TODO: implement - Solokiller
-		/*
 		SV_Shutdown();
 		SystemWrapper_ShutDown();
 
 		NET_Shutdown();
 		S_Shutdown();
 		Con_Shutdown();
-		*/
 
 		ReleaseEntityDlls();
 
-		//TODO: implement - Solokiller
-		/*
 		CL_ShutDownClientStatic();
 		CM_FreePAS();
 
@@ -408,23 +393,19 @@ void Host_Shutdown()
 			wadpath = nullptr;
 		}
 
-		if( ( _DWORD ) cls.state )
+		if( cls.state != ca_dedicated )
 			Draw_Shutdown();
 
 		Draw_DecalShutdown();
 
 		W_Shutdown();
-		*/
 
 		Log_Printf( "Server shutdown\n" );
-		//TODO: implement - Solokiller
-		/*
 		Log_Close();
 
 		COM_Shutdown();
 		CL_Shutdown();
 		DELTA_Shutdown();
-		*/
 
 		Key_Shutdown();
 

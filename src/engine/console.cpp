@@ -15,6 +15,11 @@ bool con_initialized = false;
 
 cvar_t con_shifttoggleconsole = { "con_shifttoggleconsole", "0" };
 
+void Con_Shutdown()
+{
+	//TODO: implement - Solokiller
+}
+
 void Con_Printf( const char* fmt, ... )
 {
 	char msg[ 4096 ]; // [sp+20h] [bp-100Ch]@1

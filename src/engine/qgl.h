@@ -34,6 +34,8 @@ struct glwstate_t
 
 extern glwstate_t glw_state;
 
+extern char* wadpath;
+
 void* QGL_Init();
 void QGL_Shutdown();
 
@@ -50,6 +52,8 @@ void R_InitTextures();
 void R_Init();
 
 void Draw_Init();
+
+void Draw_Shutdown();
 
 void SCR_Init();
 

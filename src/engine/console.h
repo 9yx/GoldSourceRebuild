@@ -13,6 +13,8 @@ extern bool con_initialized;
 
 extern cvar_t con_shifttoggleconsole;
 
+void Con_Shutdown();
+
 void Con_Printf( const char* fmt, ... );
 void Con_DPrintf( const char* fmt, ... );
 

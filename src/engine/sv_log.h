@@ -3,4 +3,6 @@
 
 void Log_Printf( const char* fmt, ... );
 
+void Log_Close();
+
 #endif //ENGINE_SV_LOG_H

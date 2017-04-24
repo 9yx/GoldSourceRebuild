@@ -13,6 +13,12 @@ void ClientDLL_Init()
 	//TODO: implement - Solokiller
 }
 
+void ClientDLL_Shutdown()
+{
+	//TODO: implement - Solokiller
+}
+
+
 void ClientDLL_ActivateMouse()
 {
 	if( fClientLoaded )
