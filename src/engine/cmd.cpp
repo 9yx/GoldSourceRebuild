@@ -805,29 +805,29 @@ void Cmd_AddGameCommand( const char* cmd_name, xcommand_t function )
 
 void Cmd_RemoveMallocedCmds( int flag )
 {
-	cvar_t* pPrev = nullptr;
-	cvar_t* pCvar = cvar_vars;
-	cvar_t* pNext;
+	cmd_function_t* pPrev = nullptr;
+	cmd_function_t* pCmd = cmd_functions;
+	cmd_function_t* pNext;
 
-	while( pCvar )
+	while( pCmd )
 	{
-		pNext = pCvar->next;
+		pNext = pCmd->next;
 
-		if( pCvar->flags & flag )
+		if( pCmd->flags & flag )
 		{
-			Mem_Free( pCvar );
+			Mem_Free( pCmd );
 
 			if( pPrev )
 				pPrev->next = pNext;
 			else
-				cvar_vars = pNext;
+				cmd_functions = pNext;
 		}
 		else
 		{
-			pPrev = pCvar;
+			pPrev = pCmd;
 		}
 
-		pCvar = pNext;
+		pCmd = pNext;
 	}
 }
 
