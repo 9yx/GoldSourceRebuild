@@ -68,6 +68,13 @@ set( COPY_RESOURCES OFF CACHE BOOL "Flag used to track whether resources should 
 if( COPY_RESOURCES )
 	message( STATUS "Copying resources from game installation..." )
 	
+	set( BASE_FILES_TO_COPY vgui.dll )
+	
+	foreach( filename IN LISTS BASE_FILES_TO_COPY )
+		message( STATUS "Copying file \"${filename}\"" )
+		file( COPY ${HL_DIR}/${filename} DESTINATION ${ENGINE_BASE_PATH} )
+	endforeach()
+	
 	set( DIRS_TO_COPY cl_dlls dlls gfx resource )
 	
 	foreach( dir IN LISTS DIRS_TO_COPY )
