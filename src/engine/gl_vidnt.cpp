@@ -18,6 +18,7 @@
 #include "strtools.h"
 #include "sys_getmodes.h"
 
+cvar_t gl_ztrick = { "gl_ztrick", "0" };
 cvar_t gl_vsync = { "gl_vsync", "1", FCVAR_ARCHIVE };
 
 bool scr_skipupdate = false;
@@ -198,7 +199,8 @@ bool GL_SetMode( SDL_Window* mainwindow, HDC* pmaindc, HGLRC* pbaseRC )
 	}
 #endif
 
-	QGL_Init();
+	//TODO: remove obsolete parameters - Solokiller
+	QGL_Init( "opengl32.dll", "" );
 	s_bSupportsBlitTexturing = false;
 	//TODO: implement - Solokiller
 	/*
@@ -379,6 +381,11 @@ void GL_Shutdown( SDL_Window* mainwindow, HDC hdc, HGLRC hglrc )
 
 bool VID_Init( unsigned short* palette )
 {
-	//TODO: implement - Solokiller
+	Cvar_RegisterVariable( &gl_ztrick );
+	Cvar_RegisterVariable( &gl_vsync );
+
+	if( COM_CheckParm( "-gl_log" ) )
+		Cmd_AddCommand( "gl_log", GLimp_EnableLogging );
+
 	return true;
 }
