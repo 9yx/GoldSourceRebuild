@@ -37,8 +37,20 @@ extern glwstate_t glw_state;
 void* QGL_Init();
 void QGL_Shutdown();
 
+void GL_Config();
+
+void GL_Init();
+
 bool GL_SetMode( SDL_Window* mainwindow, HDC* pmaindc, HGLRC* pbaseRC );
 
+bool VID_Init( unsigned short* palette );
+
 void R_InitTextures();
+
+void R_Init();
+
+void Draw_Init();
+
+void SCR_Init();
 
 #endif //ENGINE_QGL_H

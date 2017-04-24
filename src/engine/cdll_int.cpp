@@ -8,6 +8,11 @@ char g_szfullClientName[ 512 ];
 
 bool fClientLoaded = false;
 
+void ClientDLL_Init()
+{
+	//TODO: implement - Solokiller
+}
+
 void ClientDLL_ActivateMouse()
 {
 	if( fClientLoaded )

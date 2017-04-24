@@ -17,18 +17,18 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
+/**
+*	@file
+*
+*	main control for any streaming sound output device
+*/
+
 #include "quakedef.h"
-#include "client.h"
+#include "snd.h"
 
-client_static_t cls;
+cvar_t suitvolume = { "suitvolume", "0.25", FCVAR_ARCHIVE };
 
-playermove_t g_clmove;
-
-cvar_t cl_mousegrab = { "cl_mousegrab", "1", FCVAR_ARCHIVE };
-cvar_t m_rawinput = { "m_rawinput", "1", FCVAR_ARCHIVE };
-cvar_t rate = { "rate", "30000", FCVAR_USERINFO };
-
-void CL_Init()
+void S_Init()
 {
 	//TODO: implement - Solokiller
 }

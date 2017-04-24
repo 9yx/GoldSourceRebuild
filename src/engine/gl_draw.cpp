@@ -1,12 +1,7 @@
 #include "quakedef.h"
 #include "qgl.h"
 
-void R_InitTextures()
-{
-	//TODO: implement - Solokiller
-}
-
-void R_Init()
+void Draw_Init()
 {
 	//TODO: implement - Solokiller
 }

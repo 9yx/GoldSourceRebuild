@@ -1,5 +1,15 @@
 #include "vgui_int.h"
 
+void VGui_Startup()
+{
+	//TODO: implement - Solokiller
+}
+
+void VGui_Shutdown()
+{
+	//TODO: implement - Solokiller
+}
+
 void VGui_CallEngineSurfaceAppHandler( void* event, void* userData )
 {
 	if( !VGuiWrap2_CallEngineSurfaceAppHandler( event, userData ) )

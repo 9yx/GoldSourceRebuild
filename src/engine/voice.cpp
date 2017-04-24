@@ -5,3 +5,9 @@ void Voice_RegisterCvars()
 {
 	//TODO: implement - Solokiller
 }
+
+bool Voice_Init( const char* pCodecName, int quality )
+{
+	//TODO: implement - Solokiller
+	return true;
+}

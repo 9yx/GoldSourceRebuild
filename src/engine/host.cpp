@@ -2,18 +2,24 @@
 
 #include "quakedef.h"
 #include "buildnum.h"
+#include "cdaudio.h"
 #include "cdll_int.h"
 #include "chase.h"
+#include "cl_parsefn.h"
 #include "client.h"
 #include "cmodel.h"
 #include "decals.h"
 #include "delta.h"
+#include "DemoPlayerWrapper.h"
 #include "hashpak.h"
 #include "net_chan.h"
+#include "pmove.h"
 #include "qgl.h"
 #include "server.h"
+#include "snd.h"
 #include "sv_main.h"
 #include "SystemWrapper.h"
+#include "vgui_int.h"
 #include "view.h"
 #include "voice.h"
 #include "wad.h"
@@ -282,15 +288,13 @@ bool Host_Init( quakeparms_t* parms )
 			host_basepal[ ( 4 * i ) + 3 ] = 0;
 		}
 
-		//TODO: implement - Solokiller
-		/*
 		GL_Init();
 		PM_Init( &g_clmove );
 		CL_InitEventSystem();
 		ClientDLL_Init();
 		VGui_Startup();
 
-		if( !VID_Init() )
+		if( !VID_Init( host_basepal ) )
 		{
 			VGui_Shutdown();
 			return false;
@@ -304,21 +308,16 @@ bool Host_Init( quakeparms_t* parms )
 		Voice_Init( "voice_speex", 1 );
 		DemoPlayer_Init();
 		CL_Init();
-		*/
 	}
 	else
 	{
-		//TODO: implement - Solokiller
-		//Cvar_RegisterVariable( &suitvolume );
+		Cvar_RegisterVariable( &suitvolume );
 	}
 
 	Cbuf_InsertText( "exec valve.rc\n" );
 
-	//TODO: implement - Solokiller
-	/*
-	if( ( _DWORD ) cls.state )
+	if( cls.state != ca_dedicated )
 		GL_Config();
-		*/
 
 	Hunk_AllocName( 0, "-HOST_HUNKLEVEL-" );
 	host_hunklevel = Hunk_LowMark();
@@ -362,8 +361,11 @@ void Host_Shutdown()
 		//TODO: implement - Solokiller
 		/*
 		CDAudio_Shutdown();
+		*/
 		VGui_Shutdown();
 
+		//TODO: implement - Solokiller
+		/*
 		if( ( _DWORD ) cls.state )
 			ClientDLL_Shutdown();
 			*/

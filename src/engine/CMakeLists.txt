@@ -51,11 +51,15 @@ add_sources(
 	APIProxy.h
 	buildnum.cpp
 	buildnum.h
+	cd.cpp
+	cdaudio.h
 	cdll_int.cpp
 	cdll_int.h
 	chase.cpp
 	chase.h
 	cl_main.cpp
+	cl_parsefn.cpp
+	cl_parsefn.h
 	client.h
 	cmd.cpp
 	cmd.h
@@ -73,11 +77,14 @@ add_sources(
 	decals.h
 	delta.cpp
 	delta.h
+	DemoPlayerWrapper.cpp
+	DemoPlayerWrapper.h
 	edict.h
 	eiface.h
 	filesystem.cpp
 	filesystem.h
 	filesystem_internal.cpp
+	gl_draw.cpp
 	gl_rmisc.cpp
 	gl_screen.cpp
 	gl_vidnt.cpp
@@ -103,6 +110,8 @@ add_sources(
 	net_chan.cpp
 	net_chan.h
 	net_ws.cpp
+	pmove.cpp
+	pmove.h
 	pr_cmds.cpp
 	pr_cmds.h
 	progdefs.h
@@ -115,6 +124,7 @@ add_sources(
 	server.h
 	shake.h
 	snd.h
+	snd_dma.cpp
 	snd_mix.cpp
 	snd_sdl.cpp
 	studio.h

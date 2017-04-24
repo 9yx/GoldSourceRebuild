@@ -1,3 +1,9 @@
+/**
+*	@file
+*
+*	NT GL vid component
+*/
+
 //Included first so Windows definitions included by SDL & GLEW don't try to override ours. - Solokiller
 #ifdef WIN32
 #include <winlite.h>
@@ -36,6 +42,16 @@ const char* gl_extensions = "";
 
 static FBO_Container_t s_MSAAFBO;
 static FBO_Container_t s_BackBufferFBO;
+
+void GL_Config()
+{
+	//TODO: implement - Solokiller
+}
+
+void GL_Init()
+{
+	//TODO: implement - Solokiller
+}
 
 #ifdef WIN32
 //Note: this code is obsolete and won't have any effect.
@@ -349,4 +365,10 @@ bool GL_SetMode( SDL_Window* mainwindow, HDC* pmaindc, HGLRC* pbaseRC )
 #else
 	return true;
 #endif
+}
+
+bool VID_Init( unsigned short* palette )
+{
+	//TODO: implement - Solokiller
+	return true;
 }

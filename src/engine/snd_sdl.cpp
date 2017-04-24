@@ -1,3 +1,4 @@
+#include "quakedef.h"
 #include "snd.h"
 
 bool g_fUseDInput = false;

@@ -3,6 +3,10 @@
 
 #include "GameUI/CareerDefs.h"
 
+void VGui_Startup();
+
+void VGui_Shutdown();
+
 void VGui_CallEngineSurfaceAppHandler( void* event, void* userData );
 
 bool VGui_GameUIKeyPressed();

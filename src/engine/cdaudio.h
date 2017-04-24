@@ -17,18 +17,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-#include "quakedef.h"
-#include "client.h"
+#ifndef ENGINE_CDAUDIO_H
+#define ENGINE_CDAUDIO_H
 
-client_static_t cls;
+void CDAudio_Init();
 
-playermove_t g_clmove;
-
-cvar_t cl_mousegrab = { "cl_mousegrab", "1", FCVAR_ARCHIVE };
-cvar_t m_rawinput = { "m_rawinput", "1", FCVAR_ARCHIVE };
-cvar_t rate = { "rate", "30000", FCVAR_USERINFO };
-
-void CL_Init()
-{
-	//TODO: implement - Solokiller
-}
+#endif //ENGINE_CDAUDIO_H
