@@ -196,9 +196,7 @@ void Host_Version()
 			Mem_Free( pFileData );
 	}
 
-	//TODO: implement - Solokiller
-	/*
-	if( ( _DWORD ) cls.state )
+	if( cls.state != ca_dedicated )
 	{
 		Con_DPrintf( "Protocol version %i\nExe version %s (%s)\n", PROTOCOL_VERSION, gpszVersionString, gpszProductString );
 		Con_DPrintf( "Exe build: " __TIME__ " " __DATE__ " (%i)\n", build_number() );
@@ -208,7 +206,6 @@ void Host_Version()
 		Con_Printf( "Protocol version %i\nExe version %s (%s)\n", PROTOCOL_VERSION, gpszVersionString, gpszProductString );
 		Con_Printf( "Exe build: " __TIME__ " " __DATE__ " (%i)\n", build_number() );
 	}
-	*/
 }
 
 bool Host_Init( quakeparms_t* parms )

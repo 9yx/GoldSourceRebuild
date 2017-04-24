@@ -67,14 +67,12 @@ void Sys_Error( const char* error, ... )
 	if( bReentry == false )
 	{
 		bReentry = true;
-		//TODO: implement - Solokiller
-		/*
-		if( ( _DWORD ) svs.dll_initialized )
+
+		if( svs.dll_initialized )
 		{
 			if( gEntityInterface.pfnSys_Error )
 				gEntityInterface.pfnSys_Error( text );
 		}
-		*/
 
 		Log_Printf( "FATAL ERROR (shutting down): %s\n", text );
 
@@ -161,8 +159,7 @@ void ForceReloadProfile()
 
 	SDL_GL_SetSwapInterval( ( gl_vsync.value <= 0.0 ) - 1 );
 
-	//TODO: implement - Solokiller
-	if( false/*( _DWORD ) cls.state*/ )
+	if( cls.state != ca_dedicated )
 	{
 		char szRate[ 32 ];
 		strncpy( szRate, GetRateRegistrySetting( rate.string ), ARRAYSIZE( szRate ) );

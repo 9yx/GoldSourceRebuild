@@ -25,6 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <cstdarg>
 
 #include "quakedef.h"
+#include "client.h"
 
 #define	MAX_ALIAS_NAME 32
 
@@ -969,8 +970,7 @@ bool Cmd_ForwardToServerInternal( sizebuf_t* pBuf )
 	tempBuf.cursize = 0;
 	tempBuf.buffername = "Cmd_ForwardToServerInternal::tempBuf";
 
-	//TODO: implement - Solokiller
-	if( false /*cls.state != ca_connected*/ )
+	if( cls.state != ca_connected )
 	{
 		if( Q_stricmp( Cmd_Argv( 0 ), "setinfo" ) )
 		{
@@ -981,8 +981,7 @@ bool Cmd_ForwardToServerInternal( sizebuf_t* pBuf )
 	}
 	else
 	{
-		//TODO: implement - Solokiller
-		if( true /*cls.demoplayback == false */ && g_bIsDedicatedServer == false )
+		if( !cls.demoplayback && !g_bIsDedicatedServer )
 		{
 			MSG_WriteByte( &tempBuf, clc_stringcmd );
 			if( Q_strcasecmp( Cmd_Argv( 0 ), "cmd" ) != 0 )
@@ -1061,8 +1060,7 @@ void Cmd_ExecuteString( const char* text, cmd_source_t src )
 	}
 
 	// check cvars
-	//TODO: implement - Solokiller
-	if( Cvar_Command() == false /*&& ( cls.state == 3 || cls.state == 5 || cls.state == 4 )*/ )
+	if( !Cvar_Command() && ( cls.state == ca_connected || cls.state == ca_active || cls.state == ca_uninitialized ) )
 		Cmd_ForwardToServer();
 }
 
