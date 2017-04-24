@@ -170,25 +170,17 @@ void ForceReloadProfile()
 	}
 }
 
-FIELDIOFUNCTION GetIOFunction( const char* pName, int* pOutIndex, int iStartIndex )
+FIELDIOFUNCTION GetIOFunction( const char* pName )
 {
-	//TODO: use a proper assert - Solokiller
-	assert( iStartIndex >= 0 );
-
 	FIELDIOFUNCTION result = nullptr;
 
-	int i;
-
-	for( i = iStartIndex >= 0 ? iStartIndex : 0; i < g_iextdllMac; ++i )
+	for( int i = 0; i < g_iextdllMac; ++i )
 	{
 		result = reinterpret_cast<FIELDIOFUNCTION>( Sys_GetProcAddress( g_rgextdll[ i ].pDLLHandle, pName ) );
 
 		if( result )
 			break;
 	}
-
-	if( pOutIndex )
-		*pOutIndex = i != g_iextdllMac ? i : -1;
 
 	return result;
 }

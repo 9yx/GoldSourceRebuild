@@ -98,10 +98,8 @@ using FIELDIOFUNCTION = void( * )();
 
 /**
 *	Gets a dllexported function from the first DLL that exports it.
-*	@param[ out ] pOutIndex Optional. The index of the extdll that contains the function, or -1 if none contained it
-*	@param iStartIndex Optional. Extdll index to start at
 */
-FIELDIOFUNCTION GetIOFunction( const char* pName, int* piOutIndex = nullptr, int iStartIndex = 0 );
+FIELDIOFUNCTION GetIOFunction( const char* pName );
 
 /**
 *	Loads all entity DLLs.
