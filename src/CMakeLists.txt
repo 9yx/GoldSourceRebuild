@@ -1,3 +1,5 @@
+#Add VGUI2 first since it's referenced by other projects
+add_subdirectory( vgui2 )
 add_subdirectory( engine )
 add_subdirectory( filesystem )
 add_subdirectory( launcher )
