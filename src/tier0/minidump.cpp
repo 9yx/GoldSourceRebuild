@@ -7,7 +7,7 @@
 //=============================================================================//
 #include <cstring>
 #include <ctime>
-#include "dbg_internal.h"
+#include "dbg.h"
 
 #ifdef WIN32
 #undef ARRAYSIZE

@@ -13,7 +13,6 @@ add_sources(
 	cpu.cpp
 	#cpu_posix.cpp
 	dbg.cpp
-	dbg_internal.h
 	fasttimer.cpp
 	mem.cpp
 	memblockhdr.cpp
@@ -24,6 +23,7 @@ add_sources(
 	pch_tier0.cpp
 	platform.cpp
 	#platform_posix.cpp
+	pme.cpp
 	#pme_posix.cpp
 	testthread.cpp
 	thread.cpp

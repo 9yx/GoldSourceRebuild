@@ -13,8 +13,9 @@
 #pragma once
 #endif
 
-
-#ifdef DBGFLAG_VALIDATE
+//Tier0 is set up to enable validation if DBGFLAG_VALIDATE is set, but this also turns on validation in code that fails to compile.
+//Rather than fix every bit of code that gets turned on (which is never used), we'll just enable this on Windows since it's needed there. - Solokiller
+#ifdef WIN32//DBGFLAG_VALIDATE
 class CValObject
 {
 public:

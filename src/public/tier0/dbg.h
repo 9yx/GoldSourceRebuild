@@ -189,6 +189,17 @@ DBG_INTERFACE void   _SpewInfo( SpewType_t type, tchar const* pFile, int line );
 DBG_INTERFACE SpewRetval_t   _SpewMessage( tchar const* pMsg, ... );
 DBG_INTERFACE SpewRetval_t   _DSpewMessage( tchar const *pGroupName, int level, tchar const* pMsg, ... );
 DBG_INTERFACE void _ExitOnFatalAssert( tchar const* pFile, int line );
+
+using AssertFailedNotifyFunc_t = void( * )();
+
+DBG_INTERFACE void CallAssertFailedNotifyFunc();
+DBG_INTERFACE void SetAssertFailedNotifyFunc( AssertFailedNotifyFunc_t func );
+
+using FlushLogFunc_t = void( * )();
+
+DBG_INTERFACE void CallFlushLogFunc();
+DBG_INTERFACE void SetFlushLogFunc( FlushLogFunc_t func );
+
 #ifndef _XBOX
 DBG_INTERFACE bool ShouldUseNewAssertDialog();
 #else

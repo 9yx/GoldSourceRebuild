@@ -133,7 +133,7 @@ PLATFORM_INTERFACE void SetInAssert( bool bState )
 	s_bInAssert = bState;
 }
 
-PLATFORM_INTERFACE bool ShouldUseNewAssertDialog()
+DBG_INTERFACE bool ShouldUseNewAssertDialog()
 {
 	Plat_GetCommandLine();
 

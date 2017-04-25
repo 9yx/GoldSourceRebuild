@@ -77,8 +77,8 @@ inline void *MemAlloc_InlineCallocMemset( void *pMem, size_t nCount, size_t nEle
 // Debug path
 #if defined(USE_MEM_DEBUG)
 
-#define malloc(s)				g_pMemAlloc->Alloc( s, __FILE__, __LINE__)
-#define realloc(p, s)			g_pMemAlloc->Realloc( p, s, __FILE__, __LINE__ )
+#define malloc(s)				g_pMemAlloc->Alloc_Debug( s, __FILE__, __LINE__)
+#define realloc(p, s)			g_pMemAlloc->Realloc_Debug( p, s, __FILE__, __LINE__ )
 #define _aligned_malloc( s, a )	MemAlloc_AllocAligned( s, a, __FILE__, __LINE__ )
 
 #define _malloc_dbg(s, t, f, l)	WHYCALLINGTHISDIRECTLY(s)

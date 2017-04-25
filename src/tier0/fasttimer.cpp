@@ -12,6 +12,13 @@
 #undef ARRAYSIZE
 #include "winlite.h"
 
+PLATFORM_INTERFACE int64 g_ClockSpeed = 0;
+PLATFORM_INTERFACE unsigned long g_dwClockSpeed = 0;
+
+PLATFORM_INTERFACE double g_ClockSpeedMicrosecondsMultiplier = 0;
+PLATFORM_INTERFACE double g_ClockSpeedMillisecondsMultiplier = 0;
+PLATFORM_INTERFACE double g_ClockSpeedSecondsMultiplier = 0;
+
 PLATFORM_INTERFACE int64 g_ulLastCycleSample = 0;
 PLATFORM_INTERFACE int g_cBadCycleCountReceived = 0;
 

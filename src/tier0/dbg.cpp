@@ -7,7 +7,6 @@
 //=============================================================================//
 #include "platform.h"
 #include "dbg.h"
-#include "dbg_internal.h"
 #include "strtools.h"
 #include "threadtools.h"
 #include "testthread.h"
@@ -22,8 +21,6 @@
 #pragma warning( disable: 4091 )
 #include "minidump.h"
 #pragma warning( pop )
-
-using AssertFailedNotifyFunc_t = void( * )();
 
 AssertFailedNotifyFunc_t s_AssertFailedNotifyFunc = nullptr;
 
@@ -85,7 +82,7 @@ SpewRetval_t DefaultSpewFunc( SpewType_t type, const tchar* pMsg )
 
 static SpewOutputFunc_t s_SpewOutputFunc = &DefaultSpewFunc;
 
-DBG_INTERFACE SpewOutputFunc_t GetSpewOutputFunc()
+SpewOutputFunc_t GetSpewOutputFunc()
 {
 	if( s_SpewOutputFunc )
 		return s_SpewOutputFunc;
@@ -93,7 +90,7 @@ DBG_INTERFACE SpewOutputFunc_t GetSpewOutputFunc()
 	return &DefaultSpewFunc;
 }
 
-DBG_INTERFACE void SpewOutputFunc( SpewOutputFunc_t func )
+void SpewOutputFunc( SpewOutputFunc_t func )
 {
 	if( !func )
 		func = &DefaultSpewFunc;
@@ -141,7 +138,7 @@ bool FindSpewGroup( const tchar* pGroupName, int* pInd )
 	return false;
 }
 
-void __cdecl SpewAndLogActivate( const tchar *pGroupName, int level, int logLevel )
+void SpewAndLogActivate( const tchar *pGroupName, int level, int logLevel )
 {
 	if( *pGroupName != '*' || pGroupName[ 1 ] )
 	{
@@ -193,7 +190,7 @@ void SpewAndLogChangeIfStillDefault( const tchar *pGroupName, int level, int lev
 	}
 }
 
-void __cdecl SpewChangeIfStillDefault( const tchar *pGroupName, int level, int leveldefault )
+void SpewChangeIfStillDefault( const tchar *pGroupName, int level, int leveldefault )
 {
 	int index;
 
@@ -206,7 +203,7 @@ void __cdecl SpewChangeIfStillDefault( const tchar *pGroupName, int level, int l
 	}
 }
 
-DBG_INTERFACE void SpewActivate( tchar const* pGroupName, int level )
+void SpewActivate( tchar const* pGroupName, int level )
 {
 	SpewAndLogActivate( pGroupName, level, level );
 }
@@ -225,7 +222,7 @@ bool IsLogActive( const tchar *pGroupName, int iLogLevel )
 	return iLogLevelRequired >= iLogLevel;
 }
 
-DBG_INTERFACE bool IsSpewActive( tchar const* pGroupName, int level )
+bool IsSpewActive( tchar const* pGroupName, int level )
 {
 	int index;
 
@@ -239,7 +236,7 @@ DBG_INTERFACE bool IsSpewActive( tchar const* pGroupName, int level )
 	}
 }
 
-DBG_INTERFACE void _SpewInfo( SpewType_t type, const tchar* pFile, int line )
+void _SpewInfo( SpewType_t type, const tchar* pFile, int line )
 {
 	auto pszName = pFile;
 	auto pszLastSlash = _tcsrchr( pFile, '\\' );
@@ -321,7 +318,7 @@ SpewRetval_t SpewMessageType( SpewType_t spewType, const tchar* pMsgFormat, va_l
 	return retval;
 }
 
-DBG_INTERFACE SpewRetval_t _SpewMessage( const tchar* pMsgFormat, ... )
+SpewRetval_t _SpewMessage( const tchar* pMsgFormat, ... )
 {
 	va_list va;
 
@@ -332,7 +329,7 @@ DBG_INTERFACE SpewRetval_t _SpewMessage( const tchar* pMsgFormat, ... )
 	return retval;
 }
 
-DBG_INTERFACE SpewRetval_t _DSpewMessage( tchar const *pGroupName, int level, tchar const* pMsg, ... )
+SpewRetval_t _DSpewMessage( tchar const *pGroupName, int level, tchar const* pMsg, ... )
 {
 	int index;
 
@@ -361,7 +358,7 @@ DBG_INTERFACE SpewRetval_t _DSpewMessage( tchar const *pGroupName, int level, tc
 	return result;
 }
 
-DBG_INTERFACE void _ExitOnFatalAssert( tchar const* pFile, int line )
+void _ExitOnFatalAssert( tchar const* pFile, int line )
 {
 	_SpewMessage( "Fatal assert failed: %s, line %d.  Application exiting.\n", pFile, line );
 	WriteMiniDump();
@@ -369,7 +366,7 @@ DBG_INTERFACE void _ExitOnFatalAssert( tchar const* pFile, int line )
 	exit( 1 );
 }
 
-DBG_INTERFACE void Msg( tchar const* pMsg, ... )
+void Msg( tchar const* pMsg, ... )
 {
 	va_list va;
 
@@ -403,7 +400,33 @@ void DMsg( tchar const* pGroupName, int level, tchar const* pMsg, ... )
 	}
 }
 
-DBG_INTERFACE void Warning( tchar const *pMsg, ... )
+//TODO: temporary until linker issues with vstdlib are resolved - Solokiller
+DBG_INTERFACE void _DMsg( tchar const* pGroupName, int level, tchar const* pMsg, ... )
+{
+	int index;
+
+	bool bShouldLog;
+
+	if( FindSpewGroup( pGroupName, &index ) )
+	{
+		bShouldLog = level <= s_pSpewGroups[ index ].m_Level;
+	}
+	else
+	{
+		bShouldLog = level <= s_DefaultLevel;
+	}
+
+	if( bShouldLog )
+	{
+		va_list va;
+
+		va_start( va, pMsg );
+		SpewMessageType( SPEW_MESSAGE, pMsg, va );
+		va_end( va );
+	}
+}
+
+void Warning( tchar const *pMsg, ... )
 {
 	va_list va;
 
@@ -412,7 +435,7 @@ DBG_INTERFACE void Warning( tchar const *pMsg, ... )
 	va_end( va );
 }
 
-DBG_INTERFACE void DWarning( const tchar* pGroupName, int level, const tchar* pMsgFormat, ... )
+void DWarning( const tchar* pGroupName, int level, const tchar* pMsgFormat, ... )
 {
 	int index;
 
@@ -437,7 +460,7 @@ DBG_INTERFACE void DWarning( const tchar* pGroupName, int level, const tchar* pM
 	}
 }
 
-DBG_INTERFACE void Log( tchar const *pMsg, ... )
+void Log( tchar const *pMsg, ... )
 {
 	va_list va;
 
@@ -471,7 +494,7 @@ void DLog( const tchar* pGroupName, int level, const tchar* pMsgFormat, ... )
 	}
 }
 
-DBG_INTERFACE void Error( tchar const* pMsg, ... )
+void Error( tchar const* pMsg, ... )
 {
 	va_list va;
 
@@ -480,26 +503,26 @@ DBG_INTERFACE void Error( tchar const* pMsg, ... )
 	va_end( va );
 }
 
-DBG_INTERFACE void _AssertValidReadPtr( void* ptr, int count )
+void _AssertValidReadPtr( void* ptr, int count )
 {
 }
 
-DBG_INTERFACE void _AssertValidWritePtr( void* ptr, int count )
+void _AssertValidWritePtr( void* ptr, int count )
 {
 }
 
-DBG_INTERFACE void _AssertValidReadWritePtr( void* ptr, int count )
+void _AssertValidReadWritePtr( void* ptr, int count )
 {
 }
 
-DBG_INTERFACE void AssertValidStringPtr( const tchar* ptr, int maxchar )
+void AssertValidStringPtr( const tchar* ptr, int maxchar )
 {
 #if defined( _DEBUG ) && defined( WIN32 )
 	Assert( !IsBadStringPtr( ptr, maxchar ) );
 #endif
 }
 
-PLATFORM_INTERFACE void* Plat_SimpleLog( const tchar* file, int line )
+void* Plat_SimpleLog( const tchar* file, int line )
 {
 	FILE* pFile = fopen( "simple.log", "at+" );
 	_ftprintf( pFile, _T( "%s:%i\n" ), file, line );

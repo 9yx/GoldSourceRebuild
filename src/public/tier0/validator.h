@@ -5,7 +5,7 @@
 // $NoKeywords: $
 //=============================================================================//
 
-
+#include "dbg.h"
 #include "valobject.h"
 
 #ifndef VALIDATOR_H
@@ -16,10 +16,11 @@
 #endif
 
 
-#ifdef DBGFLAG_VALIDATE
+//See valobject.h for why this changed - Solokiller
+#ifdef WIN32//DBGFLAG_VALIDATE
 
 
-class CValidator
+class DBG_CLASS CValidator
 {
 public:
 	// Constructors & destructors
@@ -27,7 +28,7 @@ public:
 	~CValidator( void );
 
 	// Call this each time we enter a new Validate function
-	void Push( tchar *pchType, void *pvObj, tchar *pchName );
+	void Push( const tchar *pchType, void *pvObj, const tchar *pchName );
 
 	// Call this each time we exit a Validate function
 	void Pop( void );

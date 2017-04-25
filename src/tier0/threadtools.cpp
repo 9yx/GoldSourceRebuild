@@ -45,6 +45,15 @@ TT_INTERFACE uint ThreadGetCurrentId()
 #endif
 }
 
+TT_INTERFACE uint ThreadGetCurrentProcessId()
+{
+#ifdef WIN32
+	return GetCurrentProcessId();
+#else
+	return 0;
+#endif
+}
+
 TT_INTERFACE int ThreadGetPriority( ThreadHandle_t hThread )
 {
 #ifdef WIN32
@@ -412,6 +421,30 @@ CThread::~CThread()
 	}
 }
 
+const char* CThread::GetName()
+{
+	m_Lock.Lock();
+
+	if( !*( m_szName ) )
+	{
+		snprintf( m_szName, ARRAYSIZE( m_szName ), "Thread(0x%x/0x%x)", reinterpret_cast<unsigned int>( this ), static_cast<unsigned int>( m_threadId ) );
+	}
+
+	m_Lock.Unlock();
+
+	return m_szName;
+}
+
+void CThread::SetName( const char* pszName )
+{
+	m_Lock.Lock();
+
+	strncpy( m_szName, pszName, ARRAYSIZE( m_szName ) - 1 );
+	m_szName[ ARRAYSIZE( m_szName ) - 1 ] = '\0';
+
+	m_Lock.Unlock();
+}
+
 bool CThread::Start( unsigned nBytesStack )
 {
 	DWORD ExitCode;
@@ -471,6 +504,13 @@ bool CThread::Start( unsigned nBytesStack )
 	m_Lock.Unlock();
 
 	return m_hThread != NULL;
+}
+
+bool CThread::IsAlive()
+{
+	DWORD exitCode;
+
+	return m_hThread && GetExitCodeThread( m_hThread, &exitCode ) && exitCode == STILL_ACTIVE;
 }
 
 bool CThread::Join( unsigned timeout )

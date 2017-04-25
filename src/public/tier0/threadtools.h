@@ -90,6 +90,7 @@ TT_INTERFACE ThreadHandle_t CreateSimpleThread( ThreadFunc_t, void *pParam, unsi
 
 TT_INTERFACE void ThreadSleep(unsigned duration = 0);
 TT_INTERFACE uint ThreadGetCurrentId();
+TT_INTERFACE uint ThreadGetCurrentProcessId();
 TT_INTERFACE int ThreadGetPriority( ThreadHandle_t hThread = NULL );
 TT_INTERFACE bool ThreadInMainThread();
 

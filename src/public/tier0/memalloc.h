@@ -32,17 +32,16 @@ typedef size_t (*MemAllocFailHandler_t)( size_t );
 abstract_class IMemAlloc
 {
 public:
-	// Release versions
+	//This interface is different in GoldSource,
+	//and the method names are different to avoid a compiler issue that swaps the overloads. - Solokiller
+	virtual void *Alloc_Debug( size_t nSize, const char *pFileName, int nLine, int unknown ) = 0;
 	virtual void *Alloc( size_t nSize ) = 0;
+	virtual void *Realloc_Debug( void *pMem, size_t nSize, const char *pFileName, int nLine, int unknown ) = 0;
 	virtual void *Realloc( void *pMem, size_t nSize ) = 0;
+	virtual void Free_Debug( void *pMem, const char *pFileName, int nLine, int unknown ) = 0;
 	virtual void Free( void *pMem ) = 0;
+	virtual void *Expand_NoLongerSupported_Debug( void *pMem, size_t nSize, const char *pFileName, int nLine, int unknown ) = 0;
     virtual void *Expand_NoLongerSupported( void *pMem, size_t nSize ) = 0;
-
-	// Debug versions
-    virtual void *Alloc( size_t nSize, const char *pFileName, int nLine ) = 0;
-    virtual void *Realloc( void *pMem, size_t nSize, const char *pFileName, int nLine ) = 0;
-    virtual void  Free( void *pMem, const char *pFileName, int nLine ) = 0;
-    virtual void *Expand_NoLongerSupported( void *pMem, size_t nSize, const char *pFileName, int nLine ) = 0;
 
 	// Returns size of a particular allocation
 	virtual size_t GetSize( void *pMem ) = 0;
@@ -120,7 +119,7 @@ inline void *MemAlloc_AllocAligned( size_t size, size_t align, const char *pszFi
 
 	align = (align > sizeof(void *) ? align : sizeof(void *)) - 1;
 
-	if ( (pAlloc = (unsigned char*)g_pMemAlloc->Alloc( sizeof(void *) + align + size, pszFile, nLine ) ) == (unsigned char*)NULL)
+	if ( (pAlloc = (unsigned char*)g_pMemAlloc->Alloc_Debug( sizeof(void *) + align + size, pszFile, nLine, 0 ) ) == (unsigned char*)NULL)
 		return NULL;
 
 	pResult = (unsigned char*)( (unsigned)(pAlloc + sizeof(void *) + align ) & ~align );
