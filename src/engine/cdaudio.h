@@ -23,4 +23,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 void CDAudio_Init();
 void CDAudio_Shutdown();
 
+void PrimeMusicStream( char* filename, int looping );
+
 #endif //ENGINE_CDAUDIO_H

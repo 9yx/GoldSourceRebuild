@@ -20,6 +20,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef ENGINE_VIEW_H
 #define ENGINE_VIEW_H
 
+#include "shake.h"
+
 void V_Init();
 
 #endif //ENGINE_VIEW_H

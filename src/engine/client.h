@@ -21,6 +21,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define ENGINE_CLIENT_H
 
 #include "pm_defs.h"
+#include "cdll_int.h"
+#include "APIProxy.h"
 
 #define	MAX_DEMOS		32
 #define	MAX_DEMONAME	16
@@ -138,6 +140,8 @@ extern playermove_t g_clmove;
 extern cvar_t cl_mousegrab;
 extern cvar_t m_rawinput;
 extern cvar_t rate;
+
+extern cl_enginefunc_t cl_enginefuncs;
 
 extern char g_szfullClientName[ 512 ];
 

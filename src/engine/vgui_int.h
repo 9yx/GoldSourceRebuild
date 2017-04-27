@@ -111,4 +111,10 @@ size_t VGuiWrap2_GetLocalizedStringLength( const char* label );
 
 void VguiWrap2_GetMouseDelta( int* x, int* y );
 
+void ProcessTutorMessageDecayBuffer( int* buffer, int bufferLength );
+
+void ConstructTutorMessageDecayBuffer( int* buffer, int bufferLength );
+
+void ResetTutorMessageDecayData();
+
 #endif //ENGINE_VGUI_INT_H

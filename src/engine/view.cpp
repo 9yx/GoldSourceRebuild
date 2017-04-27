@@ -25,3 +25,13 @@ void V_Init()
 {
 	//TODO: implement - Solokiller
 }
+
+void V_CalcShake()
+{
+	//TODO: implement - Solokiller
+}
+
+void V_ApplyShake( float* origin, float* angles, float factor )
+{
+	//TODO: implement - Solokiller
+}

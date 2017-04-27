@@ -107,7 +107,11 @@ void COM_FixSlashes( char *pname );
 
 void COM_AddDefaultDir( const char* pszDir );
 
+void COM_AddAppDirectory( const char* pszBaseDir );
+
 const char* COM_FileExtension( const char* in );
+
+unsigned int COM_GetApproxWavePlayLength( const char* filepath );
 
 /**
 *	does a varargs printf into a temp buffer, so I don't need to have

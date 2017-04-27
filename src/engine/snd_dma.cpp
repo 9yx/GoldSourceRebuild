@@ -37,3 +37,8 @@ void S_Shutdown()
 {
 	//TODO: implement - Solokiller
 }
+
+void S_StopSound( int entnum, int entchannel )
+{
+	//TODO: implement - Solokiller
+}

@@ -125,6 +125,10 @@ enum
 	CMD_WRAPPER = 1 << 2,
 };
 
+typedef struct cmdalias_s cmdalias_t;
+
+cmdalias_t* Cmd_GetAliasesList();
+
 cmd_function_t* Cmd_GetFirstCmd();
 
 cmd_function_t* Cmd_FindCmd( const char* cmd_name );

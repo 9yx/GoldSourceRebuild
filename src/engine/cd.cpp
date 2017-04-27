@@ -29,3 +29,8 @@ void CDAudio_Shutdown()
 {
 	//TODO: implement - Solokiller
 }
+
+void PrimeMusicStream( char* filename, int looping )
+{
+	//TODO: implement - Solokiller
+}

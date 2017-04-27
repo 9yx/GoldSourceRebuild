@@ -13,7 +13,7 @@ void Snd_ReleaseBuffer()
 	//TODO: implement - Solokiller
 }
 
-void SetMouseEnable( bool fState )
+void SetMouseEnable( int fState )
 {
 	//Nothing
 }

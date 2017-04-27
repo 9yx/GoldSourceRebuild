@@ -22,9 +22,10 @@
 #ifndef CDLL_INT_H
 #define CDLL_INT_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+//Disabling this because it interferes with engine rebuild. - Solokiller
+//#ifdef __cplusplus
+//extern "C" {
+//#endif
 
 #include "const.h"
 #include "steam/steamtypes.h"
@@ -460,9 +461,9 @@ extern void NullDst(void);
 	(DST_HUD_GETPLAYERTEAM)				NullDst, \
 }
 
-#ifdef __cplusplus
-}
-#endif
+//#ifdef __cplusplus
+//}
+//#endif
 
 #endif // CDLL_INT_H
 	

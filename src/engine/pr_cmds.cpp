@@ -84,7 +84,7 @@ static double fran1()
 	return 0.9;
 }
 
-double RandomFloat( float flLow, float flHigh )
+float RandomFloat( float flLow, float flHigh )
 {
 	//TODO: implement - Solokiller
 	//g_engdstAddrs.pfnRandomFloat();
@@ -114,4 +114,10 @@ int32 RandomLong( int32 lLow, int32 lHigh )
 	}
 
 	return result;
+}
+
+int hudCheckParm( char* parm, char** ppnext )
+{
+	//TODO: implement - Solokiller
+	return 0;
 }

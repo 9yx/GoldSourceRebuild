@@ -483,6 +483,11 @@ void COM_AddDefaultDir( const char* pszDir )
 	}
 }
 
+void COM_AddAppDirectory( const char* pszBaseDir )
+{
+	FS_AddSearchPath( pszBaseDir, "PLATFORM" );
+}
+
 const char* COM_FileExtension( const char* in )
 {
 	static char exten[ 8 ];
@@ -507,6 +512,12 @@ const char* COM_FileExtension( const char* in )
 	}
 
 	return "";
+}
+
+unsigned int COM_GetApproxWavePlayLength( const char* filepath )
+{
+	//TODO: implement - Solokiller
+	return 0;
 }
 
 char* va( const char* format, ... )

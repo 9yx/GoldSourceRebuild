@@ -3,6 +3,7 @@
 #include "quakedef.h"
 
 const int MAX_INFO_TOKEN = MAX_INFO_STRING / 2;
+const int MAX_VALUE_BUFFERS = 4;
 
 char serverinfo[ MAX_INFO_STRING ] = {};
 
@@ -202,6 +203,8 @@ void Info_RemoveKey( char *s, const char *key )
 	char pkey[ MAX_INFO_TOKEN ];
 	char value[ MAX_INFO_TOKEN ];
 
+	//TODO: might not work properly, review - Solokiller
+
 	for( auto pszNext = s; *pszNext; )
 	{
 		//Save this off for the case where this is the key we need to remove.
@@ -261,4 +264,10 @@ void Info_RemoveKey( char *s, const char *key )
 			return;
 		}
 	}
+}
+
+const char* Info_ValueForKey( const char* s, const char* key )
+{
+	//TODO: implement - Solokiller
+	return "";
 }

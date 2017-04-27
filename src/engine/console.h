@@ -1,6 +1,8 @@
 #ifndef ENGINE_CONSOLE_H
 #define ENGINE_CONSOLE_H
 
+#include "con_nprint.h"
+
 enum redirect_t
 {
 	RD_NONE = 0,
@@ -19,6 +21,8 @@ void Con_Printf( const char* fmt, ... );
 void Con_DPrintf( const char* fmt, ... );
 
 void Con_Init();
+
+int Con_IsVisible();
 
 void Con_ToggleConsole_f();
 

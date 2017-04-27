@@ -9,10 +9,12 @@ void S_Init();
 
 void S_Shutdown();
 
+void S_StopSound( int entnum, int entchannel );
+
 void Snd_AcquireBuffer();
 void Snd_ReleaseBuffer();
 
-void SetMouseEnable( bool fState );
+void SetMouseEnable( int fState );
 
 void VOX_Init();
 

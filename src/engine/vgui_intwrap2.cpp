@@ -193,7 +193,20 @@ size_t VGuiWrap2_GetLocalizedStringLength( const char* label )
 
 void VguiWrap2_GetMouseDelta( int* x, int* y )
 {
+	g_BaseUISurface.GetMouseDelta( *x, *y );
+}
+
+void ProcessTutorMessageDecayBuffer( int* buffer, int bufferLength )
+{
 	//TODO: implement - Solokiller
-	*x = 0;
-	*y = 0;
+}
+
+void ConstructTutorMessageDecayBuffer( int* buffer, int bufferLength )
+{
+	//TODO: implement - Solokiller
+}
+
+void ResetTutorMessageDecayData()
+{
+	//TODO: implement - Solokiller
 }

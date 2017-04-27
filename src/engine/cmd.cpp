@@ -27,16 +27,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "quakedef.h"
 #include "client.h"
 
-#define	MAX_ALIAS_NAME 32
-
-struct cmdalias_t
-{
-	cmdalias_t* next;
-	char name[ MAX_ALIAS_NAME ];
-	char* value;
-};
-
 cmdalias_t* cmd_alias = nullptr;
+
+cmdalias_t* Cmd_GetAliasesList()
+{
+	return cmd_alias;
+}
 
 int trashtest;
 int *trashspot;

@@ -11,26 +11,33 @@ add_sources(
 	${SRC_DIR}/common/beamdef.h
 	${SRC_DIR}/common/cl_entity.h
 	${SRC_DIR}/common/com_model.h
+	${SRC_DIR}/common/con_nprint.h
 	${SRC_DIR}/common/const.h
 	${SRC_DIR}/common/crc.h
 	${SRC_DIR}/common/CRegistry.cpp
 	${SRC_DIR}/common/CRegistry.h
 	${SRC_DIR}/common/cvardef.h
+	${SRC_DIR}/common/demo_api.h
 	${SRC_DIR}/common/dlight.h
 	${SRC_DIR}/common/entity_state.h
+	${SRC_DIR}/common/event_api.h
 	${SRC_DIR}/common/event_args.h
 	${SRC_DIR}/common/event_flags.h
 	${SRC_DIR}/common/FilePaths.cpp
 	${SRC_DIR}/common/FilePaths.h
 	${SRC_DIR}/common/in_buttons.h
 	${SRC_DIR}/common/IRegistry.h
+	${SRC_DIR}/common/ivoicetweak.h
+	${SRC_DIR}/common/net_api.h
 	${SRC_DIR}/common/netadr.h
 	${SRC_DIR}/common/particledef.h
 	${SRC_DIR}/common/pmtrace.h
 	${SRC_DIR}/common/r_efx.h
 	${SRC_DIR}/common/ref_params.h
+	${SRC_DIR}/common/screenfade.h
 	${SRC_DIR}/common/Sequence.h
 	${SRC_DIR}/common/studio_event.h
+	${SRC_DIR}/common/triangleapi.h
 	${SRC_DIR}/common/usercmd.h
 	${SRC_DIR}/common/weaponinfo.h
 	${SRC_DIR}/common/winheaders.h
@@ -47,19 +54,38 @@ add_sources(
 	${SRC_DIR}/public/keydefs.h
 	${CMAKE_CURRENT_SOURCE_DIR}/vgui2/BaseUISurface.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/vgui2/BaseUISurface.h
+	${CMAKE_CURRENT_SOURCE_DIR}/vgui2/text_draw.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/vgui2/text_draw.h
 	anorms.h
 	APIProxy.h
 	buildnum.cpp
 	buildnum.h
 	cd.cpp
 	cdaudio.h
+	cdll_exp.cpp
+	cdll_exp.h
 	cdll_int.cpp
 	cdll_int.h
 	chase.cpp
 	chase.h
+	cl_demo.cpp
+	cl_demo.h
+	cl_draw.cpp
+	cl_draw.h
+	cl_ents.cpp
+	cl_ents.h
 	cl_main.cpp
+	cl_main.h
 	cl_parsefn.cpp
 	cl_parsefn.h
+	cl_pmove.cpp
+	cl_pmove.h
+	cl_pred.cpp
+	cl_pred.h
+	cl_spectator.cpp
+	cl_spectator.h
+	cl_tent.cpp
+	cl_tent.h
 	client.h
 	cmd.cpp
 	cmd.h
@@ -81,12 +107,17 @@ add_sources(
 	DemoPlayerWrapper.h
 	edict.h
 	eiface.h
+	eventapi.cpp
+	eventapi.h
 	filesystem.cpp
 	filesystem.h
 	filesystem_internal.cpp
 	gl_draw.cpp
 	gl_model.cpp
+	gl_rmain.cpp
 	gl_rmisc.cpp
+	gl_rsurf.cpp
+	gl_rsurf.h
 	gl_screen.cpp
 	gl_vidnt.cpp
 	gl_warp.cpp
@@ -109,11 +140,14 @@ add_sources(
 	module.cpp
 	net.h
 	net_api.cpp
+	net_api_int.h
 	net_chan.cpp
 	net_chan.h
 	net_ws.cpp
 	pmove.cpp
 	pmove.h
+	pmovetst.cpp
+	pmovetst.h
 	pr_cmds.cpp
 	pr_cmds.h
 	progdefs.h
@@ -122,7 +156,14 @@ add_sources(
 	qgl.cpp
 	qgl.h
 	quakedef.h
+	r_efx.cpp
+	r_efx_int.h
+	r_part.cpp
+	r_part.h
+	r_triangle.cpp
+	r_triangle.h
 	render.h
+	sequence.cpp
 	server.h
 	shake.h
 	snd.h
@@ -145,6 +186,8 @@ add_sources(
 	sys_sdlwind.cpp
 	SystemWrapper.cpp
 	SystemWrapper.h
+	tmessage.cpp
+	tmessage.h
 	traceinit.cpp
 	traceinit.h
 	VGUI_EngineSurfaceWrap.cpp

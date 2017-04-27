@@ -88,6 +88,12 @@ void Con_Init()
 	//TODO: implement - Solokiller
 }
 
+int Con_IsVisible()
+{
+	//TODO: implement - Solokiller
+	return false;
+}
+
 /*
 ================
 Con_ToggleConsole_f

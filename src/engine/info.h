@@ -20,4 +20,6 @@ void Info_SetValueForKey( char* s, const char* key, const char* value, int maxsi
 
 void Info_RemoveKey( char *s, const char *key );
 
+const char* Info_ValueForKey( const char* s, const char* key );
+
 #endif //ENGINE_INFO_H

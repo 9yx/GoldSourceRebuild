@@ -18,3 +18,62 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 #include "quakedef.h"
+#include "net_api_int.h"
+
+net_api_t netapi = 
+{
+	&Net_InitNetworking,
+	&Net_Status,
+	&Net_SendRequest,
+	&Net_CancelRequest,
+	&Net_CancelAllRequests,
+	&Net_AdrToString,
+	&Net_CompareAdr,
+	&Net_StringToAdr,
+	&Info_ValueForKey,
+	&Info_RemoveKey,
+	&Info_SetValueForStarKey
+};
+
+void Net_InitNetworking()
+{
+	//TODO: implement - Solokiller
+}
+
+void Net_Status( net_status_t* status )
+{
+	//TODO: implement - Solokiller
+}
+
+void Net_SendRequest( int context, int request, int flags, double timeout, netadr_t* remote_address, net_api_response_func_t response )
+{
+	//TODO: implement - Solokiller
+}
+
+void Net_CancelRequest( int context )
+{
+	//TODO: implement - Solokiller
+}
+
+void Net_CancelAllRequests()
+{
+	//TODO: implement - Solokiller
+}
+
+char* Net_AdrToString( netadr_t* a )
+{
+	//TODO: implement - Solokiller
+	return "";
+}
+
+int Net_CompareAdr( netadr_t* a, netadr_t* b )
+{
+	//TODO: implement - Solokiller
+	return false;
+}
+
+int Net_StringToAdr( char* s, netadr_t* a )
+{
+	//TODO: implement - Solokiller
+	return false;
+}
