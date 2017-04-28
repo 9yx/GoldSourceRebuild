@@ -20,6 +20,8 @@
 #include <KeyValues.h>
 #include "FileSystem.h"
 #include <vstdlib/IKeyValuesSystem.h>
+//TODO: remove this dependency - Solokiller
+#include <vgui_controls/Controls.h>
 
 #include <SDK_Color.h>
 #include <stdlib.h>

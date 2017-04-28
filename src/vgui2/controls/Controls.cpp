@@ -13,6 +13,7 @@
 #include <locale.h>
 
 #include <vgui/IInputInternal.h>
+#include <vgui/IKeyValues.h>
 #include <vgui/ILocalize.h>
 #include <vgui/IPanel.h>
 #include <vgui/IScheme.h>
@@ -24,6 +25,13 @@
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
+
+IKeyValues* g_pKeyValuesInterface = nullptr;
+
+IKeyValues* keyvalues()
+{
+	return g_pKeyValuesInterface;
+}
 
 namespace vgui2
 {
@@ -221,10 +229,14 @@ bool VGui_InitInterfacesList( const char *moduleName, CreateInterfaceFn *factory
 	g_pLocalizeInterface = (ILocalize *)InitializeInterface( VGUI_LOCALIZE_INTERFACE_VERSION, factoryList, numFactories );
 	g_pFileSystemInterface = (IFileSystem *)InitializeInterface( FILESYSTEM_INTERFACE_VERSION, factoryList, numFactories );
 
+	g_pKeyValuesInterface = static_cast<IKeyValues*>( InitializeInterface( KEYVALUES_INTERFACE_VERSION, factoryList, numFactories ) );
+
 	if (!g_pVGuiInterface)
 		return false;
 
 	g_pVGuiInterface->Init( factoryList, numFactories );
+
+	g_pKeyValuesInterface->RegisterSizeofKeyValues( sizeof( KeyValues ) );
 
 	if ( g_pSchemeInterface && 
 		 g_pSurfaceInterface && 
@@ -233,6 +245,7 @@ bool VGui_InitInterfacesList( const char *moduleName, CreateInterfaceFn *factory
 		 g_pVGuiInterface && 
 		 g_pFileSystemInterface && 
 		 g_pLocalizeInterface && 
+		 g_pKeyValuesInterface && 
 		 g_pPanelInterface)
 		return true;
 

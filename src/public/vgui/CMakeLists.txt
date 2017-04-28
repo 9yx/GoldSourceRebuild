@@ -7,6 +7,7 @@ add_sources(
 	IImage.h
 	IInput.h
 	IInputInternal.h
+	IKeyValues.h
 	ILocalize.h
 	IPanel.h
 	IScheme.h

@@ -21,6 +21,10 @@
 #include "tier1/interface.h"
 
 class IFileSystem;
+class IKeyValues;
+
+// #include <vgui/IKeyValues.h>
+IKeyValues* keyvalues();
 
 namespace vgui2
 {
