@@ -101,7 +101,7 @@ void CFileSystem::RemoveFile( const char *pRelativePath, const char *pathID )
 		if( searchPath->flags & SearchPathFlag::READ_ONLY )
 			continue;
 
-		if( pathID && ( !searchPath->pszPathID || strcmp( pathID, searchPath->pszPathID ) != 0 ) )
+		if( pathID && ( !searchPath->HasPathID() || strcmp( pathID, searchPath->GetPathID() ) != 0 ) )
 			continue;
 
 		path = fs::path( searchPath->szPath ) / szPath;
@@ -127,7 +127,7 @@ void CFileSystem::CreateDirHierarchy( const char *path, const char *pathID )
 		if( searchPath->flags & SearchPathFlag::READ_ONLY )
 			continue;
 
-		if( pathID && ( !searchPath->pszPathID || strcmp( pathID, searchPath->pszPathID ) != 0 ) )
+		if( pathID && ( !searchPath->HasPathID() || strcmp( pathID, searchPath->GetPathID() ) != 0 ) )
 			continue;
 
 		std::error_code error;
@@ -237,7 +237,7 @@ FileHandle_t CFileSystem::Open( const char *pFileName, const char *pOptions, con
 			if( searchPath->flags & SearchPathFlag::READ_ONLY )
 				continue;
 
-			if( pathID && ( !searchPath->pszPathID || strcmp( pathID, searchPath->pszPathID ) != 0 ) )
+			if( pathID && ( !searchPath->HasPathID() || strcmp( pathID, searchPath->GetPathID() ) != 0 ) )
 				continue;
 
 			auto path = fs::path( searchPath->szPath ) / szPath;
@@ -262,7 +262,7 @@ FileHandle_t CFileSystem::Open( const char *pFileName, const char *pOptions, con
 	//Reading from a file, consider all paths.
 	for( const auto& searchPath : m_SearchPaths )
 	{
-		if( pathID && ( !searchPath->pszPathID || strcmp( pathID, searchPath->pszPathID ) != 0 ) )
+		if( pathID && ( !searchPath->HasPathID() || strcmp( pathID, searchPath->GetPathID() ) != 0 ) )
 			continue;
 
 		if( auto pFileHandle = FindFile( *searchPath, szPath, pOptions ) )
@@ -541,7 +541,7 @@ const char *CFileSystem::FindNext( FileFindHandle_t handle )
 			{
 				auto& searchPath = *path;
 
-				if( *data.szPathID && ( !searchPath->pszPathID || strcmp( data.szPathID, searchPath->pszPathID ) != 0 ) )
+				if( *data.szPathID && ( !searchPath->HasPathID() || strcmp( data.szPathID, searchPath->GetPathID() ) != 0 ) )
 					continue;
 
 				if( data.flags & FindFileFlag::SKIP_IDENTICAL_PATHS )
@@ -1001,7 +1001,7 @@ FileHandle_t CFileSystem::OpenFromCacheForRead( const char *pFileName, const cha
 		if( !( searchPath->flags & SearchPathFlag::IS_PACK_FILE ) )
 			continue;
 
-		if( pathID && ( !searchPath->pszPathID || strcmp( pathID, searchPath->pszPathID ) != 0 ) )
+		if( pathID && ( !searchPath->HasPathID() || strcmp( pathID, searchPath->GetPathID() ) != 0 ) )
 			continue;
 
 		if( auto pFileHandle = FindFile( *searchPath, szPath, pOptions ) )
@@ -1329,8 +1329,8 @@ CFileSystem::SearchPaths_t::const_iterator CFileSystem::FindSearchPath( const ch
 		if( stricmp( szPath.c_str(), ( *it )->szPath ) == 0 )
 		{
 			if( !bCheckPathID ||
-				( ( pszPathID == nullptr && ( *it )->pszPathID == nullptr ) ||
-				( ( pszPathID != nullptr && ( *it )->pszPathID != nullptr ) && strcmp( pszPathID, ( *it )->pszPathID ) == 0 ) ) )
+				( ( pszPathID == nullptr && !( *it )->HasPathID() ) ||
+				( ( pszPathID != nullptr && ( *it )->HasPathID() ) && strcmp( pszPathID, ( *it )->GetPathID() ) == 0 ) ) )
 				return it;
 		}
 	}
@@ -1379,7 +1379,8 @@ bool CFileSystem::AddSearchPath( const char *pPath, const char *pathID, const bo
 	strncpy( path->szPath, osPath.u8string().c_str(), sizeof( path->szPath ) );
 	path->szPath[ sizeof( path->szPath ) - 1 ] = '\0';
 
-	path->pszPathID = pathID;
+	strncpy( path->szPathID, pathID, ARRAYSIZE( path->szPathID ) );
+	path->szPathID[ ARRAYSIZE( path->szPathID ) - 1 ] = '\0';
 
 	path->flags = SearchPathFlag::NONE;
 
@@ -1444,7 +1445,8 @@ bool CFileSystem::PreparePackFile( const char* pszFullPath, const char* pszPathI
 	strncpy( path->szPath, osPath.u8string().c_str(), sizeof( path->szPath ) );
 	path->szPath[ sizeof( path->szPath ) - 1 ] = '\0';
 
-	path->pszPathID = pszPathID;
+	strncpy( path->szPathID, pszPathID, ARRAYSIZE( path->szPathID ) );
+	path->szPathID[ ARRAYSIZE( path->szPathID ) - 1 ] = '\0';
 
 	path->flags = SearchPathFlag::READ_ONLY | SearchPathFlag::IS_PACK_FILE;
 

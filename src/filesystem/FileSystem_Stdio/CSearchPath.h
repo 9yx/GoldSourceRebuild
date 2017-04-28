@@ -37,13 +37,18 @@ struct CSearchPath
 
 	char szPath[ MAX_PATH ];
 
-	const char* pszPathID;
+	//TODO: needs to use CUtlSymbol - Solokiller
+	char szPathID[ MAX_PATH ];
 
 	SearchPathFlags_t flags;
 
 	std::unique_ptr<CFileHandle> packFile;
 
 	Entries_t packEntries;
+
+	bool HasPathID() const { return *szPathID != '\0'; }
+
+	const char* GetPathID() const { return szPathID; }
 
 private:
 	CSearchPath( const CSearchPath& ) = delete;
