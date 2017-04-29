@@ -4,7 +4,11 @@
 #include "public/FileSystem.h"
 #include "interface.h"
 
+#include <UtlVector.h>
+
 extern bool bLowViolenceBuild;
+
+extern CUtlVector<char*> g_fallbackLocalizationFiles;
 
 CreateInterfaceFn GetFileSystemFactory();
 const char* GetBaseDirectory();

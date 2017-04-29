@@ -2,8 +2,6 @@
 #include <cstdio>
 #include <cstring>
 
-#include <UtlVector.h>
-
 #include "steam/steam_api.h"
 
 #include "quakedef.h"
