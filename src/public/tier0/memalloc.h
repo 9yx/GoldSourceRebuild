@@ -39,7 +39,7 @@ public:
 	virtual void *Realloc_Debug( void *pMem, size_t nSize, const char *pFileName, int nLine, int unknown ) = 0;
 	virtual void *Realloc( void *pMem, size_t nSize ) = 0;
 	virtual void Free_Debug( void *pMem, const char *pFileName, int nLine, int unknown ) = 0;
-	virtual void Free( void *pMem ) = 0;
+	virtual void Free( void *pMem, int unknown ) = 0;
 	virtual void *Expand_NoLongerSupported_Debug( void *pMem, size_t nSize, const char *pFileName, int nLine, int unknown ) = 0;
     virtual void *Expand_NoLongerSupported( void *pMem, size_t nSize ) = 0;
 
@@ -142,7 +142,7 @@ inline void MemAlloc_FreeAligned( void *pMemBlock )
 
 	// pAlloc is the pointer to the start of memory block
 	pAlloc = *( (unsigned **)pAlloc );
-	g_pMemAlloc->Free( (void *)pAlloc );
+	g_pMemAlloc->Free( (void *)pAlloc, 0 );
 }
 
 inline size_t MemAlloc_GetSizeAligned( void *pMemBlock )

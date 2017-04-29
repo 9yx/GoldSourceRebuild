@@ -15,7 +15,7 @@ class CStdMemAlloc : public IMemAlloc
 public:
 	void* Alloc( size_t nSize ) override;
 	void* Realloc( void *pMem, size_t nSize ) override;
-	void Free( void *pMem ) override;
+	void Free( void *pMem, int unknown ) override;
 	void* Expand_NoLongerSupported( void* pMem, size_t nSize ) override;
 
 	void* Alloc_Debug( size_t nSize, const char* pFileName, int nLine, int unknown ) override;
@@ -72,7 +72,7 @@ void* CStdMemAlloc::Realloc( void* pMem, size_t nSize )
 	return realloc( pMem, nSize );
 }
 
-void CStdMemAlloc::Free( void* pMem )
+void CStdMemAlloc::Free( void* pMem, int unknown )
 {
 	free( pMem );
 }
@@ -94,7 +94,7 @@ void* CStdMemAlloc::Realloc_Debug( void* pMem, size_t nSize, const char* pFileNa
 
 void CStdMemAlloc::Free_Debug( void* pMem, const char* pFileName, int nLine, int unknown )
 {
-	Free( pMem );
+	Free( pMem, unknown );
 }
 
 void* CStdMemAlloc::Expand_NoLongerSupported_Debug( void* pMem, size_t nSize, const char* pFileName, int nLine, int unknown )
