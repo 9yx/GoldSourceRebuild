@@ -28,6 +28,78 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "eiface.h"
 #include "usercmd.h"
 
+struct server_t
+{
+	bool active;					// false when server is going down
+	//TODO: implement - Solokiller
+	/*
+	bool paused;
+	bool loadgame;
+
+	double time;
+	double oldtime;
+
+	int lastcheck;
+	double lastchecktime;
+
+	char name[ 64 ];
+	char oldname[ 64 ];
+	char startspot[ 64 ];
+	char modelname[ 64 ];
+
+	model_t* worldmodel;
+	CRC32_t worldmapCRC;
+
+	byte clientdllmd5[ 16 ];
+
+	resource_t resourcelist[ 1280 ];
+	int num_resources;
+
+	consistency_t consistency_list[ 512 ];
+	int num_consistency;
+
+	char* model_precache[ 512 ];
+	model_t* models[ 512 ];
+	byte model_precache_flags[ 512 ];
+
+	event_s event_precache[ 256 ];
+
+	char* sound_precache[ 512 ];
+	short sound_precache_hashedlookup[ 1023 ];
+	bool sound_precache_hashedlookup_built;
+
+	char* generic_precache[ 512 ];
+	char generic_precache_names[ 512 ][ 64 ];
+	int num_generic_names;
+
+	char* lightstyles[ 64 ];
+
+	int num_edicts;
+	int max_edicts;
+	edict_t* edicts;
+
+	entity_state_s* baselines;
+	extra_baselines_s* instance_baselines;
+
+	server_state_t state;
+
+	sizebuf_t datagram;
+	byte datagram_buf[ 4000 ];
+
+	sizebuf_t reliable_datagram;
+	byte reliable_datagram_buf[ 4000 ];
+
+	sizebuf_t multicast;
+	byte multicast_buf[ 1024 ];
+
+	sizebuf_t spectator;
+	byte spectator_buf[ 1024 ];
+
+	sizebuf_t signon;
+	byte signon_data[ 32768 ];
+	*/
+};
+
 struct client_frame_t
 {
 	// received from client
@@ -293,7 +365,8 @@ struct server_static_t
 
 //============================================================================
 
-extern server_static_t svs;	//! persistent server info
+extern	server_static_t	svs;	//! persistent server info
+extern	server_t		sv;		//! local server
 
 extern playermove_t g_svmove;
 

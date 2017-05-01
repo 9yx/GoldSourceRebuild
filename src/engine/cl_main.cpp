@@ -22,6 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "cl_main.h"
 
 client_static_t cls;
+client_state_t	cl;
 
 //TODO: implement API and add here - Solokiller
 playermove_t g_clmove;

@@ -6,6 +6,8 @@
 #include "server.h"
 
 server_static_t svs;
+server_t sv;
+
 //TODO: implement functions and add them - Solokiller
 playermove_t g_svmove;
 globalvars_t gGlobalVariables = {};

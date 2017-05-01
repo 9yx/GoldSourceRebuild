@@ -133,7 +133,138 @@ struct client_static_t
 	int build_num;
 };
 
-extern client_static_t cls;
+struct client_state_t
+{
+	//TODO: implement - Solokiller
+	/*
+	int max_edicts;
+
+	resource_t resourcesonhand;
+	resource_t resourcesneeded;
+	resource_t resourcelist[ 1280 ];
+	int num_resources;
+
+	qboolean need_force_consistency_response;
+
+	char serverinfo[ 512 ];
+
+	int servercount;
+
+	int validsequence;
+
+	int parsecount;
+	int parsecountmod;
+
+	int stats[ 32 ];
+
+	int weapons;
+
+	usercmd_t cmd;
+
+	vec3_t viewangles;
+	vec3_t punchangle;
+	vec3_t crosshairangle;
+	vec3_t simorg;
+	vec3_t simvel;
+	vec3_t simangles;
+	vec_t predicted_origins[ 64 ][ 3 ];
+	vec3_t prediction_error;
+
+	float idealpitch;
+
+	vec3_t viewheight;
+
+	screenfade_t sf;
+
+	bool paused;
+
+	int onground;
+	int moving;
+	int waterlevel;
+	int usehull;
+
+	float maxspeed;
+
+	int pushmsec;
+	int light_level;
+	int intermission;
+
+	double mtime[ 2 ];
+	double time;
+	double oldtime;
+
+	frame_t frames[ 64 ];
+
+	cmd_t commands[ 64 ];
+
+	local_state_t predicted_frames[ 64 ];
+	int delta_sequence;
+
+	int playernum;
+
+	event_s event_precache[ 256 ];
+
+	model_s *model_precache[ 512 ];
+	int model_precache_count;
+
+	sfx_s *sound_precache[ 512 ];
+
+	consistency_t consistency_list[ 512 ];
+	int num_consistency;
+
+	int highentity;
+
+	char levelname[ 40 ];
+	*/
+
+	int maxclients;
+
+	//TODO: implement - Solokiller
+	/*
+	int gametype;
+
+	int viewentity;
+
+	model_t* worldmodel;
+
+	efrag_t* free_efrags;
+
+	int num_entities;
+	int num_statics;
+
+	cl_entity_t viewent;
+
+	int cdtrack;
+	int looptrack;
+
+	CRC32_t serverCRC;
+
+	byte clientdllmd5[ 16 ];
+
+	float weaponstarttime;
+	int weaponsequence;
+
+	int fPrecaching;
+
+	dlight_t* pLight;
+
+	player_info_t players[ 32 ];
+
+	entity_state_t instanced_baseline[ 64 ];
+
+	int instanced_baseline_number;
+
+	CRC32_t mapCRC;
+
+	event_state_t events;
+
+	char downloadUrl[ 128 ];
+	*/
+};
+
+
+extern	client_static_t	cls;
+extern	client_state_t	cl;
 
 extern playermove_t g_clmove;
 
