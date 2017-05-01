@@ -36,7 +36,7 @@ public:
 	//and the method names are different to avoid a compiler issue that swaps the overloads. - Solokiller
 	virtual void *Alloc_Debug( size_t nSize, const char *pFileName, int nLine, int unknown ) = 0;
 	virtual void *Alloc( size_t nSize ) = 0;
-	virtual void *Realloc_Debug( void *pMem, size_t nSize, const char *pFileName, int nLine, int unknown ) = 0;
+	virtual void *Realloc_Debug( void *pMem, size_t nSize, const char *pFileName, int nLine ) = 0;
 	virtual void *Realloc( void *pMem, size_t nSize ) = 0;
 	virtual void Free_Debug( void *pMem, const char *pFileName, int nLine, int unknown ) = 0;
 	virtual void Free( void *pMem, int unknown ) = 0;

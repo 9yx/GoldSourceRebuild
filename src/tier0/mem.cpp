@@ -19,7 +19,7 @@ public:
 	void* Expand_NoLongerSupported( void* pMem, size_t nSize ) override;
 
 	void* Alloc_Debug( size_t nSize, const char* pFileName, int nLine, int unknown ) override;
-	void* Realloc_Debug( void* pMem, size_t nSize, const char* pFileName, int nLine, int unknown ) override;
+	void* Realloc_Debug( void* pMem, size_t nSize, const char* pFileName, int nLine ) override;
 	void  Free_Debug( void* pMem, const char* pFileName, int nLine, int unknown ) override;
 	void* Expand_NoLongerSupported_Debug( void* pMem, size_t nSize, const char* pFileName, int nLine, int unknown ) override;
 
@@ -87,7 +87,7 @@ void* CStdMemAlloc::Alloc_Debug( size_t nSize, const char* pFileName, int nLine,
 	return malloc( nSize );
 }
 
-void* CStdMemAlloc::Realloc_Debug( void* pMem, size_t nSize, const char* pFileName, int nLine, int unknown )
+void* CStdMemAlloc::Realloc_Debug( void* pMem, size_t nSize, const char* pFileName, int nLine )
 {
 	return Realloc( pMem, nSize );
 }
