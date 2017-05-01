@@ -4,10 +4,23 @@
 #include "client.h"
 #include "cdll_exp.h"
 #include "vgui_int.h"
+#include "vid.h"
 
 int hudGetScreenInfo( SCREENINFO* pscrinfo )
 {
 	//TODO: implement - Solokiller
+	//g_engdstAddrs.pfnGetScreenInfo();
+
+	if( pscrinfo && pscrinfo->iSize == sizeof( SCREENINFO ) )
+	{
+		pscrinfo->iWidth = vid.width;
+		pscrinfo->iHeight = vid.height;
+		pscrinfo->iFlags = SCRINFO_SCREENFLASH;
+		//TODO: implement - Solokiller
+		//pscrinfo->iCharHeight = VGUI2_MessageFontInfo( pscrinfo->charWidths, VGUI2_GetCreditsFont() );
+		return sizeof( SCREENINFO );
+	}
+
 	return 0;
 }
 

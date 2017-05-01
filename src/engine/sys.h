@@ -129,6 +129,8 @@ using FlipScreenFn = void ( * )();
 
 extern FlipScreenFn VID_FlipScreen;
 
+extern bool gfBackground;
+
 extern int giActive;
 extern int giStateInfo;
 extern int giSubState;

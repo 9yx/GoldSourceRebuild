@@ -24,6 +24,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "cdll_int.h"
 #include "APIProxy.h"
 
+class CSysModule;
+
 #define	MAX_DEMOS		32
 #define	MAX_DEMONAME	16
 
@@ -275,6 +277,8 @@ extern cvar_t rate;
 extern cl_enginefunc_t cl_enginefuncs;
 
 extern char g_szfullClientName[ 512 ];
+
+extern CSysModule* hClientDLL;
 
 void CL_ShutDownClientStatic();
 

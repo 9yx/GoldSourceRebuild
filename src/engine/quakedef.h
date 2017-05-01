@@ -28,6 +28,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 *	primary header for client
 */
 
+#include <cmath>
+
 #define MAX_NUM_ARGVS	50
 
 #if defined(_M_IX86)

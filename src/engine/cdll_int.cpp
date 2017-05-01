@@ -14,6 +14,7 @@
 #include "eiface.h"
 #include "eventapi.h"
 #include "gl_vidnt.h"
+#include "kbutton.h"
 #include "net_api_int.h"
 #include "pmovetst.h"
 #include "pr_cmds.h"
@@ -173,6 +174,8 @@ char g_szfullClientName[ 512 ];
 
 bool fClientLoaded = false;
 
+CSysModule* hClientDLL = nullptr;
+
 void ClientDLL_Init()
 {
 	//TODO: implement - Solokiller
@@ -229,6 +232,14 @@ int ClientDLL_Key_Event( int down, int keynum, const char* pszCurrentBinding )
 		return true;
 
 	return cl_funcs.pKeyEvent( down, keynum, pszCurrentBinding ) != 0;
+}
+
+kbutton_t* ClientDLL_FindKey( const char* name )
+{
+	if( !cl_funcs.pFindKey )
+		return nullptr;
+
+	return cl_funcs.pFindKey( name );
 }
 
 int hudCenterX()

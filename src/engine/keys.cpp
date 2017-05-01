@@ -19,6 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 #include "quakedef.h"
 #include "cdll_int.h"
+#include "dll_state.h"
 #include "snd.h"
 #include "vgui_int.h"
 
@@ -671,7 +672,7 @@ void Key_Escape_f()
 	if( giSubState & 0x10 )
 	{
 		Cbuf_AddText( "disconnect\n" );
-		giActive = 2;
+		giActive = DLL_PAUSED;
 		giStateInfo = 2;
 		giSubState = 1;
 		Cbuf_Execute();
@@ -685,7 +686,7 @@ void Key_Escape_f()
 	else
 	{
 		VGuiWrap2_HideGameUI();
-		giActive = 2;
+		giActive = DLL_PAUSED;
 	}
 }
 

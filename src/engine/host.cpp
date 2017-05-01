@@ -11,7 +11,11 @@
 #include "decals.h"
 #include "delta.h"
 #include "DemoPlayerWrapper.h"
+#include "dll_state.h"
+#include "gl_screen.h"
 #include "hashpak.h"
+#include "host.h"
+#include "host_cmd.h"
 #include "net_chan.h"
 #include "pmove.h"
 #include "qgl.h"
@@ -26,10 +30,26 @@
 
 quakeparms_t host_parms = {};
 
+jmp_buf host_abortserver;
+jmp_buf host_enddemo;
+
 bool host_initialized = false;
 double realtime = 0;
+double oldrealtime = 0;
+double host_frametime = 0;
+double rolling_fps = 0;
 
 cvar_t console = { "console", "0.0", FCVAR_ARCHIVE };
+
+static cvar_t host_profile = { "host_profile", "0" };
+
+cvar_t fps_max = { "fps_max", "100.0", FCVAR_ARCHIVE };
+cvar_t fps_override = { "fps_override", "0" };
+
+cvar_t host_framerate = { "host_framerate", "0" };
+
+cvar_t sys_ticrate = { "sys_ticrate", "100.0" };
+cvar_t sys_timescale = { "sys_timescale", "1.0" };
 
 unsigned short* host_basepal = nullptr;
 
@@ -323,8 +343,8 @@ bool Host_Init( quakeparms_t* parms )
 
 	Hunk_AllocName( 0, "-HOST_HUNKLEVEL-" );
 	host_hunklevel = Hunk_LowMark();
-	//TODO: define constants - Solokiller
-	giActive = 1;
+
+	giActive = DLL_ACTIVE;
 	scr_skipupdate = false;
 
 	CheckGore();
@@ -417,4 +437,181 @@ void Host_Shutdown()
 void Host_InitCommands()
 {
 	//TODO: implement - Solokiller
+}
+
+bool Host_FilterTime( float time )
+{
+	if( host_framerate.value > 0 )
+	{
+		if( ( sv.active && svs.maxclients == 1 ) ||
+			( cl.maxclients == 1 ) ||
+			cls.demoplayback )
+		{
+			host_frametime = host_framerate.value * sys_timescale.value;
+			realtime = host_frametime + realtime;
+			return true;
+		}
+	}
+
+	realtime += time * sys_timescale.value;
+
+	const double flDelta = realtime - oldrealtime;
+
+	if( g_bIsDedicatedServer )
+	{
+		static int command_line_ticrate = -1;
+
+		if( command_line_ticrate == -1 )
+		{
+			command_line_ticrate = COM_CheckParm( "-sys_ticrate" );
+		}
+
+		double flTicRate = sys_ticrate.value;
+
+		if( command_line_ticrate > 0 )
+		{
+			flTicRate = strtod( com_argv[ command_line_ticrate + 1 ], nullptr );
+		}
+
+		if( flTicRate > 0.0 )
+		{
+			if( ( 1.0 / ( flTicRate + 1.0 ) ) > flDelta )
+				return false;
+		}
+	}
+	else
+	{
+		double flFPSMax;
+
+		if( sv.active || cls.state == ca_disconnected || cls.state == ca_active )
+		{
+			flFPSMax = 0.5;
+			if( fps_max.value >= 0.5 )
+				flFPSMax = fps_max.value;
+		}
+		else
+		{
+			flFPSMax = 31.0;
+		}
+
+		if( !fps_override.value )
+		{
+			if( flFPSMax > 100.0 )
+				flFPSMax = 100.0;
+		}
+
+		if( cl.maxclients > 1 )
+		{
+			if( flFPSMax < 20.0 )
+				flFPSMax = 20.0;
+		}
+
+		if( gl_vsync.value )
+		{
+			if( !fps_override.value )
+				flFPSMax = 100.0;
+		}
+
+		if( !cls.timedemo )
+		{
+			if( sys_timescale.value / ( flFPSMax + 0.5 ) > flDelta )
+				return false;
+		}
+	}
+
+	host_frametime = flDelta;
+	oldrealtime = realtime;
+
+	if( flDelta > 0.25 )
+	{
+		host_frametime = 0.25;
+	}
+
+	return true;
+}
+
+void _Host_Frame( float time )
+{
+	if( setjmp( host_enddemo ) || !Host_FilterTime( time ) )
+		return;
+
+	SystemWrapper_RunFrame( host_frametime );
+
+	//TODO: implement - Solokiller
+	/*
+	if( g_modfuncs.m_pfnFrameBegin )
+		g_modfuncs.m_pfnFrameBegin();
+		*/
+
+	rolling_fps = 0.6 + rolling_fps + 0.4 * host_frametime;
+
+	//TODO: implement - Solokiller
+
+	if( !gfBackground )
+	{
+		SCR_UpdateScreen();
+		//TODO: implement - Solokiller
+	}
+
+	//TODO: implement - Solokiller
+}
+
+int Host_Frame( float time, int iState, int* stateInfo )
+{
+	if( setjmp( host_abortserver ) )
+	{
+		return giActive;
+	}
+
+	if( giActive != DLL_CLOSE || !g_iQuitCommandIssued )
+		giActive = iState;
+
+	*stateInfo = 0;
+
+	double time1, time2;
+
+	if( host_profile.value )
+		time1 = Sys_FloatTime();
+
+	_Host_Frame( time );
+
+	if( host_profile.value )
+		time2 = Sys_FloatTime();
+
+	if( giStateInfo )
+	{
+		*stateInfo = giStateInfo;
+		giStateInfo = 0;
+		Cbuf_Execute();
+	}
+
+	if( host_profile.value )
+	{
+		static double timetotal = 0;
+		static int timecount = 0;
+
+		timetotal = time2 - time1 + timetotal;
+		++timecount;
+
+		//Print status every 1000 frames.
+		if( timecount >= 1000 )
+		{
+			int iActiveClients = 0;
+
+			for( int i = 0; i < svs.maxclients; ++i )
+			{
+				if( svs.clients[ i ].active )
+					++iActiveClients;
+			}
+
+			Con_Printf( "host_profile: %2i clients %2i msec\n",
+						iActiveClients,
+						static_cast<int>( floor( timetotal * 1000.0 / timecount ) ) );
+		
+			timecount = 0;
+			timetotal = 0;
+		}
+	}
+
+	return giActive;
 }

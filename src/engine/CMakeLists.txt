@@ -6,6 +6,7 @@ set( PROJECT_NAME hw )
 
 #Add in the directories
 add_sources(
+	${SRC_DIR}/cl_dll/kbutton.h
 	${SRC_DIR}/cl_dll/wrect.h
 	${SRC_DIR}/common/GameUI/CareerDefs.h
 	${SRC_DIR}/common/beamdef.h
@@ -19,6 +20,7 @@ add_sources(
 	${SRC_DIR}/common/cvardef.h
 	${SRC_DIR}/common/demo_api.h
 	${SRC_DIR}/common/dlight.h
+	${SRC_DIR}/common/dll_state.h
 	${SRC_DIR}/common/entity_state.h
 	${SRC_DIR}/common/event_api.h
 	${SRC_DIR}/common/event_args.h
@@ -113,17 +115,23 @@ add_sources(
 	filesystem.h
 	filesystem_internal.cpp
 	gl_draw.cpp
+	gl_draw.h
 	gl_model.cpp
 	gl_rmain.cpp
+	gl_rmain.h
 	gl_rmisc.cpp
+	gl_rmisc.h
 	gl_rsurf.cpp
 	gl_rsurf.h
 	gl_screen.cpp
+	gl_screen.h
 	gl_vidnt.cpp
+	gl_vidnt.h
 	gl_warp.cpp
 	hashpak.cpp
 	hashpak.h
 	host.cpp
+	host.h
 	host_cmd.cpp
 	IEngine.h
 	IEngineSurface.h

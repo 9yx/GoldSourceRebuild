@@ -35,6 +35,8 @@ extern keydest_t key_dest;
 extern char* keybindings[ 256 ];
 extern int key_repeats[ 256 ];
 
+extern int toggleconsole_key;
+
 extern char chat_buffer[ MAX_CHAT_BUFFER ];
 extern int chat_bufferlen;
 extern char message_type[ 32 ];
@@ -50,6 +52,7 @@ void CompleteCommand();
 int Key_CountBindings();
 void Key_WriteBindings( FileHandle_t f );
 int Key_StringToKeynum( const char* str );
+const char* Key_KeynumToString( int keynum );
 void Key_SetBinding( int keynum, const char* binding );
 const char* Key_NameForBinding( const char* pBinding );
 void Key_EventStub( int key, bool down );

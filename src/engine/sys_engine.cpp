@@ -1,6 +1,8 @@
 #include "quakedef.h"
 #include "cdll_int.h"
+#include "dll_state.h"
 
+#include "host.h"
 #include "IEngine.h"
 #include "IGame.h"
 
@@ -34,7 +36,7 @@ public:
 
 private:
 	int m_nQuitting = 0;
-	int m_nDLLState = 0;
+	int m_nDLLState = DLL_INACTIVE;
 	int m_nSubState = 0;
 
 	double m_fCurTime = 0;
@@ -56,7 +58,7 @@ IEngine* eng = &g_Engine;
 
 bool CEngine::Load( bool dedicated, char* basedir, char* cmdline )
 {
-	SetState( 1 );
+	SetState( DLL_ACTIVE );
 
 	bool bInitialized = Sys_InitGame( cmdline, basedir, game->GetMainWindow(), dedicated );
 
@@ -71,8 +73,7 @@ bool CEngine::Load( bool dedicated, char* basedir, char* cmdline )
 void CEngine::Unload()
 {
 	Sys_ShutdownGame();
-	//TODO: define constants - Solokiller
-	m_nDLLState = 0;
+	m_nDLLState = DLL_INACTIVE;
 }
 
 void CEngine::SetState( int iState )
@@ -101,8 +102,46 @@ int CEngine::GetSubState()
 
 int CEngine::Frame()
 {
-	//TODO: implement - Solokiller
-	return 0;
+	if( !game->IsMultiplayer() )
+	{
+		int delay = 50;
+
+		if( m_nDLLState != DLL_PAUSED )
+			delay = 20;
+
+		game->SleepUntilInput( delay );
+	}
+
+	m_fCurTime = Sys_FloatTime();
+	m_fFrameTime = m_fCurTime - m_fOldTime;
+	m_fOldTime = m_fCurTime;
+
+	if( m_fFrameTime < 0.0 )
+	{
+		m_fFrameTime = 0.01;
+	}
+
+	if( m_nDLLState != DLL_INACTIVE )
+	{
+		int dummy;
+		const auto result = Host_Frame( m_fCurTime, m_nDLLState, &dummy );
+
+		if( result != m_nDLLState )
+		{
+			SetState( result );
+
+			if( m_nDLLState == DLL_CLOSE )
+			{
+				SetQuitting( QUIT_TODESKTOP );
+			}
+			else if( m_nDLLState == DLL_STATE_RESTART )
+			{
+				SetQuitting( QUIT_RESTART );
+			}
+		}
+	}
+
+	return m_nDLLState;
 }
 
 double CEngine::GetFrameTime()

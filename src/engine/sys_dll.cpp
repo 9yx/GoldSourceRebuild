@@ -7,7 +7,9 @@
 
 #include "quakedef.h"
 #include "client.h"
+#include "dll_state.h"
 #include "server.h"
+#include "host.h"
 
 #include "FilePaths.h"
 #include "qgl.h"
@@ -24,8 +26,10 @@ bool gHasMMXTechnology = false;
 
 FlipScreenFn VID_FlipScreen = nullptr;
 
+bool gfBackground = false;
+
 //TODO: define flags for these - Solokiller
-int giActive = 0;
+int giActive = DLL_INACTIVE;
 int giStateInfo = 0;
 int giSubState = 0;
 
@@ -33,8 +37,6 @@ DLL_FUNCTIONS gEntityInterface = {};
 NEW_DLL_FUNCTIONS gNewDLLFunctions = {};
 
 PrintfFunc Launcher_ConsolePrintf = nullptr;
-
-jmp_buf host_abortserver;
 
 int g_iextdllMac = 0;
 extensiondll_t g_rgextdll[ MAX_EXT_DLLS ] = {};
