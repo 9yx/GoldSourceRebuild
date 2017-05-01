@@ -1,12 +1,7 @@
 #ifndef ENGINE_SYS_GETMODES_H
 #define ENGINE_SYS_GETMODES_H
 
-struct vmode_t
-{
-	int width;
-	int height;
-	int bpp;
-};
+#include "GameUI/IGameUIFuncs.h"
 
 /**
 *	Manages the main window's video modes.

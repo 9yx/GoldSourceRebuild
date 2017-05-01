@@ -1,43 +1,85 @@
+#include <UtlVector.h>
+
+#include <vgui/ILocalize.h>
+#include <vgui_controls/Controls.h>
+
 #include "quakedef.h"
+#include "client.h"
+#include "host_cmd.h"
+
+#include "cdll_int.h"
+#include "APIProxy.h"
+#include "GameUI/IBaseUI.h"
+#include "GameUI/IClientVGUI.h"
+#include "GameUI/IGameConsole.h"
+#include "GameUI/IGameUI.h"
+#include "gl_rmain.h"
+#include "sys_getmodes.h"
 #include "vgui_int.h"
+#include "vgui2/BaseUI_Interface.h"
+#include "vgui2/BaseUISurface.h"
+
+static CUtlVector<char> g_TempConsoleBuffer;
+
+static IBaseUI* staticUIFuncs = nullptr;
+
+static bool staticExclusiveInputShadow = false;
 
 void VGuiWrap2_Startup()
 {
-	//TODO: implement - Solokiller
+	if( staticUIFuncs )
+		return;
+
+	auto factoryFn = Sys_GetFactoryThis();
+
+	CreateInterfaceFn factories[ 2 ] = 
+	{
+		factoryFn,
+		GetFileSystemFactory()
+	};
+
+	staticUIFuncs = static_cast<IBaseUI*>( factoryFn( BASEUI_INTERFACE_VERSION, nullptr ) );
+
+	staticUIFuncs->Initialize( factories, ARRAYSIZE( factories ) );
+	staticUIFuncs->Start( &cl_enginefuncs, CLDLL_INTERFACE_VERSION );
+
+	//Flush temporary buffer
+	g_TempConsoleBuffer.AddToTail( '\0' );
+	VGuiWrap2_ConPrintf( g_TempConsoleBuffer.Base() );
+	g_TempConsoleBuffer.Purge();
 }
 
 void VGuiWrap2_Shutdown()
 {
-	//TODO: implement - Solokiller
+	if( staticUIFuncs )
+	{
+		staticUIFuncs->Shutdown();
+		staticUIFuncs = nullptr;
+	}
 }
 
 bool VGuiWrap2_CallEngineSurfaceAppHandler( void* event, void* userData )
 {
-	//TODO: implement - Solokiller
-	/*
 	if( staticUIFuncs )
 		staticUIFuncs->CallEngineSurfaceAppHandler( event, userData );
-		*/
 
 	return false;
 }
 
 bool VGuiWrap2_IsGameUIVisible()
 {
-	//TODO: implement - Solokiller
-	return false;
-	/*
 	if( !staticGameUIFuncs )
 		return false;
 
-	return staticGameUIFuncs->IsGameUIActive();
-	*/
+	return staticGameUIFuncs->IsGameUIActive() != 0;
 }
 
 bool VGuiWrap2_UseVGUI1()
 {
-	//TODO: implement - Solokiller
-	return true;
+	if( !staticClient )
+		return true;
+
+	return staticClient->UseVGUI1() != 0;
 }
 
 vgui::Panel* VGuiWrap2_GetPanel()
@@ -63,18 +105,18 @@ void VGuiWrap2_SetVisible( bool state )
 
 bool VGuiWrap2_GameUIKeyPressed()
 {
-	//TODO: implement - Solokiller
-	return false;
-	/*
 	if( !staticGameUIFuncs )
 		return false;
 
 	if( staticGameUIFuncs->IsGameUIActive() )
 	{
-		if( ei.levelname[ 0 ] )
+		//TODO: implement - Solokiller
+		/*
+		if( cl.levelname[ 0 ] )
 		{
 			staticUIFuncs->HideGameUI();
 		}
+		*/
 	}
 	else
 	{
@@ -82,113 +124,195 @@ bool VGuiWrap2_GameUIKeyPressed()
 	}
 
 	return true;
-	*/
 }
 
 bool VGuiWrap2_Key_Event( int down, int keynum, const char* pszCurrentBinding )
 {
-	//TODO: implement - Solokiller
-	return true;
-	/*
 	if( !staticUIFuncs )
 		return true;
 
-	return staticUIFuncs->Key_Event( down, keynum, pszCurrentBinding ) == 0;
-	*/
+	return !staticUIFuncs->Key_Event( down, keynum, pszCurrentBinding );
 }
 
 void VGuiWrap2_Paint()
 {
-	//TODO: implement - Solokiller
+	if( !staticGameUIFuncs )
+	{
+		return;
+	}
+
+	int x = 0, y = 0;
+
+	Rect_t rect;
+
+	rect.y = 0;
+
+	if( VideoMode_IsWindowed() )
+	{
+		SDL_GetWindowPosition( pmainwindow, &x, &y );
+		SDL_GetWindowSize( pmainwindow, &rect.width, &rect.height );
+	}
+	else
+	{
+		VideoMode_GetCurrentVideoMode( &rect.width, &rect.height, nullptr );
+	}
+
+	rect.height += y;
+
+	AllowFog( false );
+
+	staticUIFuncs->Paint( x, y, rect.width, rect.height );
+
+	if( !staticClient || staticClient->UseVGUI1() )
+	{
+		const bool bInputState = staticGameUIFuncs->HasExclusiveInput();
+
+		if( bInputState != staticExclusiveInputShadow )
+		{
+			if( bInputState )
+			{
+				VGuiWrap_ReleaseMouse();
+			}
+			else
+			{
+				VGuiWrap_GetMouse();
+				ClearIOStates();
+			}
+		}
+
+		staticExclusiveInputShadow = bInputState;
+	}
+
+	AllowFog( true );
 }
 
 void VGuiWrap2_NotifyOfServerDisconnect()
 {
-	//TODO: implement - Solokiller
+	if( staticGameUIFuncs )
+		staticGameUIFuncs->DisconnectFromServer();
 }
 
 void VGuiWrap2_HideGameUI()
 {
-	//TODO: implement - Solokiller
-	/*
 	if( staticUIFuncs )
 		staticUIFuncs->HideGameUI();
-		*/
 }
 
 bool VGuiWrap2_IsConsoleVisible()
 {
-	//TODO: implement - Solokiller
-	return false;
+	if( !staticGameConsole )
+		return false;
+
+	return staticGameConsole->IsConsoleVisible();
 }
 
 void VGuiWrap2_ShowConsole()
 {
-	//TODO: implement - Solokiller
+	if( staticUIFuncs )
+	{
+		staticUIFuncs->ActivateGameUI();
+		staticUIFuncs->ShowConsole();
+	}
 }
 
 void VGuiWrap2_ShowDemoPlayer()
 {
-	//TODO: implement - Solokiller
+	if( staticUIFuncs )
+		staticUIFuncs->ActivateGameUI();
+
+	if( staticGameUIFuncs )
+		staticGameUIFuncs->ActivateDemoUI();
 }
 
 void VGuiWrap2_HideConsole()
 {
-	//TODO: implement - Solokiller
+	if( staticUIFuncs )
+		staticUIFuncs->HideConsole();
 }
 
 void VGuiWrap2_ClearConsole()
 {
-	//TODO: implement - Solokiller
+	if( staticGameConsole )
+		staticGameConsole->Clear();
 }
 
 void VGuiWrap2_ConPrintf( const char* msg )
 {
-	//TODO: implement - Solokiller
+	if( staticGameConsole )
+	{
+		staticGameConsole->Printf( "%s", msg );
+		return;
+	}
+
+	const size_t uiLength = strlen( msg );
+
+	g_TempConsoleBuffer.InsertMultipleBefore( g_TempConsoleBuffer.Count(), uiLength, msg );
 }
 
 void VGuiWrap2_ConDPrintf( const char* msg )
 {
-	//TODO: implement - Solokiller
+	if( staticGameConsole )
+	{
+		staticGameConsole->DPrintf( "%s", msg );
+		return;
+	}
+
+	const size_t uiLength = strlen( msg );
+
+	g_TempConsoleBuffer.InsertMultipleBefore( g_TempConsoleBuffer.Count(), uiLength, msg );
 }
 
 void VGuiWrap2_LoadingStarted( const char* resourceType, const char* resourceName )
 {
-	//TODO: implement - Solokiller
+	if( staticGameUIFuncs )
+		staticGameUIFuncs->LoadingStarted( resourceType, resourceName );
 }
 
 void VGuiWrap2_LoadingFinished( const char* resourceType, const char* resourceName )
 {
-	//TODO: implement - Solokiller
+	if( staticGameUIFuncs )
+		staticGameUIFuncs->LoadingFinished( resourceType, resourceName );
 }
 
 void VGuiWrap2_NotifyOfServerConnect( const char* game, int IP, int port )
 {
-	//TODO: implement - Solokiller
+	if( staticGameUIFuncs )
+	{
+		//TODO: implement - Solokiller
+		/*
+		gszDisconnectReason[ 0 ] = '\0';
+		gszExtendedDisconnectReason[ 0 ] = '\0';
+		StopLoadingProgressBar();
+		*/
+
+		staticGameUIFuncs->ConnectToServer( game, IP, port );
+	}
 }
 
 CareerStateType VGuiWrap2_IsInCareerMatch()
 {
-	//TODO: implement - Solokiller
-	return CAREER_NONE;
-	/*
 	if( !staticCareerUI )
 		return CAREER_NONE;
 
 	return g_careerState;
-	*/
 }
 
 ICareerUI* VguiWrap2_GetCareerUI()
 {
-	//TODO: implement - Solokiller
-	return nullptr;
+	return staticCareerUI;
 }
 
 size_t VGuiWrap2_GetLocalizedStringLength( const char* label )
 {
-	//TODO: implement - Solokiller
-	return 0;
+	if( !label || !vgui2::localize() )
+		return 0;
+
+	const wchar_t* pszLocalized = vgui2::localize()->Find( label );
+
+	if( !pszLocalized )
+		return 0;
+
+	return wcslen( pszLocalized );
 }
 
 void VguiWrap2_GetMouseDelta( int* x, int* y )

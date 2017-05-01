@@ -3,9 +3,12 @@
 #include "gl_draw.h"
 #include "qgl.h"
 
+#include "vgui2/text_draw.h"
+
 void Draw_Init()
 {
 	m_bDrawInitialized = true;
+	VGUI2_Draw_Init();
 	//TODO: implement - Solokiller
 }
 

@@ -147,7 +147,6 @@ struct IntRect
 // Purpose: Wraps contextless windows system functions
 //-----------------------------------------------------------------------------
 //Inherits from IBaseInterface instead of IAppSystem - Solokiller
-//TODO: provide the IMouseControl interface. - Solokiller
 class ISurface : public IBaseInterface //public IAppSystem
 {
 public:

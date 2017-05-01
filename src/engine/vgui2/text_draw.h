@@ -1,6 +1,10 @@
 #ifndef ENGINE_VGUI2_TEXT_DRAW_H
 #define ENGINE_VGUI2_TEXT_DRAW_H
 
+void VGUI2_Draw_Init();
+
+void VGUI2_ResetCurrentTexture();
+
 int VGUI2_DrawStringClient( int x, int y, const char* str, int r, int g, int b );
 
 int VGUI2_DrawStringReverseClient( int x, int y, const char* str, int r, int g, int b );

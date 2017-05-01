@@ -9,6 +9,11 @@
 
 #include "cdll_int.h"
 
+#include "GameUI/IGameUIFuncs.h"
+
+#include "vgui2/src/vgui_key_translation.h"
+
+#include "client.h"
 #include "common.h"
 #include "buildnum.h"
 #include "engine_launcher_api.h"
@@ -16,6 +21,8 @@
 #include "IEngine.h"
 #include "IGame.h"
 #include "IRegistry.h"
+#include "kbutton.h"
+#include "keys.h"
 #include "modinfo.h"
 #include "pr_cmds.h"
 #include "qgl.h"
@@ -62,6 +69,97 @@ int CEngineAPI::Run( void* instance, char* basedir, char* cmdline, char* postRes
 
 	return RunListenServer( instance, basedir, cmdline, postRestartCmdLineArgs, launcherFactory, filesystemFactory );
 }
+
+vgui2::KeyCode GetVGUI2KeyCodeForBind( const char* bind )
+{
+	const char* pszName = Key_NameForBinding( bind );
+
+	if( pszName )
+	{
+		auto sdlKey = GetSDLKeycodeFromEngineKey( Key_StringToKeynum( pszName ) );
+
+		if( sdlKey > SDL_SCANCODE_UNKNOWN )
+			return KeyCode_VirtualKeyToVGUI( sdlKey );
+	}
+
+	return vgui2::KEY_NONE;
+}
+
+class CGameUIFuncs : public IGameUIFuncs
+{
+public:
+	CGameUIFuncs() = default;
+	~CGameUIFuncs() = default;
+
+	bool IsKeyDown( const char* keyname, bool& isdown ) override
+	{
+		auto pButton = ClientDLL_FindKey( keyname );
+
+		if( !pButton )
+			return false;
+
+		//TODO: define constants for state - Solokiller
+		isdown = ( pButton->state & 1 ) != 0;
+
+		return true;
+	}
+
+	const char* Key_NameForKey( int keynum ) override
+	{
+		return Key_KeynumToString( keynum );
+	}
+
+	const char* Key_BindingForKey( int keynum ) override
+	{
+		return Key_BindingForKey( keynum );
+	}
+
+	vgui2::KeyCode GetVGUI2KeyCodeForBind( const char* bind ) override
+	{
+		return ::GetVGUI2KeyCodeForBind( bind );
+	}
+
+	void GetVideoModes( vmode_t** liststart, int* count ) override
+	{
+		VideoMode_GetVideoModes( liststart, count );
+	}
+
+	void GetCurrentVideoMode( int* width, int* height, int* bpp ) override
+	{
+		VideoMode_GetCurrentVideoMode( width, height, bpp );
+	}
+
+	void GetCurrentRenderer( char* name, int namelen,
+							 int* windowed, int* hdmodels,
+							 int* addons_folder, int* vid_level ) override
+	{
+		VideoMode_GetCurrentRenderer(
+			name, namelen,
+			windowed,
+			hdmodels, addons_folder,
+			vid_level
+		);
+	}
+
+	bool IsConnectedToVACSecureServer() override
+	{
+		if( cls.state == ca_active || cls.state == ca_connected )
+			return cls.isVAC2Secure;
+
+		return false;
+	}
+
+	int Key_KeyStringToKeyNum( const char* keyname ) override
+	{
+		return Key_StringToKeynum( keyname );
+	}
+
+private:
+	CGameUIFuncs( const CGameUIFuncs& ) = delete;
+	CGameUIFuncs& operator=( const CGameUIFuncs& ) = delete;
+};
+
+EXPOSE_SINGLE_INTERFACE( CGameUIFuncs, IGameUIFuncs, GAMEUIFUNCS_INTERFACE_VERSION );
 
 void Sys_InitArgv( char* lpCmdLine )
 {

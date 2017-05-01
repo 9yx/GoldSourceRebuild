@@ -9,6 +9,14 @@ add_sources(
 	${SRC_DIR}/cl_dll/kbutton.h
 	${SRC_DIR}/cl_dll/wrect.h
 	${SRC_DIR}/common/GameUI/CareerDefs.h
+	${SRC_DIR}/common/GameUI/IBaseUI.h
+	${SRC_DIR}/common/GameUI/ICareerUI.h
+	${SRC_DIR}/common/GameUI/IClientVGUI.h
+	${SRC_DIR}/common/GameUI/IGameConsole.h
+	${SRC_DIR}/common/GameUI/IGameUI.h
+	${SRC_DIR}/common/GameUI/IGameUIFuncs.h
+	${SRC_DIR}/common/BaseSystemModule.cpp
+	${SRC_DIR}/common/BaseSystemModule.h
 	${SRC_DIR}/common/beamdef.h
 	${SRC_DIR}/common/cl_entity.h
 	${SRC_DIR}/common/com_model.h
@@ -27,11 +35,18 @@ add_sources(
 	${SRC_DIR}/common/event_flags.h
 	${SRC_DIR}/common/FilePaths.cpp
 	${SRC_DIR}/common/FilePaths.h
+	${SRC_DIR}/common/IBaseSystem.h
+	${SRC_DIR}/common/ienginevgui.h
+	${SRC_DIR}/common/IEngineWrapper.h
 	${SRC_DIR}/common/in_buttons.h
+	${SRC_DIR}/common/IObjectContainer.h
 	${SRC_DIR}/common/IRegistry.h
+	${SRC_DIR}/common/ISystemModule.h
 	${SRC_DIR}/common/ivoicetweak.h
 	${SRC_DIR}/common/net_api.h
 	${SRC_DIR}/common/netadr.h
+	${SRC_DIR}/common/ObjectList.cpp
+	${SRC_DIR}/common/ObjectList.h
 	${SRC_DIR}/common/particledef.h
 	${SRC_DIR}/common/pmtrace.h
 	${SRC_DIR}/common/r_efx.h
@@ -39,6 +54,8 @@ add_sources(
 	${SRC_DIR}/common/screenfade.h
 	${SRC_DIR}/common/Sequence.h
 	${SRC_DIR}/common/studio_event.h
+	${SRC_DIR}/common/TokenLine.cpp
+	${SRC_DIR}/common/TokenLine.h
 	${SRC_DIR}/common/triangleapi.h
 	${SRC_DIR}/common/usercmd.h
 	${SRC_DIR}/common/weaponinfo.h
@@ -54,8 +71,12 @@ add_sources(
 	${SRC_DIR}/public/interface.cpp
 	${SRC_DIR}/public/interface.h
 	${SRC_DIR}/public/keydefs.h
+	${CMAKE_CURRENT_SOURCE_DIR}/vgui2/BasePanel.h
+	${CMAKE_CURRENT_SOURCE_DIR}/vgui2/BaseUI_Interface.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/vgui2/BaseUI_Interface.h
 	${CMAKE_CURRENT_SOURCE_DIR}/vgui2/BaseUISurface.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/vgui2/BaseUISurface.h
+	${CMAKE_CURRENT_SOURCE_DIR}/vgui2/IMouseControl.h
 	${CMAKE_CURRENT_SOURCE_DIR}/vgui2/text_draw.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/vgui2/text_draw.h
 	anorms.h
@@ -128,11 +149,14 @@ add_sources(
 	gl_vidnt.cpp
 	gl_vidnt.h
 	gl_warp.cpp
+	glHud.cpp
+	glHud.h
 	hashpak.cpp
 	hashpak.h
 	host.cpp
 	host.h
 	host_cmd.cpp
+	host_cmd.h
 	IEngine.h
 	IEngineSurface.h
 	IGame.h
@@ -198,6 +222,10 @@ add_sources(
 	tmessage.h
 	traceinit.cpp
 	traceinit.h
+	vgui_EngineSurface.cpp
+	vgui_EngineSurface.h
+	vgui_EngineSurfaceHW.cpp
+	vgui_EngineSurfaceWin32.cpp
 	VGUI_EngineSurfaceWrap.cpp
 	VGUI_EngineSurfaceWrap.h
 	vgui_int.cpp
@@ -263,14 +291,21 @@ add_library( vgui SHARED IMPORTED )
 set_property( TARGET vgui PROPERTY IMPORTED_LOCATION ${ENGINE_BASE_PATH}/${VGUI1_NAME} )
 set_property( TARGET vgui PROPERTY IMPORTED_IMPLIB ${SRC_DIR}/utils/vgui/lib/win32_vc6/vgui.lib )
 
+#TODO: temporary until we have our own vstdlib - Solokiller
+add_library( vstdlib SHARED IMPORTED )
+set_property( TARGET vstdlib PROPERTY IMPORTED_LOCATION ${ENGINE_BASE_PATH}/vstdlib.dll )
+set_property( TARGET vstdlib PROPERTY IMPORTED_IMPLIB ${SRC_DIR}/lib/public/vstdlib.lib )
+
 #Link with dependencies
 target_link_libraries( ${PROJECT_NAME} 
 	${SDL2}
 	${GLEW2}
 	${OPENGL_LIBRARIES}
+	vgui2_controls
+	vgui
+	vstdlib
 	tier1
 	tier0
-	vgui
 	${STEAM_API}
 	${PROJECT_LIBS}
 	${SHARED_DEPENDENCIES}

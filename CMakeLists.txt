@@ -68,19 +68,21 @@ set( COPY_RESOURCES OFF CACHE BOOL "Flag used to track whether resources should 
 if( COPY_RESOURCES )
 	message( STATUS "Copying resources from game installation..." )
 	
-	set( BASE_FILES_TO_COPY vgui.dll )
+	set( FILES_TO_COPY chromehtml.dll libcef.dll icudt.dll vgui.dll vgui2.dll vstdlib.dll ${GAME_NAME}/liblist.gam )
 	
-	foreach( filename IN LISTS BASE_FILES_TO_COPY )
+	foreach( filename IN LISTS FILES_TO_COPY )
 		message( STATUS "Copying file \"${filename}\"" )
-		file( COPY ${HL_DIR}/${filename} DESTINATION ${ENGINE_BASE_PATH} )
+		get_filename_component( FILE_DIR ${filename} DIRECTORY )
+		get_filename_component( FILE_NAME ${filename} NAME )
+		file( COPY ${HL_DIR}/${FILE_DIR}/${FILE_NAME} DESTINATION ${ENGINE_BASE_PATH}/${FILE_DIR} )
 	endforeach()
 	
-	set( DIRS_TO_COPY cl_dlls dlls gfx resource )
+	set( DIRS_TO_COPY  platform ${GAME_NAME}/cl_dlls ${GAME_NAME}/dlls ${GAME_NAME}/gfx ${GAME_NAME}/resource )
 	
 	foreach( dir IN LISTS DIRS_TO_COPY )
 		message( STATUS "Copying directory \"${dir}\"" )
 		#Go up one directory so nested paths end up where they belong.
-		file( COPY ${GAME_DIR}/${dir} DESTINATION ${ENGINE_BASE_PATH}/${GAME_NAME}/${dir}/.. )
+		file( COPY ${HL_DIR}/${dir} DESTINATION ${ENGINE_BASE_PATH}/${dir}/.. )
 	endforeach()
 	
 	message( STATUS "Done copying resources" )

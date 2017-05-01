@@ -1,5 +1,10 @@
 #include "quakedef.h"
+#include "host_cmd.h"
 #include "server.h"
+
+CareerStateType g_careerState = CAREER_NONE;
+
+bool g_iQuitCommandIssued = false;
 
 void Host_InitializeGameDLL()
 {
