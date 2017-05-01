@@ -26,9 +26,12 @@ client_static_t cls;
 //TODO: implement API and add here - Solokiller
 playermove_t g_clmove;
 
+float g_LastScreenUpdateTime = 0;
+
 cvar_t cl_mousegrab = { "cl_mousegrab", "1", FCVAR_ARCHIVE };
 cvar_t m_rawinput = { "m_rawinput", "1", FCVAR_ARCHIVE };
 cvar_t rate = { "rate", "30000", FCVAR_USERINFO };
+cvar_t fs_perf_warnings = { "fs_perf_warnings", "0" };
 
 void CL_ShutDownClientStatic()
 {

@@ -1,5 +1,8 @@
 #include "quakedef.h"
 #include "qgl.h"
+#include "gl_rmisc.h"
+
+cvar_t gl_clear = { "gl_clear", "0" };
 
 void R_InitTextures()
 {

@@ -28,8 +28,10 @@ typedef void* HDC;
 typedef void* HGLRC;
 #endif
 
+#undef CreateFont
+
 #include <SDL2/SDL.h>
-#include <GL/GL.h>
+#include <GL/glew.h>
 
 #include "filesystem.h"
 
@@ -37,6 +39,7 @@ extern cvar_t gl_ztrick;
 extern cvar_t gl_vsync;
 
 extern bool scr_skipupdate;
+extern bool scr_skiponeupdate;
 
 extern const char* gl_renderer;
 
@@ -59,6 +62,8 @@ bool QGL_Init( const char* pdllname, const char* pszCmdLine );
 void QGL_Shutdown();
 
 void GLimp_EnableLogging();
+
+void GLimp_LogNewFrame();
 
 void GL_Config();
 

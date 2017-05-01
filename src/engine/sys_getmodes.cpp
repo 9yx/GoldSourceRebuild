@@ -5,6 +5,7 @@
 
 #include "quakedef.h"
 
+#include "gl_vidnt.h"
 #include "IGame.h"
 #include "IRegistry.h"
 #include "render.h"
@@ -579,7 +580,16 @@ void CVideoMode_Common::SetInitialized( bool init )
 
 void CVideoMode_Common::UpdateWindowPosition()
 {
-	//TODO: implement - Solokiller
+	Rect_t window_rect;
+	int x, y, w, h;
+
+	game->GetWindowRect( &x, &y, &w, &h );
+
+	window_rect.x = x;
+	window_rect.width = x + w;
+	window_rect.y = y;
+	window_rect.height = y + h;
+	VID_UpdateWindowVars( &window_rect, x + w / 2, y + h / 2 );
 }
 
 void CVideoMode_Common::FlipScreen()
@@ -731,6 +741,12 @@ bool VideoMode_IsWindowed()
 	return videomode->IsWindowedMode();
 }
 
+void VideoMode_GetVideoModes( vmode_t** liststart, int* count )
+{
+	*count = videomode->GetModeCount();
+	*liststart = videomode->GetMode( 0 );
+}
+
 void VideoMode_GetCurrentVideoMode( int *wide, int *tall, int *bpp )
 {
 	vmode_t* pMode = videomode->GetCurrentMode();
@@ -744,6 +760,25 @@ void VideoMode_GetCurrentVideoMode( int *wide, int *tall, int *bpp )
 		if( bpp )
 			*bpp = pMode->bpp;
 	}
+}
+
+void VideoMode_GetCurrentRenderer( char* name, int namelen, int* windowed, int* hdmodels, int* addons_folder, int* vid_level )
+{
+	if( namelen > 0 && name )
+	{
+		strncpy( name, videomode->GetName(), namelen );
+	}
+	if( windowed )
+		*windowed = videomode->IsWindowedMode();
+
+	if( hdmodels )
+		*hdmodels = registry->ReadInt( "hdmodels", 1 ) > 0;
+	
+	if( addons_folder )
+		*addons_folder = registry->ReadInt( "addons_folder", 0 ) > 0;
+
+	if( vid_level )
+		*vid_level = registry->ReadInt( "vid_level", 0 );
 }
 
 void VideoMode_RestoreVideo()

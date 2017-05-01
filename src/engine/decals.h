@@ -1,6 +1,8 @@
 #ifndef ENGINE_DECALS_H
 #define ENGINE_DECALS_H
 
+extern bool m_bDrawInitialized;
+
 void Draw_DecalShutdown();
 
 void Decal_Init();

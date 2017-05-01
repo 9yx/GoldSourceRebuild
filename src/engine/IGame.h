@@ -20,6 +20,7 @@ public:
 
 	virtual void SetWindowXY( int x, int y ) = 0;
 	virtual void SetWindowSize( int w, int h ) = 0;
+	virtual void GetWindowRect( int* x, int* y, int* w, int* h ) = 0;
 
 	virtual bool IsActiveApp() = 0;
 	virtual bool IsMultiplayer() = 0;

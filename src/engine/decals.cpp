@@ -1,6 +1,8 @@
 #include "quakedef.h"
 #include "decals.h"
 
+bool m_bDrawInitialized = false;
+
 void Draw_DecalShutdown()
 {
 	//TODO: implement - Solokiller
@@ -8,7 +10,12 @@ void Draw_DecalShutdown()
 
 void Draw_Shutdown()
 {
-	//TODO: implement - Solokiller
+
+	if( m_bDrawInitialized )
+	{
+		m_bDrawInitialized = false;
+		//TODO: implement - Solokiller
+	}
 }
 
 void Decal_Init()

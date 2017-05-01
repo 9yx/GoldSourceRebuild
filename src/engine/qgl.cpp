@@ -4338,3 +4338,9 @@ void GLimp_EnableLogging()
 		qglViewport = dllViewport;
 	}
 }
+
+void GLimp_LogNewFrame()
+{
+	if( glw_state.log_fp )
+		FS_FPrintf( glw_state.log_fp, "*** R_BeginFrame ***\n" );
+}

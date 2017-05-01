@@ -13,6 +13,7 @@
 #include "cdll_exp.h"
 #include "eiface.h"
 #include "eventapi.h"
+#include "gl_vidnt.h"
 #include "net_api_int.h"
 #include "pmovetst.h"
 #include "pr_cmds.h"
@@ -233,13 +234,15 @@ int ClientDLL_Key_Event( int down, int keynum, const char* pszCurrentBinding )
 int hudCenterX()
 {
 	//TODO: implement - Solokiller
-	return 0;
+	//g_engdstAddrs.GetWindowCenterX();
+	return window_center_x;
 }
 
 int hudCenterY()
 {
 	//TODO: implement - Solokiller
-	return 0;
+	//g_engdstAddrs.GetWindowCenterY();
+	return window_center_y;
 }
 
 void hudGetViewAngles( float* va )

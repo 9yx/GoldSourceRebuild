@@ -47,7 +47,11 @@ void VideoMode_Create();
 
 bool VideoMode_IsWindowed();
 
+void VideoMode_GetVideoModes( vmode_t** liststart, int* count );
+
 void VideoMode_GetCurrentVideoMode( int* wide, int* tall, int* bpp );
+
+void VideoMode_GetCurrentRenderer( char* name, int namelen, int* windowed, int* hdmodels, int* addons_folder, int* vid_level );
 
 void VideoMode_RestoreVideo();
 

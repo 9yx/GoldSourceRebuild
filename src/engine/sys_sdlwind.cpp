@@ -58,6 +58,7 @@ public:
 
 	void SetWindowXY( int x, int y ) override;
 	void SetWindowSize( int w, int h ) override;
+	void GetWindowRect( int* x, int* y, int* w, int* h ) override;
 
 	bool IsActiveApp() override;
 	bool IsMultiplayer() override;
@@ -514,6 +515,21 @@ void CGame::SetWindowSize( int w, int h )
 		iMinWarp = m_height / 3;
 
 	m_nWarpDelta = iMinWarp;
+}
+
+void CGame::GetWindowRect( int* x, int* y, int* w, int* h )
+{
+	if( x )
+		*x = m_x;
+
+	if( y )
+		*y = m_y;
+
+	if( w )
+		*w = m_width;
+
+	if( h )
+		*h = m_height;
 }
 
 bool CGame::IsActiveApp()

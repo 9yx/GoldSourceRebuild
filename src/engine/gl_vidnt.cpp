@@ -15,13 +15,22 @@
 
 #include "quakedef.h"
 #include "qgl.h"
+#include "gl_rmisc.h"
+#include "gl_vidnt.h"
 #include "strtools.h"
 #include "sys_getmodes.h"
+#include "vid.h"
 
 cvar_t gl_ztrick = { "gl_ztrick", "0" };
 cvar_t gl_vsync = { "gl_vsync", "1", FCVAR_ARCHIVE };
 
 bool scr_skipupdate = false;
+bool scr_skiponeupdate = false;
+
+Rect_t window_rect = {};
+
+int window_center_x = 0;
+int window_center_y = 0;
 
 struct FBO_Container_t
 {
@@ -43,6 +52,19 @@ const char* gl_extensions = "";
 
 static FBO_Container_t s_MSAAFBO;
 static FBO_Container_t s_BackBufferFBO;
+
+static float s_fXMouseAspectAdjustment = 1.0;
+static float s_fYMouseAspectAdjustment = 1.0;
+
+float GetXMouseAspectRatioAdjustment()
+{
+	return s_fXMouseAspectAdjustment;
+}
+
+float GetYMouseAspectRatioAdjustment()
+{
+	return s_fYMouseAspectAdjustment;
+}
 
 void GL_Config()
 {
@@ -405,4 +427,225 @@ bool VID_Init( unsigned short* palette )
 		Cmd_AddCommand( "gl_log", GLimp_EnableLogging );
 
 	return true;
+}
+
+void VID_UpdateWindowVars( Rect_t* prc, int x, int y )
+{
+	window_rect.x = prc->x;
+	window_rect.width = prc->width;
+	window_rect.y = prc->y;
+	window_rect.height = prc->height;
+
+	if( pmainwindow )
+	{
+		int w, h;
+		SDL_GetWindowSize( reinterpret_cast<SDL_Window*>( pmainwindow ), &w, &h );
+
+		int x_0, y_0;
+		SDL_GetWindowPosition( reinterpret_cast<SDL_Window*>( pmainwindow ), &x_0, &y_0 );
+
+		prc->x = x_0;
+		prc->width = x_0 + w;
+
+		prc->y = y_0;
+		prc->height = y_0 + h;
+		window_center_x = x_0 + w / 2;
+		window_center_y = y_0 + h / 2;
+	}
+	else
+	{
+		window_center_x = x;
+		window_center_y = y;
+	}
+}
+
+static qboolean vsync = false;
+
+void GL_BeginRendering( int* x, int* y, int* width, int* height )
+{
+	*x = 0;
+	*y = 0;
+
+	if( VideoMode_IsWindowed() )
+	{
+		*width = window_rect.width - window_rect.x;
+		*height = window_rect.height - window_rect.y;
+	}
+	else
+	{
+		VideoMode_GetCurrentVideoMode( width, height, nullptr );
+	}
+
+	vid.conwidth = *width;
+	vid.width = *width;
+	vid.conheight = *height;
+	vid.height = *height;
+
+	if( vsync != gl_vsync.value )
+	{
+		SDL_GL_SetSwapInterval( gl_vsync.value > 0 );
+		vsync = gl_vsync.value != 0;
+	}
+
+	if( s_BackBufferFBO.s_hBackBufferFBO )
+	{
+		if( s_MSAAFBO.s_hBackBufferFBO )
+		{
+			qglBindFramebufferEXT( GL_DRAW_FRAMEBUFFER, s_MSAAFBO.s_hBackBufferFBO );
+		}
+		else
+		{
+			qglBindFramebufferEXT( GL_DRAW_FRAMEBUFFER, s_BackBufferFBO.s_hBackBufferFBO );
+		}
+
+		glClearColor( 0, 0, 0, 1.0 );
+
+		if( gl_clear.value )
+		{
+			glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
+		}
+		else
+		{
+			qglClear( GL_DEPTH_BUFFER_BIT );
+		}
+	}
+
+	GLimp_LogNewFrame();
+}
+
+void GL_EndRendering()
+{
+	if( s_BackBufferFBO.s_hBackBufferFBO )
+	{
+		int width, height;
+
+		VideoMode_GetCurrentVideoMode( &width, &height, nullptr );
+
+		if( s_MSAAFBO.s_hBackBufferFBO )
+		{
+			qglBindFramebufferEXT( GL_DRAW_FRAMEBUFFER, s_BackBufferFBO.s_hBackBufferFBO );
+			qglBindFramebufferEXT( GL_READ_FRAMEBUFFER, s_MSAAFBO.s_hBackBufferFBO );
+			qglBlitFramebufferEXT(
+				0, 0, width, height,
+				0, 0, width, height,
+				GL_COLOR_BUFFER_BIT,
+				GL_LINEAR
+			);
+		}
+
+		qglBindFramebufferEXT( GL_DRAW_FRAMEBUFFER, 0 );
+		qglBindFramebufferEXT( GL_READ_FRAMEBUFFER, s_BackBufferFBO.s_hBackBufferFBO );
+
+		glClearColor( 0, 0, 0, 0 );
+		glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
+		int windowWidth = window_rect.width - window_rect.x;
+		int windowHeight = window_rect.height - window_rect.y;
+
+		s_fXMouseAspectAdjustment = 1.0;
+		s_fYMouseAspectAdjustment = 1.0;
+
+		int iDestX = 0;
+		int iDestY = 0;
+		int iDestWidth = windowWidth;
+		int iDestHeight = windowHeight;
+
+		const double flOffset = 0;
+
+		if( s_bEnforceAspect )
+		{
+			double flAspect = width / static_cast<double>( height );
+			double flWindowAspect = windowWidth / static_cast<double>( windowHeight );
+
+			if( flWindowAspect <= flAspect )
+			{
+				if( flWindowAspect < flAspect )
+				{
+					s_fYMouseAspectAdjustment = flAspect / flWindowAspect;
+					
+					const double flInvAspectX = 1.0 / flAspect * windowWidth;
+					const double flCenter = ( windowHeight - flInvAspectX ) * 0.5;
+					
+					iDestY = static_cast<int>( floor( flOffset + flCenter ) );
+					iDestHeight = static_cast<int>( floor( windowHeight - flCenter ) );
+				}
+			}
+			else
+			{
+				s_fXMouseAspectAdjustment = flWindowAspect / flAspect;
+
+				const double flCenter = ( windowWidth - windowHeight * flAspect ) * 0.5;
+
+				iDestX = static_cast<int>( floor( flOffset + flCenter ) );
+				iDestWidth = static_cast<int>( floor( windowWidth - flCenter ) );
+			}
+		}
+
+		if( s_bSupportsBlitTexturing )
+		{
+			qglBlitFramebufferEXT(
+				0, 0, width, height,
+				iDestX, iDestY, iDestWidth, iDestHeight,
+				GL_COLOR_BUFFER_BIT,
+				GL_LINEAR
+				);
+		}
+		else
+		{
+			glDisable( GL_BLEND );
+			glDisable( GL_LIGHTING );
+			glDisable( GL_DEPTH_TEST );
+			glDisable( GL_ALPHA_TEST );
+			glDisable( GL_CULL_FACE );
+
+			qglMatrixMode( GL_PROJECTION );
+			qglPushMatrix();
+			glLoadIdentity();
+			glOrtho( 0, windowWidth, windowHeight, 0, -1.0, 1 );
+
+			qglMatrixMode( GL_MODELVIEW );
+			qglPushMatrix();
+			glLoadIdentity();
+			qglViewport( 0, 0, windowWidth, windowHeight );
+
+			glTexParameteri( GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+			glTexParameteri( GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+			glTexParameteri( GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
+			glTexParameteri( GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
+
+			qglColor4f( 1, 1, 1, 1 );
+
+			glEnable( GL_TEXTURE_RECTANGLE );
+			glBindTexture( GL_TEXTURE_RECTANGLE, s_BackBufferFBO.s_hBackBufferTex );
+			
+			glBegin( GL_QUADS );
+
+			glTexCoord2f( 0, height );
+			glVertex3f( iDestX, iDestY, 0 );
+
+			glTexCoord2f( width, height );
+			glVertex3f( iDestWidth, iDestY, 0 );
+
+			glTexCoord2f( width, 0 );
+			glVertex3f( iDestWidth, iDestHeight, 0 );
+
+			glTexCoord2f( 0, 0 );
+			glVertex3f( iDestX, iDestHeight, 0 );
+
+			glEnd();
+
+			glBindTexture( GL_TEXTURE_RECTANGLE, 0 );
+
+			qglMatrixMode( GL_PROJECTION );
+			qglPopMatrix();
+
+			qglMatrixMode( GL_MODELVIEW );
+			qglPopMatrix();
+
+			glDisable( GL_TEXTURE_RECTANGLE );
+		}
+
+		qglBindFramebufferEXT( GL_READ_FRAMEBUFFER, 0 );
+	}
+
+	VID_FlipScreen();
 }
