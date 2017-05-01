@@ -31,6 +31,8 @@ enum EInterfaceID
 	ICLIENTPANEL_STANDARD_INTERFACE = 0,
 };
 
+struct PanelMessageMap;
+
 //-----------------------------------------------------------------------------
 // Purpose: Interface from vgui panels -> Client panels
 //			This interface cannot be changed without rebuilding all vgui projects
@@ -84,6 +86,7 @@ public:
 
 	// returns the name of the module this panel is part of
 	virtual const char *GetModuleName() = 0;
+	virtual PanelMessageMap* GetMessageMap() = 0;
 
 #ifdef _XBOX
 	virtual int GetAlpha() = 0;
