@@ -380,7 +380,7 @@ void BaseUISurface::DrawSetColor( int r, int g, int b, int a )
 
 void BaseUISurface::DrawSetColor( SDK_Color col )
 {
-	_engineSurface->drawSetColor( col.r(), col.g(), col.b(), col.a() );
+	DrawSetColor( col.r(), col.g(), col.b(), col.a() );
 }
 
 void BaseUISurface::DrawFilledRect( int x0, int y0, int x1, int y1 )
