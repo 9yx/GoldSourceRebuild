@@ -92,13 +92,13 @@ void ExpandButton::Paint()
 {
 	surface()->DrawSetTextFont( m_hFont );
 
-	wchar_t code = IsSelected( ) ? L'6' : L'4';
-	wchar_t pString[2] = { code, 0 };
+	char code = IsSelected( ) ? '6' : '4';
+	char pString[2] = { code, 0 };
 
 	// draw selected check
 	int tw, th, w, h;
 	GetSize( w, h );
-	surface()->GetTextSize( m_hFont, pString, tw, th );
+	surface()->GetTextSize( pString, tw, th );
 	surface()->DrawSetTextColor( m_Color );
 	surface()->DrawSetTextPos( ( w - tw ) / 2, ( h - th ) / 2 );
 	surface()->DrawUnicodeChar( code );

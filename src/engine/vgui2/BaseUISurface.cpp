@@ -7,14 +7,17 @@
 #include <vgui/Cursor.h>
 #include <vgui/Dar.h>
 #include <vgui/IInputInternal.h>
+#include <vgui/ILocalize.h>
 #include <vgui/IScheme.h>
 #include <vgui2/src/vgui_key_translation.h>
+#include <vgui2/vgui_surfacelib/FontManager.h>
 
 #include <vgui_controls/Controls.h>
 
 #include "BaseUI_Interface.h"
 #include "BaseUISurface.h"
 #include "client.h"
+#include "FontTextureCache.h"
 #include "gl_vidnt.h"
 #include "IEngineSurface.h"
 #include "IGame.h"
@@ -38,6 +41,8 @@ static SDL_Cursor* staticCurrentCursor = nullptr;
 static bool s_bUsedRawInputLast = false;
 
 static vgui2::Dar<vgui2::VPANEL> staticPopupList;
+
+static CFontTextureCache g_FontTextureCache;
 
 EXPOSE_SINGLE_INTERFACE_GLOBALVAR( BaseUISurface, ISurface, VGUI_SURFACE_INTERFACE_VERSION_GS, g_BaseUISurface );
 
@@ -287,6 +292,16 @@ void BaseUISurface::AppHandler( void* event, void* userData )
 	}
 }
 
+void BaseUISurface::DrawSetTextureRGBAWithAlphaChannel( int id, const byte* rgba, int wide, int tall, int hardwareFilter )
+{
+	_engineSurface->drawSetTextureRGBA( id, rgba, wide, tall, hardwareFilter, true );
+}
+
+void BaseUISurface::DrawSetSubTextureRGBA( int textureID, int drawX, int drawY, const byte* rgba, int subTextureWide, int subTextureTall )
+{
+	_engineSurface->drawSetSubTextureRGBA( textureID, drawX, drawY, rgba, subTextureWide, subTextureTall );
+}
+
 void BaseUISurface::Shutdown()
 {
 	if( m_pChromeController )
@@ -426,12 +441,76 @@ void BaseUISurface::DrawPrintText( const wchar_t* text, int textLen )
 
 void BaseUISurface::DrawUnicodeChar( wchar_t wch )
 {
-	//TODO: implement
+	if( !m_hCurrentFont )
+		return;
+
+	int x, y;
+	DrawGetTextPos( x, y );
+
+	int a, b, c;
+	GetCharABCwide( m_hCurrentFont, wch, a, b, c );
+
+	x += a;
+
+	int textureID;
+	float texCoords[ 4 ];
+
+	if( g_FontTextureCache.GetTextureForChar( m_hCurrentFont, wch, &textureID, texCoords ) )
+	{
+		if( textureID != -1 )
+			DrawSetTexture( textureID );
+
+		_engineSurface->drawPrintChar(
+			x, y,
+			b,
+			GetFontTall( m_hCurrentFont ),
+			texCoords[ 0 ],
+			texCoords[ 1 ],
+			texCoords[ 2 ],
+			texCoords[ 3 ]
+		);
+
+		x += b + c;
+
+		DrawSetTextPos( x, y );
+	}
 }
 
 void BaseUISurface::DrawUnicodeCharAdd( wchar_t wch )
 {
-	//TODO: implement
+	if( !m_hCurrentFont )
+		return;
+
+	int x, y;
+	DrawGetTextPos( x, y );
+
+	int a, b, c;
+	GetCharABCwide( m_hCurrentFont, wch, a, b, c );
+
+	x += a;
+
+	int textureID;
+	float texCoords[ 4 ];
+
+	if( g_FontTextureCache.GetTextureForChar( m_hCurrentFont, wch, &textureID, texCoords ) )
+	{
+		if( textureID != -1 )
+			DrawSetTexture( textureID );
+
+		_engineSurface->drawPrintCharAdd(
+			x, y,
+			b,
+			GetFontTall( m_hCurrentFont ),
+			texCoords[ 0 ],
+			texCoords[ 1 ],
+			texCoords[ 2 ],
+			texCoords[ 3 ]
+		);
+
+		x += b + c;
+
+		DrawSetTextPos( x, y );
+	}
 }
 
 void BaseUISurface::DrawFlushText()
@@ -824,42 +903,55 @@ void BaseUISurface::SetTopLevelFocus( vgui2::VPANEL subFocus )
 
 vgui2::HFont BaseUISurface::CreateFont()
 {
-	//TODO: implement
-	return NULL_HANDLE;
+	return FontManager().CreateFont();
 }
 
 bool BaseUISurface::AddGlyphSetToFont( vgui2::HFont font, const char* windowsFontName, int tall, int weight, int blur, int scanlines, int flags, int lowRange, int highRange )
 {
-	//TODO: implement
-	return false;
+	return FontManager().AddGlyphSetToFont( font, windowsFontName, tall, weight, blur, scanlines, flags );
 }
 
 bool BaseUISurface::AddCustomFontFile( const char* fontFileName )
 {
-	//TODO: implement
-	return false;
+	char fullPath[ 4096 ];
+
+	vgui2::filesystem()->GetLocalPath( fontFileName, fullPath, sizeof( fullPath ) );
+
+	CUtlSymbol symbol( fontFileName );
+
+	m_CustomFontFileNames[ m_CustomFontFileNames.AddToTail() ] = symbol;
+
+#ifdef WIN32
+	return AddFontResourceExA( fullPath, FR_PRIVATE, nullptr ) > 0 ||
+		AddFontResourceA( fullPath) > 0;
+#else
+#error "Implement me"
+#endif
 }
 
 int BaseUISurface::GetFontTall( vgui2::HFont font )
 {
-	//TODO: implement
-	return 0;
+	return FontManager().GetFontTall( font );
 }
 
-void BaseUISurface::GetCharABCwide( vgui2::HFont font, int ch, int &a, int &b, int &c )
+void BaseUISurface::GetCharABCwide( vgui2::HFont font, int ch, int& a, int& b, int& c )
 {
-	//TODO: implement
+	FontManager().GetCharABCwide( font, ch, a, b, c );
 }
 
 int BaseUISurface::GetCharacterWidth( vgui2::HFont font, int ch )
 {
-	//TODO: implement
-	return 0;
+	return FontManager().GetCharacterWidth( font, ch );
 }
 
-void BaseUISurface::GetTextSize( vgui2::HFont font, const wchar_t *text, int &wide, int &tall )
+void BaseUISurface::GetTextSize( const char *text, int &wide, int &tall )
 {
-	//TODO: implement
+	wchar_t wtext[ 2048 ];
+
+	vgui2::localize()->ConvertANSIToUnicode( text, wtext, sizeof( wtext ) );
+	
+	//TODO: this probably doesn't work because font 0 has no data. - Solokiller
+	FontManager().GetTextSize( NULL_HANDLE, wtext, wide, tall );
 }
 
 vgui2::VPANEL BaseUISurface::GetNotifyPanel()
@@ -1185,8 +1277,7 @@ void BaseUISurface::DrawTexturedPolygon( vgui2::VGuiVertex* pVertices, int n )
 
 int BaseUISurface::GetFontAscent( vgui2::HFont font, wchar_t wch )
 {
-	//TODO: implement
-	return 0;
+	return FontManager().GetFontAscent( font, wch );
 }
 
 void BaseUISurface::SetAllowHTMLJavaScript( bool state )

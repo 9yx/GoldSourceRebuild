@@ -71,11 +71,17 @@ add_sources(
 	${SRC_DIR}/public/interface.cpp
 	${SRC_DIR}/public/interface.h
 	${SRC_DIR}/public/keydefs.h
+	${SRC_DIR}/vgui2/vgui_surfacelib/FontAmalgam.cpp
+	${SRC_DIR}/vgui2/vgui_surfacelib/FontAmalgam.h
+	${SRC_DIR}/vgui2/vgui_surfacelib/FontManager.cpp
+	${SRC_DIR}/vgui2/vgui_surfacelib/FontManager.h
 	${CMAKE_CURRENT_SOURCE_DIR}/vgui2/BasePanel.h
 	${CMAKE_CURRENT_SOURCE_DIR}/vgui2/BaseUI_Interface.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/vgui2/BaseUI_Interface.h
 	${CMAKE_CURRENT_SOURCE_DIR}/vgui2/BaseUISurface.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/vgui2/BaseUISurface.h
+	${CMAKE_CURRENT_SOURCE_DIR}/vgui2/FontTextureCache.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/vgui2/FontTextureCache.h
 	${CMAKE_CURRENT_SOURCE_DIR}/vgui2/IMouseControl.h
 	${CMAKE_CURRENT_SOURCE_DIR}/vgui2/text_draw.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/vgui2/text_draw.h
@@ -242,6 +248,18 @@ add_sources(
 	zone.cpp
 	zone.h
 )
+
+if( WIN32 )
+	add_sources(
+		${SRC_DIR}/vgui2/vgui_surfacelib/Win32Font.cpp
+		${SRC_DIR}/vgui2/vgui_surfacelib/Win32Font.h
+	)
+elseif( UNIX )
+	add_sources(
+		${SRC_DIR}/vgui2/vgui_surfacelib/linuxfont.cpp
+		${SRC_DIR}/vgui2/vgui_surfacelib/linuxfont.h
+	)
+endif()
 
 preprocess_sources()
 

@@ -531,12 +531,97 @@ void EngineSurface::drawTexturedRect( int x0, int y0, int x1, int y1 )
 
 void EngineSurface::drawPrintChar( int x, int y, int wide, int tall, float s0, float t0, float s1, float t1 )
 {
-	//TODO: implement - Solokiller
+	Rect_t rcOut;
+	TCoordRect tRect;
+
+	if( _drawTextColor[ 3 ] == 255 ||
+		!ScissorRect_TCoords(
+			x, y, 
+			x + wide, y + tall,
+			s0, t0, s1, t1,
+			&rcOut, &tRect )
+	)
+		return;
+
+	if( g_iVertexBufferEntriesUsed >= ARRAYSIZE( g_VertexBuffer ) )
+	{
+		drawFlushText();
+		g_iVertexBufferEntriesUsed = 0;
+	}
+
+	auto& vertex1 = g_VertexBuffer[ g_iVertexBufferEntriesUsed++ ];
+
+	vertex1.texcoords[ 0 ] = tRect.s0;
+	vertex1.texcoords[ 1 ] = tRect.t0;
+	vertex1.vertex[ 0 ] = rcOut.x;
+	vertex1.vertex[ 1 ] = rcOut.y;
+
+	auto& vertex2 = g_VertexBuffer[ g_iVertexBufferEntriesUsed++ ];
+
+	vertex2.texcoords[ 0 ] = tRect.s1;
+	vertex2.texcoords[ 1 ] = tRect.t0;
+	vertex2.vertex[ 0 ] = rcOut.width;
+	vertex2.vertex[ 1 ] = rcOut.y;
+
+	auto& vertex3 = g_VertexBuffer[ g_iVertexBufferEntriesUsed++ ];
+
+	vertex3.texcoords[ 0 ] = tRect.s1;
+	vertex3.texcoords[ 1 ] = tRect.t1;
+	vertex3.vertex[ 0 ] = rcOut.width;
+	vertex3.vertex[ 1 ] = rcOut.height;
+
+	auto& vertex4 = g_VertexBuffer[ g_iVertexBufferEntriesUsed++ ];
+
+	vertex4.texcoords[ 0 ] = tRect.s0;
+	vertex4.texcoords[ 1 ] = tRect.t1;
+	vertex4.vertex[ 0 ] = rcOut.x;
+	vertex4.vertex[ 1 ] = rcOut.height;
 }
 
 void EngineSurface::drawPrintCharAdd( int x, int y, int wide, int tall, float s0, float t0, float s1, float t1 )
 {
-	//TODO: implement - Solokiller
+	Rect_t rcOut;
+	TCoordRect tRect;
+
+	if( _drawTextColor[ 3 ] == 255 ||
+		!ScissorRect_TCoords(
+			x, y,
+			x + wide, y + tall,
+			s0, t0, s1, t1,
+			&rcOut, &tRect )
+		)
+		return;
+
+	qglTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE );
+	qglBlendFunc( GL_EQUAL, GL_ONE );
+	qglEnable( GL_BLEND );
+	qglEnable( GL_ALPHA_TEST );
+
+	qglColor4ub(
+		_drawTextColor[ 0 ],
+		_drawTextColor[ 1 ],
+		_drawTextColor[ 2 ],
+		255 - _drawTextColor[ 3 ]
+	);
+
+	qglBegin( GL_QUADS );
+
+	qglTexCoord2f( tRect.s0, tRect.t0 );
+	qglVertex2f( rcOut.x, rcOut.y );
+
+	qglTexCoord2f( tRect.s1, tRect.t0 );
+	qglVertex2f( rcOut.width, rcOut.y );
+
+	qglTexCoord2f( tRect.s1, tRect.t1 );
+	qglVertex2f( rcOut.width, rcOut.height );
+
+	qglTexCoord2f( tRect.s0, tRect.t1 );
+	qglVertex2f( rcOut.x, rcOut.height );
+
+	qglEnd();
+
+	qglDisable( GL_ALPHA_TEST );
+	qglDisable( GL_BLEND );
 }
 
 void EngineSurface::drawSetTextureFile( int id, const char* filename, int hardwareFilter, bool forceReload )
