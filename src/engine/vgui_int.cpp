@@ -144,7 +144,7 @@ bool VGui_LoadBMP( FileHandle_t file, byte* buffer, int bufsize, int* width, int
 		int iWidth = *width;
 
 		if( *width & 3 )
-			iWidth = AlignValue( *width, 4 );
+			iWidth = AlignValue( *width, 16 );
 
 		auto pPalette = reinterpret_cast<BMPQuad*>( pBuffer + bmfHeader.bfOffBits - sizeof( BITMAPFILEHEADER ) );
 
