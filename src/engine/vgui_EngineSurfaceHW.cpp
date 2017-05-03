@@ -459,10 +459,10 @@ void EngineSurface::drawSetTextureRGBA( int id, const byte* rgba, int wide, int 
 			GL_RGBA, GL_UNSIGNED_BYTE,
 			pData
 		);
-
-		if( pExpanded )
-			delete[] pExpanded;
 	}
+
+	if( pExpanded )
+		delete[] pExpanded;
 }
 
 void EngineSurface::drawSetTexture( int id )
@@ -747,7 +747,110 @@ void EngineSurface::resetViewPort()
 
 void EngineSurface::drawSetTextureBGRA( int id, const byte* rgba, int wide, int tall, int hardwareFilter, int hasAlphaChannel )
 {
-	//TODO: implement - Solokiller
+	auto pTexture = staticGetTextureById( id );
+
+	if( !pTexture )
+	{
+		Texture newTexture;
+
+		memset( &newTexture, 0, sizeof( newTexture ) );
+
+		newTexture._id = id;
+
+		pTexture = &g_VGuiSurfaceTextures[ g_VGuiSurfaceTextures.Insert( newTexture ) ];
+	}
+
+	if( !pTexture )
+		return;
+
+	pTexture->_id = id;
+	pTexture->_wide = wide;
+	pTexture->_tall = tall;
+
+	int pow2Wide;
+	int pow2Tall;
+
+	for( int i = 0; i < 32; ++i )
+	{
+		pow2Wide = 1 << i;
+
+		if( wide <= pow2Wide )
+			break;
+	}
+
+	for( int i = 0; i < 32; ++i )
+	{
+		pow2Tall = 1 << i;
+
+		if( tall <= pow2Tall )
+			break;
+	}
+
+	int* pExpanded = nullptr;
+
+	const void* pData = rgba;
+
+	//Convert to power of 2 texture.
+	if( wide != pow2Wide || tall != pow2Tall )
+	{
+		pExpanded = new int[ pow2Wide * pow2Tall ];
+
+		pData = pExpanded;
+
+		memset( pExpanded, 0, 4 * pow2Wide * pow2Tall );
+
+		const int* pSrc = reinterpret_cast<const int*>( rgba );
+		int* pDest = pExpanded;
+
+		for( int y = 0; y < tall; ++y )
+		{
+			for( int x = 0; x < wide; ++x )
+			{
+				pDest[ x ] = pSrc[ x ];
+			}
+
+			pDest += pow2Wide;
+			pSrc += wide;
+		}
+	}
+
+	pTexture->_s0 = 0;
+	pTexture->_t0 = 0;
+	pTexture->_s1 = static_cast<double>( wide ) / pow2Wide;
+	pTexture->_t1 = static_cast<double>( tall ) / pow2Tall;
+
+	staticTextureCurrent = pTexture;
+
+	currenttexture = id;
+
+	qglBindTexture( GL_TEXTURE_2D, id );
+
+	if( hardwareFilter )
+	{
+		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+	}
+	else
+	{
+		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
+		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+	}
+
+	qglTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
+	qglTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
+	qglTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE );
+
+	qglTexImage2D(
+		GL_TEXTURE_2D,
+		0, GL_RGBA8,
+		pow2Wide, pow2Tall,
+		0,
+		GL_BGRA, GL_UNSIGNED_BYTE,
+		pData
+	);
+
+	if( pExpanded )
+		delete[] pExpanded;
 }
 
 void EngineSurface::drawUpdateRegionTextureBGRA( int nTextureID, int x, int y, const byte* pchData, int wide, int tall )
