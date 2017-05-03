@@ -276,13 +276,18 @@ void BaseUISurface::AppHandler( void* event, void* userData )
 
 	case SDL_TEXTINPUT:
 		{
-			wchar_t c[ 2 ];
+			uchar32 value;
+
+			bool bError;
 
 			for( size_t i = 0; i < ARRAYSIZE( ev.text.text ) && ev.text.text[ i ]; )
 			{
-				const auto bytes = Q_UTF8CharsToWString( &ev.text.text[ i ], 1, c, sizeof( c ) );
+				const auto bytes = Q_UTF8ToUChar32( &ev.text.text[ i ], value, bError );
 
-				g_InputInternal->InternalKeyTyped( c[ 0 ] );
+				if( bError )
+					break;
+
+				g_InputInternal->InternalKeyTyped( value );
 
 				i += bytes;
 			}
