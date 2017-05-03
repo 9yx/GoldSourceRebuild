@@ -6,6 +6,8 @@
 set( PROJECT_NAME vgui2_controls )
 
 add_sources(
+	${CMAKE_CURRENT_SOURCE_DIR}/../src/vgui_key_translation.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/../src/vgui_key_translation.h
 	AnimatingImagePanel.cpp
 	AnimationController.cpp
 	BitmapImagePanel.cpp
@@ -69,7 +71,6 @@ add_sources(
 
 add_subdirectory( ${SRC_DIR}/common common )
 add_subdirectory( ${SRC_DIR}/public public )
-add_subdirectory( ${CMAKE_CURRENT_SOURCE_DIR}/../src src )
 
 preprocess_sources()
 
