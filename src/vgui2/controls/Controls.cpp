@@ -236,7 +236,8 @@ bool VGui_InitInterfacesList( const char *moduleName, CreateInterfaceFn *factory
 
 	g_pVGuiInterface->Init( factoryList, numFactories );
 
-	g_pKeyValuesInterface->RegisterSizeofKeyValues( sizeof( KeyValues ) );
+	if( g_pKeyValuesInterface )
+		g_pKeyValuesInterface->RegisterSizeofKeyValues( sizeof( KeyValues ) );
 
 	if ( g_pSchemeInterface && 
 		 g_pSurfaceInterface && 
