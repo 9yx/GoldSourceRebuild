@@ -10,6 +10,14 @@
 #include "tier0/dbg.h"
 #include "tier1/strtools.h"
 
+#ifdef WIN32
+#include "winheaders.h"
+#else
+//TODO: verify that this works - Solokiller
+#warning "Verify that Q_UCS2ToUTF8 works"
+#include <iconv>
+#endif
+
 //NOTE: this file is in engine/ in the original engine, but since this is based off of Source SDK 2013, it's in tier1.
 //This makes sense because then we can use this stuff in other projects as well without having to include source files from engine/. - Solokiller
 
@@ -580,4 +588,40 @@ bool V_UTF8ToUChar32( const char* pUTF8_, uchar32& uValueOut )
 	Q_UTF8ToUChar32( pUTF8_, uValueOut, bError );
 
 	return bError;
+}
+
+int Q_UCS2ToUTF8( const uchar16* pUCS2, int cubSrcInBytes, char* pUTF8, int cubDestSizeInBytes )
+{
+	*pUTF8 = '\0';
+
+	int result = -1;
+
+#ifdef WIN32
+	result = WideCharToMultiByte(
+		CP_UTF8, 0,
+		pUCS2, -1,
+		pUTF8, cubDestSizeInBytes,
+		nullptr, nullptr
+	);
+#else
+#warning "Verify that this works"
+	char* pIn = ( char * ) pUCS2;
+	size_t nLenUnicde = cubSrcInBytes;
+	char* pOut = pUTF8;
+	size_t nMaxUTF8 = cubDestSizeInBytes;
+
+	int result = -1;
+
+	auto cd = iconv_open( "UTF-8", "UCS-2LE" );
+
+	if( cd )
+	{
+		result = iconv( cd, &pIn, &nLenUnicde, &pOut, &nMaxUTF8 );
+		iconv_close( cd );
+	}
+#endif
+
+	pUTF8[ cubDestSizeInBytes - 1 ] = '\0';
+
+	return result;
 }

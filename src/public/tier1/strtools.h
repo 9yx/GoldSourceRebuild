@@ -445,6 +445,11 @@ bool Q_StripUnprintableAndSpace( char* pch );
 //Helper function to wrap Q_UTF8ToUChar32
 bool V_UTF8ToUChar32( const char* pUTF8_, uchar32& uValueOut );
 
+/**
+*	Converts UCS-2LE to UTF-8
+*/
+int Q_UCS2ToUTF8( const uchar16* pUCS2, int cubSrcInBytes, char* pUTF8, int cubDestSizeInBytes );
+
 // Convert multibyte to wchar + back
 // Specify -1 for nInSize for null-terminated string
 void V_strtowcs( const char *pString, int nInSize, wchar_t *pWString, int nOutSize );
