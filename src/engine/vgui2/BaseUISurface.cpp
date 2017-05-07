@@ -949,14 +949,9 @@ int BaseUISurface::GetCharacterWidth( vgui2::HFont font, int ch )
 	return FontManager().GetCharacterWidth( font, ch );
 }
 
-void BaseUISurface::GetTextSize( const char *text, int &wide, int &tall )
+void BaseUISurface::GetTextSize( vgui2::HFont font, const wchar_t *text, int &wide, int &tall )
 {
-	wchar_t wtext[ 2048 ];
-
-	vgui2::localize()->ConvertANSIToUnicode( text, wtext, sizeof( wtext ) );
-	
-	//TODO: this probably doesn't work because font 0 has no data. - Solokiller
-	FontManager().GetTextSize( NULL_HANDLE, wtext, wide, tall );
+	FontManager().GetTextSize( font, text, wide, tall );
 }
 
 vgui2::VPANEL BaseUISurface::GetNotifyPanel()

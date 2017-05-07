@@ -141,7 +141,7 @@ public:
 
 	void GetCharABCwide( vgui2::HFont font, int ch, int &a, int &b, int &c ) override;
 	int GetCharacterWidth( vgui2::HFont font, int ch ) override;
-	void GetTextSize( const char *text, int &wide, int &tall ) override;
+	void GetTextSize( vgui2::HFont font, const wchar_t *text, int &wide, int &tall ) override;
 
 	vgui2::VPANEL GetNotifyPanel() override;
 	void SetNotifyIcon( vgui2::VPANEL context, vgui2::HTexture icon, vgui2::VPANEL panelToReceiveMessages, const char *text ) override;

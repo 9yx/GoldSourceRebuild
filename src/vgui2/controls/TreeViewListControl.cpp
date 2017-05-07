@@ -290,7 +290,7 @@ void CTreeViewListControl::DrawTitleBars()
 		vgui2::localize()->ConvertANSIToUnicode( pTitleString, unicodeString, sizeof(unicodeString) );
 	
 		int wide, tall;
-		surface()->GetTextSize( pTitleString, wide, tall );
+		surface()->GetTextSize( m_TitleBarFont, unicodeString, wide, tall );
 
 		surface()->DrawSetTextFont( m_TitleBarFont );
 

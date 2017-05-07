@@ -290,7 +290,7 @@ public:
 	//virtual bool IsFontAdditive(HFont font) = 0;
 	virtual void GetCharABCwide(HFont font, int ch, int &a, int &b, int &c) = 0;
 	virtual int GetCharacterWidth(HFont font, int ch) = 0;
-	virtual void GetTextSize(const char *text, int &wide, int &tall) = 0;
+	virtual void GetTextSize(HFont font, const wchar_t *text, int &wide, int &tall) = 0;
 
 	// notify icons?!?
 	virtual VPANEL GetNotifyPanel() = 0;
