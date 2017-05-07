@@ -309,11 +309,6 @@ add_library( vgui SHARED IMPORTED )
 set_property( TARGET vgui PROPERTY IMPORTED_LOCATION ${ENGINE_BASE_PATH}/${VGUI1_NAME} )
 set_property( TARGET vgui PROPERTY IMPORTED_IMPLIB ${SRC_DIR}/utils/vgui/lib/win32_vc6/vgui.lib )
 
-#TODO: temporary until we have our own vstdlib - Solokiller
-add_library( vstdlib SHARED IMPORTED )
-set_property( TARGET vstdlib PROPERTY IMPORTED_LOCATION ${ENGINE_BASE_PATH}/vstdlib.dll )
-set_property( TARGET vstdlib PROPERTY IMPORTED_IMPLIB ${SRC_DIR}/lib/public/vstdlib.lib )
-
 #Link with dependencies
 target_link_libraries( ${PROJECT_NAME} 
 	${SDL2}

@@ -232,4 +232,9 @@ endforeach()
 find_library( STEAM_API steam_api PATHS ${ENGINE_BASE_PATH} ${LIB_DIR} NO_DEFAULT_PATH )
 find_library( SDL2 ${SDL2_NAME} PATHS ${ENGINE_BASE_PATH} ${EXTERNAL_DIR}/SDL2/lib NO_DEFAULT_PATH )
 
+#TODO: temporary until we have our own vstdlib - Solokiller
+add_library( vstdlib SHARED IMPORTED )
+set_property( TARGET vstdlib PROPERTY IMPORTED_LOCATION ${ENGINE_BASE_PATH}/vstdlib.dll )
+set_property( TARGET vstdlib PROPERTY IMPORTED_IMPLIB ${SRC_DIR}/lib/public/vstdlib.lib )
+
 add_subdirectory( src )
