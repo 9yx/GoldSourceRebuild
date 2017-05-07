@@ -68,7 +68,7 @@ set( COPY_RESOURCES OFF CACHE BOOL "Flag used to track whether resources should 
 if( COPY_RESOURCES )
 	message( STATUS "Copying resources from game installation..." )
 	
-	set( FILES_TO_COPY chromehtml.dll libcef.dll icudt.dll vgui.dll vgui2.dll vstdlib.dll ${GAME_NAME}/liblist.gam )
+	set( FILES_TO_COPY chromehtml.dll libcef.dll icudt.dll vgui.dll vstdlib.dll ${GAME_NAME}/liblist.gam )
 	
 	foreach( filename IN LISTS FILES_TO_COPY )
 		message( STATUS "Copying file \"${filename}\"" )
