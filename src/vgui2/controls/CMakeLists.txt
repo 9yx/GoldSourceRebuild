@@ -82,6 +82,7 @@ target_include_directories( ${PROJECT_NAME} PRIVATE
 	${SRC_DIR}/public/html
 	${SRC_DIR}/public/tier1
 	${SRC_DIR}
+	${EXTERNAL_DIR}/SDL2/include
 )
 
 target_compile_definitions( ${PROJECT_NAME} PRIVATE
