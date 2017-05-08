@@ -117,6 +117,9 @@ void VPanelWrapper::MoveToBack( vgui2::VPANEL vguiPanel )
 
 bool VPanelWrapper::HasParent( vgui2::VPANEL vguiPanel, vgui2::VPANEL potentialParent )
 {
+	if( !vguiPanel )
+		return false;
+
 	return reinterpret_cast<vgui2::VPanel*>( vguiPanel )->HasParent( reinterpret_cast<vgui2::VPanel*>( potentialParent ) );
 }
 
