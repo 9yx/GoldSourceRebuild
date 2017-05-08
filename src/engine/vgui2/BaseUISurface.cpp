@@ -731,36 +731,46 @@ void BaseUISurface::SetCursor( vgui2::HCursor cursor )
 
 	bool bChange = true;
 
-	if( cursor != vgui2::dc_user )
+	switch( cursor )
 	{
-		if( cursor <= vgui2::dc_hand )
+	case vgui2::dc_user:
 		{
-			if( cursor == vgui2::dc_arrow || cursor == vgui2::dc_waitarrow )
-			{
-				if( cursor == vgui2::dc_arrow )
-				{
-					s_bCursorVisible = false;
-					bChange = false;
-				}
-			}
-
-			if( cursor != vgui2::dc_waitarrow )
-			{
-				staticCurrentCursor = staticDefaultCursor[ cursor ];
-			}
+			s_bCursorVisible = false;
+			staticCurrentCursor = nullptr;
+			break;
 		}
 
-		if( bChange )
+	case vgui2::dc_none:
+		{
+			bChange = false;
+			s_bCursorVisible = false;
+		}
+
+	case vgui2::dc_arrow:
+	case vgui2::dc_ibeam:
+	case vgui2::dc_hourglass:
+	case vgui2::dc_waitarrow:
+	case vgui2::dc_crosshair:
+	case vgui2::dc_up:
+	case vgui2::dc_sizenwse:
+	case vgui2::dc_sizenesw:
+	case vgui2::dc_sizewe:
+	case vgui2::dc_sizens:
+	case vgui2::dc_sizeall:
+	case vgui2::dc_no:
+	case vgui2::dc_hand:
+		{
+			staticCurrentCursor = staticDefaultCursor[ cursor ];
+
+			if( !bChange )
+				break;
+		}
+
+	default:
 		{
 			SDL_SetCursor( staticCurrentCursor );
-			bChange = false;
+			break;
 		}
-	}
-
-	if( bChange )
-	{
-		s_bCursorVisible = false;
-		staticCurrentCursor = nullptr;
 	}
 
 	bool bUseRawInput;
