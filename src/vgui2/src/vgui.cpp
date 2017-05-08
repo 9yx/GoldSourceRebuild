@@ -539,17 +539,14 @@ bool CVGui::DispatchMessages()
 		}
 		else if( bUsingDelayedQueue )
 		{
-			if( m_DelayedMessageQueue.Count() <= 0 )
+			if( m_DelayedMessageQueue.Count() <= 0 ||
+				m_DelayedMessageQueue.ElementAtHead()._arrivalTime > time )
 			{
-				pMsg = &m_DelayedMessageQueue.ElementAtHead();
-
-				if( pMsg->_arrivalTime > time )
-				{
-					bUsingDelayedQueue = false;
-					continue;
-				}
+				bUsingDelayedQueue = false;
+				continue;
 			}
 
+			pMsg = &m_DelayedMessageQueue.ElementAtHead();
 			messageIndex = 0;
 		}
 		else
