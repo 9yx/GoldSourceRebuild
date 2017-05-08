@@ -1174,7 +1174,8 @@ void BaseUISurface::CalculateMouseVisible()
 			parent = vgui2::ipanel()->GetParent( parent );
 		}
 
-		if( !parent )
+		//Parent was invisible, ignore.
+		if( parent )
 			continue;
 
 		_needMouse = vgui2::ipanel()->IsMouseInputEnabled( popup ) || _needMouse;

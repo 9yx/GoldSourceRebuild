@@ -380,10 +380,12 @@ void CInputWin32::UpdateMouseFocus( int x, int y )
 
 			auto isVisible = !vgui2::surface()->IsMinimized( vgui2::VPanelToHandle( pPopup ) );
 
-			while( isVisible && pPopup && pPopup->GetParent() )
+			auto pParent = pPopup->GetParent();
+
+			while( isVisible && pParent )
 			{
-				isVisible = pPopup->IsVisible();
-				pPopup = pPopup->GetParent();
+				isVisible = pParent->IsVisible();
+				pParent = pParent->GetParent();
 			}
 
 			if( wantsMouse && isVisible )
@@ -888,7 +890,7 @@ vgui2::VPanel* CInputWin32::CalculateNewKeyFocus()
 				!pPopup->IsVisible() ||
 				!pPopup->IsKeyBoardInputEnabled() ||
 				vgui2::surface()->IsMinimized( vgui2::VPanelToHandle( pPopup ) ) )
-				break;
+				continue;
 
 			auto isVisible = pPopup->IsVisible();
 
