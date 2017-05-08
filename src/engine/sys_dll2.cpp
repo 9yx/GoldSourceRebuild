@@ -111,7 +111,7 @@ public:
 
 	const char* Key_BindingForKey( int keynum ) override
 	{
-		return Key_BindingForKey( keynum );
+		return ::Key_BindingForKey( keynum );
 	}
 
 	vgui2::KeyCode GetVGUI2KeyCodeForBind( const char* bind ) override
