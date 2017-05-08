@@ -28,7 +28,17 @@ void MemoryBitmap::Paint()
 		ForceUpload();
 	}
 
-	surface()->DrawSetColor( _color );
+	if( !_uploaded )
+		return;
+
+	surface()->DrawSetTexture( _id );
+
+	surface()->DrawSetColor(
+		_color[ 0 ],
+		_color[ 1 ],
+		_color[ 2 ],
+		_color[ 3 ]
+	);
 
 	int wide, tall;
 	surface()->DrawGetTextureSize( _id, wide, tall );

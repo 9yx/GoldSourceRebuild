@@ -40,7 +40,7 @@ private:
 
 	int _pos[ 2 ] = {};
 
-	SDK_Color _color;
+	SDK_Color _color = SDK_Color( 255, 255, 255, 255 );
 
 	bool _filtered;
 

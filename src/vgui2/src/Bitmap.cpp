@@ -32,14 +32,17 @@ void Bitmap::Paint()
 		ForceUpload();
 	}
 
-	surface()->DrawSetTextureFile(
-		_id, _filename, _filtered, false
+	if( !_uploaded )
+		return;
+
+	surface()->DrawSetTexture( _id );
+
+	surface()->DrawSetColor(
+		_color[ 0 ],
+		_color[ 1 ],
+		_color[ 2 ],
+		_color[ 3 ]
 	);
-
-	surface()->DrawSetColor( _color );
-
-	if( !wide )
-		GetSize( wide, tall );
 
 	surface()->DrawTexturedRect(
 		_pos[ 0 ], _pos[ 1 ],
