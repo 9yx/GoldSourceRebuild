@@ -350,7 +350,7 @@ void CVideoMode_Common::DrawStartupGraphic( SDL_Window* window )
 	glDisable( GL_DEPTH_TEST );
 	glEnable( GL_TEXTURE_2D );
 	glMatrixMode( GL_PROJECTION );
-	glOrtho( 0.0, ( long double ) width, ( long double ) height, 0.0, -1.0, 1.0 );
+	glOrtho( 0.0, static_cast<double>( width ), static_cast<double>( height ), 0.0, -1.0, 1.0 );
 	glClearColor( 0.0, 0.0, 0.0, 0.0 );
 	glClear( GL_COLOR_BUFFER_BIT );
 
@@ -364,27 +364,27 @@ void CVideoMode_Common::DrawStartupGraphic( SDL_Window* window )
 		modeHeight = pMode->height;
 	}
 
-	long double widthAdjust = 0;
-	long double heightAdjust = 0;
+	double widthAdjust = 0;
+	double heightAdjust = 0;
 
 	if( !COM_CheckParm( "-stretchaspect" ) )
 	{
-		const long double modeAspect = ( long double ) modeWidth / ( long double ) modeHeight;
-		const long double aspect = ( long double ) width / ( long double ) height;
+		const double modeAspect = static_cast<double>( modeWidth ) / static_cast<double>( modeHeight );
+		const double aspect = static_cast<double>( width ) / static_cast<double>( height );
 
 		if( aspect > modeAspect )
 		{
-			widthAdjust = ( long double ) width - modeAspect * ( long double ) height;
+			widthAdjust = static_cast<double>( width ) - modeAspect * static_cast<double>( height );
 		}
 		else if( modeAspect > aspect )
 		{
-			const float flYDiff = 1.0 / modeAspect * ( long double ) width;
-			heightAdjust = ( long double ) height - flYDiff;
+			const float flYDiff = 1.0 / modeAspect * static_cast<double>( width );
+			heightAdjust = static_cast<double>( height - flYDiff );
 		}
 	}
 
-	const float xScale = ( width - widthAdjust ) / ( long double ) m_iBaseResX;
-	const float yScale = ( height - heightAdjust ) / ( long double ) m_iBaseResY;
+	const float xScale = ( width - widthAdjust ) / static_cast<double>( m_iBaseResX );
+	const float yScale = ( height - heightAdjust ) / static_cast<double>( m_iBaseResY );
 
 	CUtlVector<unsigned int> vecGLTex;
 
@@ -395,15 +395,15 @@ void CVideoMode_Common::DrawStartupGraphic( SDL_Window* window )
 	{
 		bimage_t* pImage = &m_ImageID[ image ];
 
-		const int dx = ( int ) floor( pImage->x * xScale + xOffset );
-		const int dy = ( int ) floor( pImage->y * yScale + yOffset );
+		const int dx = static_cast<int>( round( pImage->x * xScale + xOffset ) );
+		const int dy = static_cast<int>( round( pImage->y * yScale + yOffset ) );
 
 		int dw, dt;
 
 		if( pImage->scaled )
 		{
-			dw = ( int ) floor( ( pImage->width + pImage->x ) * xScale + xOffset );
-			dt = ( int ) floor( ( pImage->height + pImage->y ) * yScale + yOffset );
+			dw = static_cast<int>( round( ( pImage->width + pImage->x ) * xScale + xOffset ) );
+			dt = static_cast<int>( round( ( pImage->height + pImage->y ) * yScale + yOffset ) );
 		}
 		else
 		{
@@ -454,11 +454,12 @@ void CVideoMode_Common::DrawStartupGraphic( SDL_Window* window )
 		else
 		{
 			auto pToUse = new byte[ 4 * pow2Width * pow2Height ];
-			memset( pToUse, 0, 4 * pow2Width * pow2Height );
 
 			//TODO: leaks GPU memory, but if we're out of RAM here it doesn't really matter. - Solokiller
 			if( !pToUse )
 				return;
+
+			memset( pToUse, 0, 4 * pow2Width * pow2Height );
 
 			//Copy the image into a power of 2 buffer.
 			for( int y = 0; y < pImage->height; ++y )
@@ -470,10 +471,10 @@ void CVideoMode_Common::DrawStartupGraphic( SDL_Window* window )
 				}
 			}
 
-			glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, pImage->width, pImage->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pToUse );
+			glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, pow2Width, pow2Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pToUse );
 
-			topu = pImage->width / ( long double ) pow2Width;
-			topv = ( long double ) pImage->height / ( long double ) pow2Height;
+			topu = pImage->width / static_cast<double>( pow2Width );
+			topv = static_cast<double>( pImage->height ) / static_cast<double>( pow2Height );
 			delete[] pToUse;
 		}
 
@@ -503,6 +504,9 @@ void CVideoMode_Common::DrawStartupGraphic( SDL_Window* window )
 			free( m_ImageID[ i ].buffer );
 		}
 	}
+
+	//TODO: can purge memory as well since it's never going to be used again. - Solokiller
+	m_ImageID.RemoveAll();
 }
 
 void CVideoMode_Common::Shutdown()
