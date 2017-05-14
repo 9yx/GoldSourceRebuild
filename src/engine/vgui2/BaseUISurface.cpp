@@ -208,8 +208,8 @@ void BaseUISurface::AppHandler( void* event, void* userData )
 				const int relX = static_cast<int>( floor( ev.motion.x * ( static_cast<double>( vW ) / wW ) ) );
 				const int relY = static_cast<int>( floor( ev.motion.y * ( static_cast<double>( vT ) / wT ) ) );
 
-				const double flX = ( static_cast<double>( relX ) - vW / 2 ) * ( GetXMouseAspectRatioAdjustment() - 1.0 ) + relX;
-				const double flY = ( static_cast<double>( relY ) - vT / 2 ) * ( GetYMouseAspectRatioAdjustment() - 1.0 ) + relY;
+				const double flX = static_cast<double>( relX - vW / 2 ) * ( GetXMouseAspectRatioAdjustment() - 1.0 ) + relX;
+				const double flY = static_cast<double>( relY - vT / 2 ) * ( GetYMouseAspectRatioAdjustment() - 1.0 ) + relY;
 
 				g_InputInternal->InternalCursorMoved( static_cast<int>( floor( flX ) ), static_cast<int>( floor( flY ) ) );
 			}
@@ -230,15 +230,16 @@ void BaseUISurface::AppHandler( void* event, void* userData )
 		{
 			const auto mouseCode = SDLMouseButtonToVGUI2MouseCode( ev.button.button );
 
-			if( ev.type == SDL_MOUSEBUTTONUP )
+			if( ev.type != SDL_MOUSEBUTTONDOWN )
 			{
-				g_InputInternal->InternalMousePressed( mouseCode );
+				g_InputInternal->InternalMouseReleased( mouseCode );
 			}
 			else
 			{
 				if( m_bGotMouseButtonDown )
 				{
-					if( sdl_double_click_size.value >= static_cast<double>( ev.button.x - m_MouseButtonDownX ) &&
+					if( sdl_double_click_time.value >= ( ev.button.timestamp - m_MouseButtonDownTimeStamp ) &&
+						sdl_double_click_size.value >= static_cast<double>( ev.button.x - m_MouseButtonDownX ) &&
 						sdl_double_click_size.value >= static_cast<double>( ev.button.y - m_MouseButtonDownY ) )
 					{
 						m_bGotMouseButtonDown = false;
