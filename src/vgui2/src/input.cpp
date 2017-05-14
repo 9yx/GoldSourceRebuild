@@ -63,7 +63,7 @@ void CInputWin32::SetMouseFocus( vgui2::VPANEL newMouseFocus )
 	if( pCtx->_mouseOver )
 	{
 		if( !pCtx->_mouseCapture ||
-			pCtx->_mouseOver->HasParent( pCtx->_mouseCapture ) )
+			pCtx->_oldMouseFocus->HasParent( pCtx->_mouseCapture ) )
 		{
 			vgui2::ivgui()->PostMessage(
 				vgui2::VPanelToHandle( pCtx->_oldMouseFocus ),
