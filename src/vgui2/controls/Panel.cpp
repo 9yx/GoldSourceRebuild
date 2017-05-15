@@ -6562,6 +6562,9 @@ void Panel::SetSkipChildDuringPainting( Panel *child )
 	m_SkipChild = child;
 }
 
+const char NAMESPACE_PREFIX[] = "vgui2::";
+const auto NAMESPACE_PREFIX_LENGTH = strlen( NAMESPACE_PREFIX );
+
 //-----------------------------------------------------------------------------
 // Purpose: Utility class for handling message map allocation
 //-----------------------------------------------------------------------------
@@ -6591,9 +6594,9 @@ private:
 
 char const *CPanelMessageMapDictionary::StripNamespace( char const *className )
 {
-	if ( !strnicmp( className, "vgui2::", 6 ) )
+	if ( !strnicmp( className, NAMESPACE_PREFIX, NAMESPACE_PREFIX_LENGTH ) )
 	{
-		return className + 6;
+		return className + NAMESPACE_PREFIX_LENGTH;
 	}
 	return className;
 }
@@ -6660,9 +6663,9 @@ private:
 
 char const *CPanelKeyBindingMapDictionary::StripNamespace( char const *className )
 {
-	if ( !strnicmp( className, "vgui2::", 6 ) )
+	if ( !strnicmp( className, NAMESPACE_PREFIX, NAMESPACE_PREFIX_LENGTH ) )
 	{
-		return className + 6;
+		return className + NAMESPACE_PREFIX_LENGTH;
 	}
 	return className;
 }
