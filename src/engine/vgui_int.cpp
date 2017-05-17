@@ -113,7 +113,13 @@ struct BITMAPINFOHEADER
 
 struct BMPQuad
 {
-	byte r, g, b, reserved;
+	byte b, g, r, reserved;
+};
+
+struct BITMAPINFO
+{
+	BITMAPINFOHEADER    bmiHeader;
+	BMPQuad             bmiColors[ 1 ];
 };
 
 #define BMP_TYPE 0x4D42
@@ -136,19 +142,19 @@ bool VGui_LoadBMP( FileHandle_t file, byte* buffer, int bufsize, int* width, int
 
 		FS_Read( pBuffer, dataSize, file );
 
-		auto pInfo = reinterpret_cast<BITMAPINFOHEADER*>( pBuffer );
+		auto pInfo = reinterpret_cast<BITMAPINFO*>( pBuffer );
 
-		*width = pInfo->biWidth;
-		*height = pInfo->biHeight;
+		*width = pInfo->bmiHeader.biWidth;
+		*height = pInfo->bmiHeader.biHeight;
 
 		int iWidth = *width;
 
 		if( *width & 3 )
 			iWidth = AlignValue( *width, 16 );
 
-		auto pPalette = reinterpret_cast<BMPQuad*>( pBuffer + bmfHeader.bfOffBits - sizeof( BITMAPFILEHEADER ) );
+		auto pPalette = pInfo->bmiColors;
 
-		auto pSource = reinterpret_cast<byte*>( pPalette ) + sizeof( BMPQuad ) * 256;
+		auto pSource = reinterpret_cast<byte*>( pInfo ) + bmfHeader.bfOffBits - sizeof( bmfHeader );
 
 		auto pDest = buffer;
 
