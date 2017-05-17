@@ -230,7 +230,7 @@ skipwhite:
 			c == '(' || 
 			c == '\'' || 
 			( !com_ignorecolons && c == ':' ) ||
-			len < ( ARRAYSIZE( com_token ) - 1 ) )
+			len >= ( ARRAYSIZE( com_token ) - 1 ) )
 			break;
 	}
 	while( c>' ' );
