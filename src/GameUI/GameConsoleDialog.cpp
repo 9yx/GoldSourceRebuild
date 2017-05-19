@@ -146,7 +146,7 @@ void CHistoryItem::SetText( const char* text, const char* extra )
 
 		auto extraSize = strlen( extra ) + 1;
 
-		m_extraText = new char[ size ];
+		m_extraText = new char[ extraSize ];
 
 		memset( m_extraText, 0, extraSize * sizeof( char ) );
 
@@ -163,6 +163,7 @@ CGameConsoleDialog::CompletionItem::CompletionItem()
 {
 	cmd.cmd = 0;
 	cmd.cvar = nullptr;
+	m_text = nullptr;
 }
 
 CGameConsoleDialog::CompletionItem::CompletionItem( const CompletionItem& src )
@@ -188,8 +189,8 @@ CGameConsoleDialog::CompletionItem& CGameConsoleDialog::CompletionItem::operator
 		cmd = src.cmd;
 
 		//TODO: This appears to be missing from the original - Solokiller
-		if( m_text )
-			delete[] m_text;
+		//if( m_text )
+		//	delete m_text;
 
 		if( src.m_text )
 		{
