@@ -20,7 +20,7 @@ public:
 	virtual int GetRoundTimeLength() = 0;
 	virtual int GetWinfastLength() = 0;
 
-	virtual CareerDifficultyType GetDifficulty() = 0;
+	virtual CareerDifficultyType GetDifficulty() const = 0;
 	virtual int GetCurrentMapTriplet( MapInfo* maps ) = 0;
 
 	virtual void OnRoundEndMenuOpen( bool didWin ) = 0;
