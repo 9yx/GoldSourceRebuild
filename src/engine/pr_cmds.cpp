@@ -1,6 +1,8 @@
 #include <cstdint>
 #include <ctime>
 
+#include "quakedef.h"
+
 #include "tier0/platform.h"
 
 #include "pr_cmds.h"
@@ -119,5 +121,17 @@ int32 RandomLong( int32 lLow, int32 lHigh )
 int hudCheckParm( char* parm, char** ppnext )
 {
 	//TODO: implement - Solokiller
-	return 0;
+	//g_engdstAddrs.CheckParm();
+
+	auto result = COM_CheckParm( parm );
+
+	if( ppnext )
+	{
+		if( result && result < com_argc - 1 )
+			*ppnext = const_cast<char*>( com_argv[ result + 1 ] );
+		else
+			*ppnext = nullptr;
+	}
+
+	return result;
 }

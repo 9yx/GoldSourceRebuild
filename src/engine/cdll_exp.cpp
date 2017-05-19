@@ -63,7 +63,16 @@ int hudServerCmd( char* pszCmdString )
 int hudClientCmd( char* pszCmdString )
 {
 	//TODO: implement - Solokiller
-	return 0;
+	//g_engdstAddrs.pfnClientCmd();
+
+	if( pszCmdString )
+	{
+		Cbuf_AddText( pszCmdString );
+		Cbuf_AddText( "\n" );
+		return true;
+	}
+
+	return false;
 }
 
 void hudGetPlayerInfo( int ent_num, hud_player_info_t* pinfo )
