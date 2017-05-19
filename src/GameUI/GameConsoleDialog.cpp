@@ -541,7 +541,7 @@ void CGameConsoleDialog::UpdateCompletionListPosition()
 	int ex, ey;
 	m_pEntry->GetPos( ex, ey );
 
-	SetPos( ex + x, ey + y + 32 );
+	m_pCompletionList->SetPos( ex + x, ey + y + 32 );
 
 	m_pEntry->RequestFocus();
 	MoveToFront();

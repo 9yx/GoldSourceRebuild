@@ -46,7 +46,7 @@ void CGameConsole::Initialize()
 	vgui2::surface()->GetScreenSize( swide, stall );
 
 	//Compute console size
-	int wide = swide = 80;
+	int wide = swide - 80;
 
 	if( wide > 560 )
 		wide = 560;
