@@ -11,6 +11,8 @@
 #include "winsani_in.h"
 #include "winlite.h"
 #include "winsani_out.h"
+
+#undef GetCurrentTime
 #endif
 
 #endif //COMMON_WINHEADERS_H
