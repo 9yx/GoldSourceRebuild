@@ -43,9 +43,12 @@ if( UNIX )
 	set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g" )
 endif()
 
+set( STEAMCOMMON_DIR_NAME Half-Life )
+set( GAME_NAME valve )
+
 #Base dir for engine outputs
 set( ENGINE_BASE_PATH "${CMAKE_SOURCE_DIR}/test_game" CACHE PATH "Path to deploy binaries to. Equivalent to common/Half-Life, but defaults to test_game for testing only" )
-set( GAME_BASE_PATH "${ENGINE_BASE_PATH}/valve" )
+set( GAME_BASE_PATH "${ENGINE_BASE_PATH}/${GAME_NAME}" )
 
 message( STATUS "Base Engine Path: ${ENGINE_BASE_PATH}" )
 message( STATUS "Base Game Path: ${GAME_BASE_PATH}" )
@@ -57,9 +60,7 @@ if( "${STEAMCOMMON}" STREQUAL "" )
 	message( FATAL_ERROR "Unable to get Steam common directory path" )
 endif()
 
-set( STEAMCOMMON_DIR_NAME Half-Life )
 set( HL_DIR ${STEAMCOMMON}/${STEAMCOMMON_DIR_NAME} )
-set( GAME_NAME valve )
 set( GAME_DIR ${HL_DIR}/${GAME_NAME} )
 
 set( COPY_RESOURCES OFF CACHE BOOL "Flag used to track whether resources should be copied. Set to ON to force update, set to OFF to skip." )
