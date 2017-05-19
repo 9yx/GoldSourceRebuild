@@ -225,14 +225,14 @@ vgui2::VPANEL CVGui::HandleToPanel( vgui2::HPanel index )
 	{
 		const vgui2::HPanel listEntry = index >> 16;
 
-		if( m_PanelList.Count() > static_cast<int>( listEntry ) )
+		if( m_PanelList.IsValidIndex( listEntry ) )
 		{
-			if( m_PanelList.IsValidIndex( listEntry ) )
-			{
-				auto& entry = m_PanelList[ listEntry ];
+			auto& entry = m_PanelList[ listEntry ];
 
-				if( ( index & 0xFFFF ) == entry.m_iSerialNumber )
-					return entry.m_pPanel;
+			if( ( index & 0xFFFF ) == entry.m_iSerialNumber )
+			{
+				auto panel = vgui2::VHandleToPanel( entry.m_pPanel );
+				return entry.m_pPanel;
 			}
 		}
 	}
@@ -443,7 +443,6 @@ void CVGui::PanelCreated( vgui2::VPanel* panel )
 	entry.m_iSerialNumber = m_iNextSerialNumber++;
 	entry.m_pPanel = reinterpret_cast<vgui2::VPANEL>( panel );
 
-	//TODO: shouldn't listEntry contain the serial number as well? - Solokiller
 	panel->SetListEntry( listEntry );
 	vgui2::surface()->AddPanel( entry.m_pPanel );
 }
@@ -457,12 +456,9 @@ void CVGui::PanelDeleted( vgui2::VPanel* panel )
 
 	auto listEntry = panel->GetListEntry();
 
-	if( m_PanelList.Count() > listEntry )
+	if( m_PanelList.IsValidIndex( listEntry ) )
 	{
-		if( m_PanelList.IsValidIndex( listEntry ) )
-		{
-			m_PanelList.Remove( listEntry );
-		}
+		m_PanelList.Remove( listEntry );
 	}
 
 	panel->SetListEntry( 0xFFFF );
