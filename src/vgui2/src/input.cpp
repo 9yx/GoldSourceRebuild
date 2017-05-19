@@ -60,7 +60,7 @@ void CInputWin32::SetMouseFocus( vgui2::VPANEL newMouseFocus )
 	pCtx->_oldMouseFocus = pCtx->_mouseOver;
 	pCtx->_mouseOver = pNewMouseFocus;
 
-	if( pCtx->_mouseOver )
+	if( pCtx->_oldMouseFocus )
 	{
 		if( !pCtx->_mouseCapture ||
 			pCtx->_oldMouseFocus->HasParent( pCtx->_mouseCapture ) )
@@ -250,6 +250,9 @@ void CInputWin32::GetCursorPosition( int &x, int &y )
 
 void CInputWin32::RunFrame()
 {
+	if( m_hContext == DEFAULT_INPUT_CONTEXT )
+		_updateToggleButtonState = true;
+
 	auto pCtx = GetCurrentContext();
 
 	if( pCtx->_keyFocus &&
@@ -423,7 +426,7 @@ void CInputWin32::PanelDeleted( vgui2::VPANEL panel )
 {
 	auto pPanel = vgui2::VHandleToPanel( panel );
 
-	for( int i = 0; i < m_Contexts.Count(); ++i )
+	for( int i = m_Contexts.Head(); i != m_Contexts.InvalidIndex(); i = m_Contexts.Next( i ) )
 	{
 		PanelDeleted( pPanel, m_Contexts[ i ] );
 	}
@@ -882,6 +885,8 @@ vgui2::VPanel* CInputWin32::CalculateNewKeyFocus()
 	}
 	else
 	{
+		pFocus = nullptr;
+
 		for( auto i = vgui2::surface()->GetPopupCount() - 1; i >= 0; --i )
 		{
 			auto pPopup = vgui2::VHandleToPanel( vgui2::surface()->GetPopup( i ) );
@@ -896,9 +901,8 @@ vgui2::VPanel* CInputWin32::CalculateNewKeyFocus()
 
 			auto pParent = pPopup->GetParent();
 
-			while( isVisible && pParent )
+			while( pParent && ( isVisible = pParent->IsVisible() ) )
 			{
-				isVisible = pParent->IsVisible();
 				pParent = pParent->GetParent();
 			}
 
@@ -908,7 +912,7 @@ vgui2::VPanel* CInputWin32::CalculateNewKeyFocus()
 			if( !vgui2::surface()->IsMinimized( vgui2::VPanelToHandle( pPopup ) ) )
 			{
 				pFocus = vgui2::VHandleToPanel(
-					pPopup ->Client()->GetCurrentKeyFocus()
+					pPopup->Client()->GetCurrentKeyFocus()
 				);
 
 				if( !pFocus )
@@ -916,8 +920,6 @@ vgui2::VPanel* CInputWin32::CalculateNewKeyFocus()
 				break;
 			}
 		}
-
-		pFocus = nullptr;
 	}
 
 	if( !vgui2::surface()->HasFocus() )
