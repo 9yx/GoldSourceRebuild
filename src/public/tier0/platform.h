@@ -60,6 +60,7 @@
 		#define IsConsole() false
 		#define IsXbox() false
 		#define IsWindows() true
+		#define IsX360() false
 	#else
 		#ifndef _CONSOLE
 			#define _CONSOLE
@@ -68,6 +69,7 @@
 		#define IsConsole() true
 		#define IsXbox() true
 		#define IsWindows() false
+		#define IsX360() false
 	#endif
 
 	#define IsPosix() false
@@ -78,6 +80,7 @@
 	#define IsWindows() false
 	#define IsConsole() false
 	#define IsXbox() false
+	#define IsX360() false
 	#if defined( LINUX )
 		#define IsLinux() true
 	#else
