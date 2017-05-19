@@ -75,6 +75,7 @@ if( COPY_RESOURCES )
 		icudt.dll
 		vgui.dll
 		vstdlib.dll
+		${GAME_NAME}/config.cfg
 		${GAME_NAME}/game.ico
 		${GAME_NAME}/game.tga
 		${GAME_NAME}/liblist.gam
