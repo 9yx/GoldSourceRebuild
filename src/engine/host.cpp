@@ -51,6 +51,8 @@ cvar_t host_framerate = { "host_framerate", "0" };
 cvar_t sys_ticrate = { "sys_ticrate", "100.0" };
 cvar_t sys_timescale = { "sys_timescale", "1.0" };
 
+cvar_t developer = { "developer", "0" };
+
 unsigned short* host_basepal = nullptr;
 
 int host_hunklevel = 0;
@@ -76,7 +78,10 @@ void Host_InitLocal()
 	Cvar_RegisterVariable( &sv_log_singleplayer );
 	Cvar_RegisterVariable( &sv_logsecret );
 	Cvar_RegisterVariable( &sv_stats );
+	*/
 	Cvar_RegisterVariable( &developer );
+	//TODO: implement - Solokiller
+	/*
 	Cvar_RegisterVariable( &deathmatch );
 	Cvar_RegisterVariable( &coop );
 	Cvar_RegisterVariable( &pausable );
