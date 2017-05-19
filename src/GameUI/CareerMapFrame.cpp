@@ -6,8 +6,6 @@
 
 void ShowCareerMapDescription( vgui2::RichText* pText, CCareerMap* pMap, SDK_Color normalColor, SDK_Color friendlyFireColor )
 {
-	const wchar_t *v27; // eax@23
-
 	if( !pText )
 		return;
 
@@ -28,12 +26,14 @@ void ShowCareerMapDescription( vgui2::RichText* pText, CCareerMap* pMap, SDK_Col
 		snprintf( intStr, ARRAYSIZE( intStr ), "%d", numBots );
 
 		vgui2::localize()->ConvertANSIToUnicode( intStr, intWStr, sizeof( intWStr ) );
+
+		const wchar_t* pszLocalized;
 		
 		if( numBots == 1
-			&& ( ( v27 = vgui2::localize()->Find(
+			&& ( ( pszLocalized = vgui2::localize()->Find(
 				"#Career_EnemyListSingle" ) ) != 0 ) )
 		{
-			wcsncat( str, v27, ARRAYSIZE( str ) );
+			wcsncat( str, pszLocalized, ARRAYSIZE( str ) );
 		}
 		else
 		{
