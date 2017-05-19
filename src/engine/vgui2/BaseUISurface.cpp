@@ -270,7 +270,7 @@ void BaseUISurface::AppHandler( void* event, void* userData )
 	case SDL_KEYDOWN:
 		{
 			g_InputInternal->InternalKeyCodePressed( KeyCode_VirtualKeyToVGUI( ev.key.keysym.sym ) );
-			g_InputInternal->InternalKeyCodePressed( KeyCode_VirtualKeyToVGUI( ev.key.keysym.sym ) );
+			g_InputInternal->InternalKeyCodeTyped( KeyCode_VirtualKeyToVGUI( ev.key.keysym.sym ) );
 			CheckModState();
 			break;
 		}
@@ -421,7 +421,7 @@ void BaseUISurface::DrawSetTextColor( int r, int g, int b, int a )
 
 void BaseUISurface::DrawSetTextColor( SDK_Color col )
 {
-	_engineSurface->drawSetTextColor( col.r(), col.g(), col.b(), col.a() );
+	DrawSetTextColor( col.r(), col.g(), col.b(), col.a() );
 }
 
 void BaseUISurface::DrawSetTextPos( int x, int y )
@@ -453,10 +453,21 @@ void BaseUISurface::DrawUnicodeChar( wchar_t wch )
 	int x, y;
 	DrawGetTextPos( x, y );
 
+	auto tall = GetFontTall( m_hCurrentFont );
+
 	int a, b, c;
 	GetCharABCwide( m_hCurrentFont, wch, a, b, c );
 
+	const bool bUnderlined = FontManager().GetFontUnderlined( m_hCurrentFont );
+
+	int wide = b;
+
 	x += a;
+
+	if( bUnderlined )
+	{
+		wide = a + b + c;
+	}
 
 	int textureID;
 	float texCoords[ 4 ];
@@ -468,15 +479,20 @@ void BaseUISurface::DrawUnicodeChar( wchar_t wch )
 
 		_engineSurface->drawPrintChar(
 			x, y,
-			b,
-			GetFontTall( m_hCurrentFont ),
+			wide,
+			tall,
 			texCoords[ 0 ],
 			texCoords[ 1 ],
 			texCoords[ 2 ],
 			texCoords[ 3 ]
 		);
 
-		x += b + c;
+		x += wide;
+
+		if( !bUnderlined )
+		{
+			x += c;
+		}
 
 		DrawSetTextPos( x, y );
 	}
@@ -490,8 +506,14 @@ void BaseUISurface::DrawUnicodeCharAdd( wchar_t wch )
 	int x, y;
 	DrawGetTextPos( x, y );
 
+	auto tall = GetFontTall( m_hCurrentFont );
+
 	int a, b, c;
 	GetCharABCwide( m_hCurrentFont, wch, a, b, c );
+
+	//TODO: no underlined check? - Solokiller
+
+	int wide = b;
 
 	x += a;
 
@@ -505,15 +527,15 @@ void BaseUISurface::DrawUnicodeCharAdd( wchar_t wch )
 
 		_engineSurface->drawPrintCharAdd(
 			x, y,
-			b,
-			GetFontTall( m_hCurrentFont ),
+			wide,
+			tall,
 			texCoords[ 0 ],
 			texCoords[ 1 ],
 			texCoords[ 2 ],
 			texCoords[ 3 ]
 		);
 
-		x += b + c;
+		x += wide + c;
 
 		DrawSetTextPos( x, y );
 	}
