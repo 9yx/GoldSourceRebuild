@@ -337,6 +337,7 @@ private:
 	bool			   _wrap;
 	bool			   _sendNewLines;
 	int				   _drawWidth;
+	int					_scrollBarSize;
 
 	// selection data
 	Menu				*m_pEditMenu; ///cut/copy/paste popup

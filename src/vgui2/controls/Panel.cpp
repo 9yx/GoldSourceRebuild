@@ -3603,8 +3603,8 @@ void Panel::GetResizeOffset( int &dx, int &dy )
 void Panel::ApplySchemeSettings(IScheme *pScheme)
 {
 	// get colors
-	SetFgColor(GetSchemeColor("Panel.FgColor", pScheme));
-	SetBgColor(GetSchemeColor("Panel.BgColor", pScheme));
+	SetFgColor(GetSchemeColor("FgColor", pScheme));
+	SetBgColor(GetSchemeColor("BgColor", pScheme));
 
 #if defined( VGUI_USEDRAGDROP )
     m_clrDragFrame = pScheme->GetColor("DragDrop.DragFrame", SDK_Color(255, 255, 255, 192));

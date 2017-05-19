@@ -77,7 +77,7 @@ protected:
 private:
 	int	ComputeVPixelsNeeded();
 
-	enum { DEFAULT_HEIGHT = 24, PANELBUFFER = 5 };
+	enum { DEFAULT_SCROLLBARSIZE = 18, DEFAULT_HEIGHT = 24, PANELBUFFER = 5 };
 
 	typedef struct dataitem_s
 	{
@@ -96,6 +96,7 @@ private:
 
 	PHandle					m_hSelectedItem;
 	int						m_iFirstColumnWidth;
+	int						m_iScrollbarSize;
 	int						m_iDefaultHeight;
 	int						m_iPanelBuffer;
 };

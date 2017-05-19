@@ -487,27 +487,7 @@ void Label::Paint()
 		// if this is the text image then add its inset to the left or from the right
 		if (i == _textImageIndex)
 		{
-			switch ( _contentAlignment )
-			{
-				// left
-				case Label::a_northwest:
-				case Label::a_west:
-				case Label::a_southwest:
-				{
-					x += _textInset[0];
-					break;
-				}
-				// right
-				case Label::a_northeast:
-				case Label::a_east:
-				case Label::a_southeast:
-				{
-					x -= _textInset[0];
-					break;
-				}
-
-				default: break;
-			}
+			x += _textInset[ 0 ];
 		}
 
 		// see if the image is in a fixed position
@@ -993,10 +973,13 @@ void Label::ApplySchemeSettings(IScheme *pScheme)
 		_imageDar[i].image = NULL;
 	}
 
-	SetDisabledFgColor1(GetSchemeColor("Label.DisabledFgColor1", pScheme));
-	SetDisabledFgColor2(GetSchemeColor("Label.DisabledFgColor2", pScheme));
-	SetBgColor(GetSchemeColor("Label.BgColor", pScheme));
+	SetDisabledFgColor1(GetSchemeColor("DisabledFgColor1", pScheme));
+	SetDisabledFgColor2(GetSchemeColor("DisabledFgColor2", pScheme));
+	SetBgColor(GetSchemeColor("LabelBgColor", pScheme));
 
+	SetFgColor( GetSchemeColor( "BaseText", pScheme ) );
+	//TODO: implement if needed - Solokiller
+	/*
 	switch (_textColorState)
 	{
 	case CS_DULL:
@@ -1010,8 +993,9 @@ void Label::ApplySchemeSettings(IScheme *pScheme)
 		SetFgColor(GetSchemeColor("Label.TextColor", pScheme));
 		break;
 	}
+	*/
 
-	_associateColor = GetSchemeColor("Label.SelectedTextColor", pScheme);
+	_associateColor = GetSchemeColor("BrightControlText", pScheme);
 }
 
 //-----------------------------------------------------------------------------

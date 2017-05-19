@@ -73,9 +73,9 @@ public:
 	{
 		BaseClass::ApplySchemeSettings(pScheme);
 
-		SetFgColor(GetSchemeColor("SectionedListPanel.HeaderTextColor", pScheme));
-		m_SectionDividerColor = GetSchemeColor("SectionedListPanel.DividerColor", pScheme);
-		SetBgColor(GetSchemeColor("SectionedListPanelHeader.BgColor", GetBgColor(), pScheme));
+		SetFgColor(GetSchemeColor("SectionTextColor", pScheme));
+		m_SectionDividerColor = GetSchemeColor("SectionDividerColor", pScheme);
+		SetBgColor(GetSchemeColor( "BuddyListBgColor", GetBgColor(), pScheme));
 		SetFont(pScheme->GetFont("DefaultVerySmall", IsProportional()));
 		ClearImages();
 	}
@@ -450,15 +450,15 @@ public:
 	{
 		BaseClass::ApplySchemeSettings(pScheme);
 
-		m_ArmedFgColor1 = GetSchemeColor("SectionedListPanel.BrightTextColor", pScheme);
-		m_ArmedFgColor2 = GetSchemeColor("SectionedListPanel.SelectedTextColor", pScheme);
-		m_OutOfFocusSelectedTextColor = GetSchemeColor("SectionedListPanel.OutOfFocusSelectedTextColor", pScheme);
-		m_ArmedBgColor = GetSchemeColor("SectionedListPanel.SelectedBgColor", pScheme);
+		m_ArmedFgColor1 = GetSchemeColor("BuddyButton/ArmedFgColor1", pScheme);
+		m_ArmedFgColor2 = GetSchemeColor("BuddyButton/ArmedFgColor2", pScheme);
+		m_OutOfFocusSelectedTextColor = GetSchemeColor("BuddyButton/FgColor1", pScheme);
+		m_ArmedBgColor = GetSchemeColor("BuddyButton/ArmedBgColor", pScheme);
 
-		m_FgColor2 = GetSchemeColor("SectionedListPanel.TextColor", pScheme);
+		m_FgColor2 = GetSchemeColor("BuddyButton/FgColor2", pScheme);
 
-		m_BgColor = GetSchemeColor("SectionedListPanel.BgColor", GetBgColor(), pScheme);
-		m_SelectionBG2Color = GetSchemeColor("SectionedListPanel.OutOfFocusSelectedBgColor", pScheme);
+		m_BgColor = GetSchemeColor("BuddyListBgColor", GetBgColor(), pScheme);
+		m_SelectionBG2Color = GetSchemeColor("SelectionBG2", pScheme);
 
 		ClearImages();
 	}
@@ -626,6 +626,21 @@ SectionedListPanel::SectionedListPanel(vgui2::Panel *parent, const char *name) :
 
 	m_pImageList = NULL;
 	m_bDeleteImageListWhenDone = false;
+
+	if( IsProportional() )
+	{
+		int width, height;
+		vgui2::surface()->GetProportionalBase( width, height );
+
+		int sw, sh;
+		vgui2::surface()->GetScreenSize( sw, sh );
+
+		m_iScrollbarSize = static_cast<int>( static_cast<double>( width ) / sw * 18.0 );
+	}
+	else
+	{
+		m_iScrollbarSize = 18;
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -706,8 +721,8 @@ void SectionedListPanel::PerformLayout()
 		m_pScrollBar->SetVisible(true);
 		m_pScrollBar->MoveToFront();
 
-		m_pScrollBar->SetPos(cwide - m_pScrollBar->GetWide() - 2, 0);
-		m_pScrollBar->SetSize(m_pScrollBar->GetWide(), ctall - 2);
+		m_pScrollBar->SetPos(cwide - m_iScrollbarSize - 2, 0);
+		m_pScrollBar->SetSize(m_iScrollbarSize, ctall - 2);
 
 		m_pScrollBar->SetRangeWindow(ctall);
 
@@ -859,7 +874,7 @@ void SectionedListPanel::ApplySchemeSettings(IScheme *pScheme)
 {
 	BaseClass::ApplySchemeSettings(pScheme);
 
-	SetBgColor(GetSchemeColor("SectionedListPanel.BgColor", GetBgColor(), pScheme));
+	SetBgColor(GetSchemeColor("BuddyListBgColor", GetBgColor(), pScheme));
 	SetBorder(pScheme->GetBorder("ButtonDepressedBorder"));
 }
 

@@ -21,58 +21,6 @@
 
 using namespace vgui2;
 
-//-----------------------------------------------------------------------------
-// Purpose: Check box image
-//-----------------------------------------------------------------------------
-class CheckImage : public TextImage
-{
-public:
-	CheckImage(CheckButton *CheckButton) : TextImage( "g" )
-	{
-		_CheckButton = CheckButton;
-
-		SetSize(20, 13);
-	}
-
-	virtual void Paint()
-	{
-		DrawSetTextFont(GetFont());
-
-		// draw background
-		if (_CheckButton->IsEnabled() && _CheckButton->m_bCheckButtonCheckable)
-		{
-			DrawSetTextColor(_bgColor);
-		}
-		else
-		{
-			DrawSetTextColor(_CheckButton->GetBgColor());
-		}
-		DrawPrintChar(0, 1, 'g');
-	
-		// draw border box
-		DrawSetTextColor(_borderColor1);
-		DrawPrintChar(0, 1, 'e');
-		DrawSetTextColor(_borderColor2);
-		DrawPrintChar(0, 1, 'f');
-
-		// draw selected check
-		if (_CheckButton->IsSelected())
-		{
-			DrawSetTextColor(_checkColor);
-			DrawPrintChar(0, 2, 'b');
-		}
-	}
-
-	SDK_Color _borderColor1;
-	SDK_Color _borderColor2;
-	SDK_Color _checkColor;
-
-	SDK_Color _bgColor;
-
-private:
-	CheckButton *_CheckButton;
-};
-
 DECLARE_BUILD_FACTORY_DEFAULT_TEXT( CheckButton, CheckButton );
 
 //-----------------------------------------------------------------------------
@@ -83,11 +31,9 @@ CheckButton::CheckButton(Panel *parent, const char *panelName, const char *text)
  	SetContentAlignment(a_west);
 	m_bCheckButtonCheckable = true;
 
-	// create the image
-	_checkBoxImage = new CheckImage(this);
-
-	SetTextImageIndex(1);
-	SetImageAtIndex(0, _checkBoxImage, CHECK_INSET);
+	// create the images
+	m_pSelected = vgui2::scheme()->GetImage( "resource/icon_checked", false );
+	m_pDefault = vgui2::scheme()->GetImage( "resource/icon_emptybox", false );
 
 	_selectedFgColor = SDK_Color( 196, 181, 80, 255 );
 }
@@ -98,7 +44,6 @@ CheckButton::CheckButton(Panel *parent, const char *panelName, const char *text)
 //-----------------------------------------------------------------------------
 CheckButton::~CheckButton()
 {
-	delete _checkBoxImage;
 }
 
 //-----------------------------------------------------------------------------
@@ -108,21 +53,17 @@ void CheckButton::ApplySchemeSettings(IScheme *pScheme)
 {
 	BaseClass::ApplySchemeSettings(pScheme);
 
-	SetDefaultColor( GetSchemeColor("CheckButton.TextColor", pScheme), GetBgColor() );
-	_checkBoxImage->_bgColor = GetSchemeColor("CheckButton.BgColor", SDK_Color(62, 70, 55, 255), pScheme);
-	_checkBoxImage->_borderColor1 = GetSchemeColor("CheckButton.Border1", SDK_Color(20, 20, 20, 255), pScheme);
-	_checkBoxImage->_borderColor2 = GetSchemeColor("CheckButton.Border2", SDK_Color(90, 90, 90, 255), pScheme);
-	_checkBoxImage->_checkColor = GetSchemeColor("CheckButton.Check", SDK_Color(20, 20, 20, 255), pScheme);
-	_selectedFgColor = GetSchemeColor("CheckButton.SelectedTextColor", GetSchemeColor("ControlText", pScheme), pScheme);
+	SetDefaultColor( GetSchemeColor("FgColor", pScheme), GetBgColor() );
+	_selectedFgColor = GetSchemeColor("BrightControlText", GetSchemeColor("ControlText", pScheme), pScheme);
 
-	SetContentAlignment(Label::a_west);
+	SetPaintBackgroundEnabled( true );
 
-	_checkBoxImage->SetFont( pScheme->GetFont("Marlett", IsProportional()) );
-	_checkBoxImage->ResizeImageToContent();
-	SetImageAtIndex(0, _checkBoxImage, CHECK_INSET);
+	SetTextImageIndex( 1 );
 
-	// don't draw a background
-	SetPaintBackgroundEnabled(false);
+	auto pImg = IsSelected() ? m_pSelected : m_pDefault;
+
+	if( pImg )
+		SetImageAtIndex( 0, pImg, 0 );
 }
 
 //-----------------------------------------------------------------------------
@@ -145,6 +86,11 @@ void CheckButton::SetSelected(bool state)
 		PostActionSignal(msg);
 
 		BaseClass::SetSelected(state);
+
+		auto pImg = state ? m_pSelected : m_pDefault;
+
+		if( pImg )
+			SetImageAtIndex( 0, pImg, 0 );
 	}
 }
 

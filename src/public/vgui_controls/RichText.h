@@ -203,6 +203,7 @@ private:
 	CUtlVector<ClickPanel *>  _clickableTextPanels;
 	int				   _clickableTextIndex;
 	SDK_Color		   _defaultTextColor;
+	int					_scrollBarSize;
 	int					_drawOffsetX;
 	int					_drawOffsetY;
 

@@ -96,6 +96,15 @@ TextEntry::TextEntry(Panel *parent, const char *panelName) : Panel(parent, panel
 	m_LineBreaks.AddToTail(BUFFER_SIZE);
 	
 	_recalculateBreaksIndex = 0;
+
+	if( IsProportional() )
+	{
+		_scrollBarSize = vgui2::scheme()->GetProportionalScaledValue( 18 );
+	}
+	else
+	{
+		_scrollBarSize = 18;
+	}
 	
 	_selectAllOnFirstFocus = false;
 	_selectAllOnFocusAlways = false;
@@ -128,17 +137,17 @@ void TextEntry::ApplySchemeSettings(IScheme *pScheme)
 {
 	BaseClass::ApplySchemeSettings(pScheme);
 	
-	SetFgColor(GetSchemeColor("TextEntry.TextColor", pScheme));
-	SetBgColor(GetSchemeColor("TextEntry.BgColor", pScheme));
+	SetFgColor(GetSchemeColor("WindowFgColor", pScheme));
+	SetBgColor(GetSchemeColor("WindowBgColor", pScheme));
 	
-	_cursorColor = GetSchemeColor("TextEntry.CursorColor", pScheme);
-	_disabledFgColor = GetSchemeColor("TextEntry.DisabledTextColor", pScheme);
-	_disabledBgColor = GetSchemeColor("TextEntry.DisabledBgColor", pScheme);
+	_cursorColor = GetSchemeColor("TextCursorColor", pScheme);
+	_disabledFgColor = GetSchemeColor("WindowDisabledFgColor", pScheme);
+	_disabledBgColor = GetSchemeColor("ControlBG", pScheme);
 	
-	_selectionTextColor = GetSchemeColor("TextEntry.SelectedTextColor", GetFgColor(), pScheme);
-	_selectionColor = GetSchemeColor("TextEntry.SelectedBgColor", pScheme);
-	_defaultSelectionBG2Color = GetSchemeColor("TextEntry.OutOfFocusSelectedBgColor", pScheme);
-	_focusEdgeColor = GetSchemeColor("TextEntry.FocusEdgeColor", SDK_Color(0, 0, 0, 0), pScheme);
+	_selectionTextColor = GetSchemeColor("SelectionFgColor", GetFgColor(), pScheme);
+	_selectionColor = GetSchemeColor("SelectionBgColor", pScheme);
+	_defaultSelectionBG2Color = GetSchemeColor("SelectionBG2", pScheme);
+	_focusEdgeColor = GetSchemeColor("BorderSelection", SDK_Color(0, 0, 0, 0), pScheme);
 
 	SetBorder( pScheme->GetBorder("ButtonDepressedBorder"));
 
@@ -1096,9 +1105,9 @@ void TextEntry::LayoutVerticalScrollBarSlider()
 		// with a scroll bar we take off the inset
 		wide -= iright;
 		
-		_vertScrollBar->SetPos(wide - _vertScrollBar->GetWide(), 0);
+		_vertScrollBar->SetPos(wide - _scrollBarSize, 0);
 		// scrollbar is inside the borders.
-		_vertScrollBar->SetSize(_vertScrollBar->GetWide(), tall - ibottom - itop);
+		_vertScrollBar->SetSize(_scrollBarSize, tall - ibottom - itop);
 		
 		// calculate how many lines we can fully display
 		int displayLines = tall / (surface()->GetFontTall(_font) + DRAW_OFFSET_Y);

@@ -44,11 +44,13 @@ PanelListPanel::PanelListPanel( vgui2::Panel *parent, char const *panelName ) : 
 
 	if ( IsProportional() )
 	{
+		m_iScrollbarSize = scheme()->GetProportionalScaledValue( DEFAULT_SCROLLBARSIZE );
 		m_iDefaultHeight = scheme()->GetProportionalScaledValueEx( GetScheme(), DEFAULT_HEIGHT );
 		m_iPanelBuffer = scheme()->GetProportionalScaledValueEx( GetScheme(), PANELBUFFER );
 	}
 	else
 	{
+		m_iScrollbarSize = DEFAULT_SCROLLBARSIZE;
 		m_iDefaultHeight = DEFAULT_HEIGHT;
 		m_iPanelBuffer = PANELBUFFER;
 	}
@@ -241,13 +243,13 @@ void PanelListPanel::PerformLayout()
 	m_vbar->SetRangeWindow( tall );
 	m_vbar->SetButtonPressedScrollValue( tall / 4 ); // standard height of labels/buttons etc.
 
-	m_vbar->SetPos( wide - m_vbar->GetWide() - 2, 0 );
-	m_vbar->SetSize( m_vbar->GetWide(), tall - 2 );
+	m_vbar->SetPos( wide - m_iScrollbarSize, 0 );
+	m_vbar->SetSize( m_iScrollbarSize, tall - 2 );
 
 	int top = m_vbar->GetValue();
 
 	m_pPanelEmbedded->SetPos( 1, -top );
-	m_pPanelEmbedded->SetSize( wide - m_vbar->GetWide() - 2, vpixels );
+	m_pPanelEmbedded->SetSize( wide - m_iScrollbarSize, vpixels );
 
 	int sliderPos = m_vbar->GetValue();
 	

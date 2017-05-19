@@ -137,6 +137,11 @@ RichText::RichText(Panel *parent, const char *panelName) : BaseClass(parent, pan
 	
 	//position the cursor so it is at the end of the text
 	GotoTextEnd();
+
+	//Scroll down
+	int smin, smax;
+	_vertScrollBar->GetRange( smin, smax );
+	_vertScrollBar->SetValue( smax );
 	
 	// set default foreground color to black
 	_defaultTextColor = SDK_Color(0, 0, 0, 0);
@@ -151,11 +156,13 @@ RichText::RichText(Panel *parent, const char *panelName) : BaseClass(parent, pan
 		surface()->GetProportionalBase( width, height );
 		surface()->GetScreenSize(sw, sh);
 		
+		_scrollBarSize = vgui2::scheme()->GetProportionalScaledValue( 18 );
 		_drawOffsetX = static_cast<int>( static_cast<float>( DRAW_OFFSET_X )*( static_cast<float>( sw )/ static_cast<float>( width )));
 		_drawOffsetY = static_cast<int>( static_cast<float>( DRAW_OFFSET_Y )*( static_cast<float>( sw )/ static_cast<float>( width )));
 	}
 	else
 	{
+		_scrollBarSize = 18;
 		_drawOffsetX = DRAW_OFFSET_X;
 		_drawOffsetY = DRAW_OFFSET_Y;
 	}
@@ -196,11 +203,11 @@ void RichText::ApplySchemeSettings(IScheme *pScheme)
 	
 	_font = pScheme->GetFont("Default", IsProportional() );
 	
-	SetFgColor(GetSchemeColor("RichText.TextColor", pScheme));
-	SetBgColor(GetSchemeColor("RichText.BgColor", pScheme));
+	SetFgColor(GetSchemeColor("WindowFgColor", pScheme));
+	SetBgColor(GetSchemeColor("WindowBgColor", pScheme));
 	
-	_selectionTextColor = GetSchemeColor("RichText.SelectedTextColor", GetFgColor(), pScheme);
-	_selectionColor = GetSchemeColor("RichText.SelectedBgColor", pScheme);
+	_selectionTextColor = GetSchemeColor("SelectionFgColor", GetFgColor(), pScheme);
+	_selectionColor = GetSchemeColor("SelectionBgColor", pScheme);
 	
 	SetBorder(pScheme->GetBorder("ButtonDepressedBorder"));
 }
@@ -1191,9 +1198,9 @@ void RichText::LayoutVerticalScrollBarSlider()
 	// with a scroll bar we take off the inset
 	wide -= iright;
 
-	_vertScrollBar->SetPos(wide - _vertScrollBar->GetWide() - 1, itop - 1);
+	_vertScrollBar->SetPos(wide - _scrollBarSize - 1, itop - 1);
 	// scrollbar is inside the borders.
-	_vertScrollBar->SetSize(_vertScrollBar->GetWide(), tall - ibottom - itop);
+	_vertScrollBar->SetSize(_scrollBarSize, tall - ibottom - itop);
 	
 	// calculate how many lines we can fully display
 	int displayLines = tall / (surface()->GetFontTall(_font) + _drawOffsetY);

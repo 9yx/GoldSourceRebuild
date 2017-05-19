@@ -20,6 +20,7 @@ class CheckImage;
 namespace vgui2
 {
 
+class IImage;
 class TextImage;
 
 //-----------------------------------------------------------------------------
@@ -58,6 +59,8 @@ private:
 	bool m_bCheckButtonCheckable;
 	SDK_Color _selectedFgColor;
 	friend CheckImage;
+	IImage* m_pSelected;
+	IImage* m_pDefault;
 };
 
 } // namespace vgui2

@@ -20,6 +20,8 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
 
+#include <vgui/IImage.h>
+
 using namespace vgui2;
 
 namespace
@@ -38,11 +40,11 @@ enum
 class ScrollBarButton : public Button
 {
 public:
-	ScrollBarButton(Panel *parent, const char *panelName, const char *text) : Button(parent, panelName, text)
+	ScrollBarButton(Panel *parent, const char *panelName, const char *text) : Button(parent, panelName, "")
 	{
 		SetButtonActivationType(ACTIVATE_ONPRESSED);
 
-		SetContentAlignment(Label::a_center);
+		m_pImage = vgui2::scheme()->GetImage( text, false );
 	}
 
 	void OnMouseFocusTicked()
@@ -55,13 +57,18 @@ public:
 	{
 		Button::ApplySchemeSettings(pScheme);
 
-		SetFont(pScheme->GetFont("Marlett", IsProportional() ));
 		SetDefaultBorder(pScheme->GetBorder("ScrollBarButtonBorder"));
         SetDepressedBorder(pScheme->GetBorder("ScrollBarButtonDepressedBorder"));
 		
-		SetDefaultColor(GetSchemeColor("ScrollBarButton.FgColor", pScheme), GetSchemeColor("ScrollBarButton.BgColor", pScheme));
-		SetArmedColor(GetSchemeColor("ScrollBarButton.ArmedFgColor", pScheme), GetSchemeColor("ScrollBarButton.ArmedBgColor", pScheme));
-		SetDepressedColor(GetSchemeColor("ScrollBarButton.DepressedFgColor", pScheme), GetSchemeColor("ScrollBarButton.DepressedBgColor", pScheme));
+		SetDefaultColor(GetFgColor(), GetBgColor());
+		SetArmedColor( GetFgColor(), GetBgColor());
+		SetDepressedColor( GetFgColor(), GetBgColor());
+
+		SetContentAlignment( a_center );
+	
+		//TODO: isn't ApplySchemeSettings potentially called multiple times? This could add the same image multiple times - Solokiller
+		if( m_pImage )
+			AddImage( m_pImage, 0 );
 	}
 
 	// Don't request focus.
@@ -105,6 +112,8 @@ public:
 		}
     }
 
+private:
+	vgui2::IImage* m_pImage;
 };
 
 }
@@ -139,22 +148,22 @@ ScrollBar::ScrollBar(Panel *parent, const char *panelName, bool vertical) : Pane
 	{
 		// FIXME: proportional changes needed???
 		SetSlider(new ScrollBarSlider(NULL, NULL, true));
-		SetButton(new ScrollBarButton(NULL, NULL, "t"), 0);
-		SetButton(new ScrollBarButton(NULL, NULL, "u"), 1);
-		_button[0]->SetTextInset(0, 1);
-		_button[1]->SetTextInset(0, -1);
+		SetButton(new ScrollBarButton(NULL, NULL, "resource/icon_up"), 0);
+		SetButton(new ScrollBarButton(NULL, NULL, "resource/icon_down"), 1);
+		_button[0]->SetTextInset(-8, 0);
+		_button[1]->SetTextInset(-8, 0);
 
-		SetSize(SCROLLBAR_DEFAULT_WIDTH, 64);
+		//SetSize(SCROLLBAR_DEFAULT_WIDTH, 64);
 	}
 	else
 	{
 		SetSlider(new ScrollBarSlider(NULL, NULL, false));
-		SetButton(new ScrollBarButton(NULL, NULL, "w"), 0);
-		SetButton(new ScrollBarButton(NULL, NULL, "4"), 1);
+		SetButton(new ScrollBarButton(NULL, NULL, "resource/icon_left"), 0);
+		SetButton(new ScrollBarButton(NULL, NULL, "resource/icon_right"), 1);
 		_button[0]->SetTextInset(0, 0);
 		_button[1]->SetTextInset(0, 0);
 
-		SetSize(64, SCROLLBAR_DEFAULT_WIDTH);
+		//SetSize(64, SCROLLBAR_DEFAULT_WIDTH);
 	}
 
 	Panel::SetPaintBorderEnabled(true);
@@ -173,6 +182,10 @@ void ScrollBar::ApplySchemeSettings(IScheme *pScheme)
 {
 	BaseClass::ApplySchemeSettings(pScheme);
 
+	SetBgColor( GetSchemeColor( "ScrollBar/BgColor", pScheme ) );
+
+	//TODO: reimplement? - Solokiller
+	/*
 	const char *resourceString = pScheme->GetResourceString("ScrollBar.Wide");
 
 	if (resourceString)
@@ -194,6 +207,7 @@ void ScrollBar::ApplySchemeSettings(IScheme *pScheme)
 			SetSize( GetWide(), value );
 		}
 	}
+	*/
 }
 
 //-----------------------------------------------------------------------------

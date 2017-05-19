@@ -1458,14 +1458,16 @@ Panel *ListPanel::GetCellRenderer(int itemID, int col)
             // if one of the children of the SectionedListPanel has focus, then 'we have focus' if we're selected
             if (HasFocus() || (focus && ipanel()->HasParent(focus, GetVParent())))
             {
-                m_pLabel->SetBgColor(GetSchemeColor("ListPanel.SelectedBgColor", pScheme));
+                m_pLabel->SetBgColor(GetSchemeColor("Menu/ArmedBgColor", pScheme));
     			// selection
             }
             else
             {
-                m_pLabel->SetBgColor(GetSchemeColor("ListPanel.SelectedOutOfFocusBgColor", pScheme));
+                m_pLabel->SetBgColor(GetSchemeColor("SelectionBG2", pScheme));
             }
 
+			//TODO: reimplement if needed - Solokiller
+			/*
 			if ( item->IsEmpty("cellcolor") == false )
 			{
 	            m_pTextImage->SetColor( item->GetColor( "cellcolor" ) );
@@ -1478,6 +1480,7 @@ Panel *ListPanel::GetCellRenderer(int itemID, int col)
 			{
 	            m_pTextImage->SetColor(m_DisabledSelectionFgColor);
 			}
+			*/
 
             m_pLabel->SetPaintBackgroundEnabled(true);
 		}
@@ -1534,12 +1537,12 @@ Panel *ListPanel::GetCellRenderer(int itemID, int col)
             // if one of the children of the SectionedListPanel has focus, then 'we have focus' if we're selected
             if (HasFocus() || (focus && ipanel()->HasParent(focus, GetVParent())))
             {
-                m_pLabel->SetBgColor(GetSchemeColor("ListPanel.SelectedBgColor", pScheme));
+                m_pLabel->SetBgColor(GetSchemeColor("Menu/ArmedBgColor", pScheme));
     			// selection
             }
             else
             {
-                m_pLabel->SetBgColor(GetSchemeColor("ListPanel.SelectedOutOfFocusBgColor", pScheme));
+                m_pLabel->SetBgColor(GetSchemeColor("SelectionBG2", pScheme));
             }
 			// selection
 			m_pLabel->SetPaintBackgroundEnabled(true);
@@ -1583,11 +1586,11 @@ void ListPanel::PerformLayout()
 
 	int wide, tall;
 	GetSize( wide, tall );
-	m_vbar->SetPos(wide - (m_vbar->GetWide()+WINDOW_BORDER_WIDTH), 0);
-	m_vbar->SetSize(m_vbar->GetWide(), tall - 2);
+	m_vbar->SetPos(wide - 20, 0);
+	m_vbar->SetSize(18, tall - 2);
 	m_vbar->InvalidateLayout();
 
-	int buttonMaxXPos = wide - (m_vbar->GetWide()+WINDOW_BORDER_WIDTH);
+	int buttonMaxXPos = wide - 20;
 	
 	int nColumns = m_CurrentColumns.Count();
 	// number of bars that can be resized
@@ -2425,17 +2428,17 @@ void ListPanel::ApplySchemeSettings(IScheme *pScheme)
 
 	BaseClass::ApplySchemeSettings(pScheme);
 
-	SetBgColor(GetSchemeColor("ListPanel.BgColor", pScheme));
+	SetBgColor(GetSchemeColor("WindowBgColor", pScheme));
 	SetBorder(pScheme->GetBorder("ButtonDepressedBorder"));
 
-	m_pLabel->SetBgColor(GetSchemeColor("ListPanel.BgColor", pScheme));
+	m_pLabel->SetBgColor(GetSchemeColor("Menu/ArmedBgColor", pScheme));
 
-	m_LabelFgColor = GetSchemeColor("ListPanel.TextColor", pScheme);
-	m_DisabledColor = GetSchemeColor("ListPanel.DisabledTextColor", m_LabelFgColor, pScheme);
-	m_SelectionFgColor = GetSchemeColor("ListPanel.SelectedTextColor", m_LabelFgColor, pScheme);
+	m_LabelFgColor = GetSchemeColor("WindowFgColor", pScheme);
+	m_DisabledColor = GetSchemeColor("WindowDisabledBgColor", m_LabelFgColor, pScheme);
+	m_SelectionFgColor = GetSchemeColor("ListSelectionFgColor", m_LabelFgColor, pScheme);
 	m_DisabledSelectionFgColor = GetSchemeColor("ListPanel.DisabledSelectedTextColor", m_LabelFgColor, pScheme);
 
-	m_pEmptyListText->SetColor(GetSchemeColor("ListPanel.EmptyListInfoTextColor", pScheme));
+	m_pEmptyListText->SetColor(GetSchemeColor("LabelDimText", pScheme));
 		
 	SetFont( pScheme->GetFont("Default", IsProportional() ) );
 	m_pEmptyListText->SetFont( pScheme->GetFont( "Default", IsProportional() ) );

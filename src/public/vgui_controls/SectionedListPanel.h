@@ -201,6 +201,7 @@ private:
 	PHandle m_hEditModePanel;
 	int m_iEditModeItemID;
 	int m_iEditModeColumn;
+	int m_iScrollbarSize;
 	int m_iContentHeight;
 	int m_iLineSpacing;
 

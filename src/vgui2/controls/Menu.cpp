@@ -74,10 +74,12 @@ Menu::Menu(Panel *parent, const char *panelName) : Panel(parent, panelName)
 
 	if (IsProportional())
 	{
+		m_iProportionalScrollBarSize = scheme()->GetProportionalScaledValue( 18 );
 		m_iMenuItemHeight =  scheme()->GetProportionalScaledValueEx( GetScheme(), DEFAULT_MENU_ITEM_HEIGHT );
 	}
 	else
 	{
+		m_iProportionalScrollBarSize = 18;
 		m_iMenuItemHeight =  DEFAULT_MENU_ITEM_HEIGHT;
 	}
 	m_hItemFont = 0;
@@ -894,7 +896,7 @@ void Menu::PerformLayout()
 		// fixed width menus include the scroll bar in their width.
 		if (_sizedForScrollBar)
 		{
-			_menuWide -= m_pScroller->GetWide();
+			_menuWide -= m_iProportionalScrollBarSize;
 		}
 	}
 	
@@ -903,7 +905,7 @@ void Menu::PerformLayout()
 	int extraWidth = 0;
 	if (_sizedForScrollBar)
 	{
-		extraWidth = m_pScroller->GetWide();
+		extraWidth = m_iProportionalScrollBarSize;
 	}
 
 	int mwide = _menuWide + extraWidth;
@@ -1006,10 +1008,10 @@ void Menu::LayoutScrollBar()
 	// with a scroll bar we take off the inset
 	wide -= iright;
 
-	m_pScroller->SetPos(wide - m_pScroller->GetWide(), 1);
+	m_pScroller->SetPos(wide - m_iProportionalScrollBarSize, 1);
 	
 	// scrollbar is inside the menu's borders.
-	m_pScroller->SetSize(m_pScroller->GetWide(), tall - ibottom - itop);
+	m_pScroller->SetSize(m_iProportionalScrollBarSize, tall - ibottom - itop);
 
 }
 
@@ -1176,14 +1178,7 @@ void Menu::Paint()
 		int wide, tall;
 		GetSize (wide, tall);
 		surface()->DrawSetColor(_borderDark);
-		if( IsProportional() )
-		{
-			surface()->DrawFilledRect(wide - m_pScroller->GetWide(), -1, wide - m_pScroller->GetWide() + 1, tall);	
-		}
-		else
-		{
-			surface()->DrawFilledRect(wide - m_pScroller->GetWide(), -1, wide - m_pScroller->GetWide() + 1, tall);	
-		}
+		surface()->DrawFilledRect(wide - m_iProportionalScrollBarSize, -1, wide - m_iProportionalScrollBarSize + 1, tall);
 	}	
 }
 
@@ -1690,8 +1685,8 @@ void Menu::ApplySchemeSettings(IScheme *pScheme)
 {
 	BaseClass::ApplySchemeSettings(pScheme);
 	
-	SetFgColor(GetSchemeColor("Menu.TextColor", pScheme));
-	SetBgColor(GetSchemeColor("Menu.BgColor", pScheme));
+	SetFgColor(GetSchemeColor("Menu/FgColor", pScheme));
+	SetBgColor(GetSchemeColor("Menu/BgColor", pScheme));
 
 	_borderDark = pScheme->GetColor("BorderDark", SDK_Color(255, 255, 255, 0));
 

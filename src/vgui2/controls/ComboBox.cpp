@@ -50,28 +50,31 @@ public:
 
 private:
 	SDK_Color m_DisabledBgColor;
+	vgui2::IImage* m_pImage;
 };
 
 
-ComboBoxButton::ComboBoxButton(ComboBox *parent, const char *panelName, const char *text) : Button(parent, panelName, text)
+ComboBoxButton::ComboBoxButton(ComboBox *parent, const char *panelName, const char *text) : Button(parent, panelName, "")
 {
 	SetButtonActivationType(ACTIVATE_ONPRESSED);
+
+	m_pImage = vgui2::scheme()->GetImage( text, false );
 }
 
 void ComboBoxButton::ApplySchemeSettings(IScheme *pScheme)
 {
 	Button::ApplySchemeSettings(pScheme);
 	
-	SetFont(pScheme->GetFont("Marlett", IsProportional()));
-	SetContentAlignment(Label::a_west);
-	SetTextInset(3, 0);
 	SetDefaultBorder(pScheme->GetBorder("ScrollBarButtonBorder"));
 	
 	// arrow changes color but the background doesnt.
-	SetDefaultColor(GetSchemeColor("ComboBoxButton.ArrowColor", pScheme), GetSchemeColor("ComboBoxButton.BgColor", pScheme));
-	SetArmedColor(GetSchemeColor("ComboBoxButton.ArmedArrowColor", pScheme), GetSchemeColor("ComboBoxButton.BgColor", pScheme));
-	SetDepressedColor(GetSchemeColor("ComboBoxButton.ArmedArrowColor", pScheme), GetSchemeColor("ComboBoxButton.BgColor", pScheme));
-	m_DisabledBgColor = GetSchemeColor("ComboBoxButton.DisabledBgColor", pScheme);
+	SetDefaultColor(GetSchemeColor("MenuButton/ButtonArrowColor", pScheme), GetSchemeColor("MenuButton/ButtonBgColor", pScheme));
+	SetArmedColor(GetSchemeColor("MenuButton/ArmedArrowColor", pScheme), GetSchemeColor("MenuButton/ButtonBgColor", pScheme));
+	SetDepressedColor(GetSchemeColor("MenuButton/ArmedArrowColor", pScheme), GetSchemeColor("MenuButton/ButtonBgColor", pScheme));
+	m_DisabledBgColor = GetSchemeColor("ControlBG", pScheme);
+
+	if( m_pImage )
+		AddImage( m_pImage, 0 );
 }
 
 IBorder * ComboBoxButton::GetBorder(bool depressed, bool armed, bool selected, bool keyfocus)
@@ -115,7 +118,7 @@ ComboBox::ComboBox(Panel *parent, const char *panelName, int numLines, bool allo
 	m_pDropDown->AddActionSignalTarget(this);
 	
 	// button to Activate menu
-	m_pButton = new ComboBoxButton(this, NULL, "u");
+	m_pButton = new ComboBoxButton(this, NULL, "resource/icon_down");
 	m_pButton->SetCommand("ButtonClicked");
 	m_pButton->AddActionSignalTarget(this);
 

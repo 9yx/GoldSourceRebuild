@@ -42,47 +42,27 @@ public:
 	RadioImage(RadioButton *radioButton)
 	{
 		_radioButton = radioButton;
-		_font = INVALID_FONT;
+
+		m_pSelected = vgui2::scheme()->GetImage( "resource/icon_radiosel", false );
+		m_pDefault = vgui2::scheme()->GetImage( "resource/icon_radiounsel", false );
 
 		SetSize(20, 13);
 	}
 
 	virtual void ApplySchemeSettings(IScheme *pScheme, bool proportional)
 	{
-		_bgColor = _radioButton->GetSchemeColor("CheckButton.BgColor", SDK_Color(150, 150, 150, 0), pScheme);
-		_borderColor1 = _radioButton->GetSchemeColor("CheckButton.Border1", SDK_Color(20, 20, 20, 0), pScheme);
-		_borderColor2 = _radioButton->GetSchemeColor("CheckButton.Border2", SDK_Color(90, 90, 90, 0), pScheme);
-		_checkColor = _radioButton->GetSchemeColor("CheckButton.Check", SDK_Color(20, 20, 20, 0), pScheme);
-		_font = pScheme->GetFont("Marlett", proportional);
+		_bgColor = _radioButton->GetSchemeColor("CheckBgColor", SDK_Color(150, 150, 150, 0), pScheme);
+		_borderColor1 = _radioButton->GetSchemeColor("CheckButtonBorder1", SDK_Color(20, 20, 20, 0), pScheme);
+		_borderColor2 = _radioButton->GetSchemeColor("CheckButtonBorder2", SDK_Color(90, 90, 90, 0), pScheme);
+		_checkColor = _radioButton->GetSchemeColor("CheckButtonCheck", SDK_Color(20, 20, 20, 0), pScheme);
 	}
 
 	virtual void Paint()
 	{
-		DrawSetTextFont(_font);
+		auto pImg = _radioButton->IsSelected() ? m_pSelected : m_pDefault;
 
-		// draw background
-		if (_radioButton->IsEnabled())
-		{
-			DrawSetTextColor(_bgColor);
-		}
-		else
-		{
-			DrawSetTextColor(_radioButton->GetBgColor());
-		}
-		DrawPrintChar(0, 1, 'n');
-	
-		// draw border circl
-		DrawSetTextColor(_borderColor1);
-		DrawPrintChar(0, 1, 'j');
-		DrawSetTextColor(_borderColor2);
-		DrawPrintChar(0, 1, 'k');
-
-		// draw selected check
-		if (_radioButton->IsSelected())
-		{
-			DrawSetTextColor(_checkColor);
-			DrawPrintChar(0, 1, 'h');
-		}
+		if( pImg )
+			pImg->Paint();
 	}
 
 private:
@@ -91,7 +71,8 @@ private:
 	SDK_Color _borderColor2;
 	SDK_Color _checkColor;
 	SDK_Color _bgColor;
-	HFont _font;
+	vgui2::IImage* m_pSelected;
+	vgui2::IImage* m_pDefault;
 };
 
 DECLARE_BUILD_FACTORY_DEFAULT_TEXT( RadioButton, RadioButton );
@@ -131,8 +112,8 @@ void RadioButton::ApplySchemeSettings(IScheme *pScheme)
 	BaseClass::ApplySchemeSettings(pScheme);
 	_radioBoxImage->ApplySchemeSettings(pScheme, IsProportional());
 
-	SetFgColor(GetSchemeColor("RadioButton.TextColor", pScheme));
-	_selectedFgColor = GetSchemeColor("RadioButton.SelectedTextColor", GetSchemeColor("ControlText", pScheme), pScheme);
+	SetFgColor(GetSchemeColor("FgColor", pScheme));
+	_selectedFgColor = GetSchemeColor("BrightControlText", GetSchemeColor("ControlText", pScheme), pScheme);
 
 	SetContentAlignment(a_west);
 

@@ -57,7 +57,6 @@ namespace
 			SetPaintEnabled(false);
 			SetPaintBackgroundEnabled(false);
 			SetPaintBorderEnabled(false);
-			m_iSnapRange = DEFAULT_SNAP_RANGE;
 
 			if (xdir == 1 && ydir == 1)
 			{
@@ -65,6 +64,8 @@ namespace
 				SetPaintEnabled(true);
 				SetPaintBackgroundEnabled(true);
 			}
+
+			m_pImage = vgui2::scheme()->GetImage( "resource/icon_resizer", false );
 
 			SetBlockDragChaining( true );
 		}
@@ -196,23 +197,15 @@ namespace
 		void Paint()
 		{
 			// draw the grab handle in the bottom right of the frame
-			surface()->DrawSetTextFont(_marlettFont);
-			surface()->DrawSetTextPos(0, 0);
-			
-			// thin highlight lines
-			surface()->DrawSetTextColor(GetFgColor());
-			surface()->DrawUnicodeChar('p'); 
+			if( m_pImage )
+				m_pImage->Paint();
 		}
 
 		void PaintBackground()
 		{
 			// draw the grab handle in the bottom right of the frame
-			surface()->DrawSetTextFont(_marlettFont);
-			surface()->DrawSetTextPos(0, 0);
-			
-			// thick shadow lines
-			surface()->DrawSetTextColor(GetBgColor());
-			surface()->DrawUnicodeChar('o'); 
+			if( m_pImage )
+				m_pImage->Paint();
 		}
 		
 		void OnMouseReleased(MouseCode code)
@@ -230,17 +223,9 @@ namespace
 		void ApplySchemeSettings(IScheme *pScheme)
 		{
 			Panel::ApplySchemeSettings(pScheme);
-			bool isSmall = ((Frame *)GetParent())->IsSmallCaption();
 
-			_marlettFont = pScheme->GetFont( isSmall ? "MarlettSmall" : "Marlett", IsProportional());
-			SetFgColor(GetSchemeColor("FrameGrip.Color1", pScheme));
-			SetBgColor(GetSchemeColor("FrameGrip.Color2", pScheme));
-
-			const char *snapRange = pScheme->GetResourceString("Frame.AutoSnapRange");
-			if (snapRange && *snapRange)
-			{
-				m_iSnapRange = atoi(snapRange);
-			}
+			SetFgColor(GetSchemeColor("BorderBright", pScheme));
+			SetBgColor(GetSchemeColor("BorderSelection", pScheme));
 		}
 		
 	protected:
@@ -251,8 +236,10 @@ namespace
 		int  _dragOrgPos[2];
 		int  _dragOrgSize[2];
 		int  _dragStart[2];
-		int  m_iSnapRange;
-		HFont _marlettFont;
+		//Hardcoded to 18 in GoldSource.
+		//TODO: reimplement resource override? - Solokiller
+		int m_iSnapRange = 18;
+		vgui2::IImage* m_pImage;
 	};
 	
 	//-----------------------------------------------------------------------------
@@ -273,23 +260,20 @@ namespace
 			int newX = _dragOrgPos[0] + dx;
 			int newY = _dragOrgPos[1] + dy;
 
-			if (m_iSnapRange)
-			{
-				// first check docking to desktop
-				int wx, wy, ww, wt;
-				surface()->GetWorkspaceBounds(wx, wy, ww, wt);
-				getInsideSnapPosition(wx, wy, ww, wt, newX, newY);
+			// first check docking to desktop
+			int wx, wy, ww, wt;
+			surface()->GetWorkspaceBounds(wx, wy, ww, wt);
+			getInsideSnapPosition(wx, wy, ww, wt, newX, newY);
 
-				// now lets check all windows and see if we snap to those
-				// root panel
-				VPANEL root = surface()->GetEmbeddedPanel();
-				// cycle through panels
-				// look for panels that are visible and are popups that we can dock to
-				for (int i = 0; i < ipanel()->GetChildCount(root); ++i)
-				{
-					VPANEL child = ipanel()->GetChild(root, i);
-					tryToDock (child, newX, newY);
-				}
+			// now lets check all windows and see if we snap to those
+			// root panel
+			VPANEL root = surface()->GetEmbeddedPanel();
+			// cycle through panels
+			// look for panels that are visible and are popups that we can dock to
+			for (int i = 0; i < ipanel()->GetChildCount(root); ++i)
+			{
+				VPANEL child = ipanel()->GetChild(root, i);
+				tryToDock (child, newX, newY);
 			}
 
 			if ( _frame->GetClipToParent() )
@@ -493,10 +477,17 @@ namespace vgui2
 	class FrameButton : public Button
 	{
 	private:
+		enum
+		{
+			BUTTON_SIDE = 18,
+		};
+
+	private:
 		IBorder *_brightBorder, *_depressedBorder, *_disabledBorder;
 		SDK_Color _enabledFgColor, _enabledBgColor;
 		SDK_Color _disabledFgColor, _disabledBgColor;
 		bool _disabledLook;
+		vgui2::IImage* m_pImage;
 	
 	public:
 	
@@ -507,11 +498,11 @@ namespace vgui2
 				return 12;
 			}
 
-			return 18;
+			return BUTTON_SIDE;
 		}
 		
 		
-		FrameButton(Panel *parent, const char *name, const char *text) : Button(parent, name, text)
+		FrameButton(Panel *parent, const char *name, const char* image_name) : Button(parent, name, "")
 		{
 			SetSize( FrameButton::GetButtonSide( (Frame *)parent ), FrameButton::GetButtonSide( (Frame *)parent ) );
 			_brightBorder = NULL;
@@ -521,23 +512,28 @@ namespace vgui2
 			SetContentAlignment(Label::a_northwest);
 			SetTextInset(2, 1);
 			SetBlockDragChaining( true );
+
+			m_pImage = vgui2::scheme()->GetImage( image_name, false );
 		}
 		
 		virtual void ApplySchemeSettings(IScheme *pScheme)
 		{
 			Button::ApplySchemeSettings(pScheme);
 			
-			_enabledFgColor = GetSchemeColor("FrameTitleButton.FgColor", pScheme);
-			_enabledBgColor = GetSchemeColor("FrameTitleButton.BgColor", pScheme);
+			_enabledFgColor = GetSchemeColor("TitleButtonBgColor", pScheme);
+			_enabledBgColor = GetSchemeColor("TitleButtonBgColor", pScheme);
 
-			_disabledFgColor = GetSchemeColor("FrameTitleButton.DisabledFgColor", pScheme);
-			_disabledBgColor = GetSchemeColor("FrameTitleButton.DisabledBgColor", pScheme);
+			_disabledFgColor = GetSchemeColor("TitleButtonDisabledFgColor", pScheme);
+			_disabledBgColor = GetSchemeColor("TitleButtonDisabledBgColor", pScheme);
 			
 			_brightBorder = pScheme->GetBorder("TitleButtonBorder");
 			_depressedBorder = pScheme->GetBorder("TitleButtonDepressedBorder");
 			_disabledBorder = pScheme->GetBorder("TitleButtonDisabledBorder");
 			
 			SetDisabledLook(_disabledLook);
+
+			if( m_pImage )
+				AddImage( m_pImage, 0 );
 		}
 		
 		virtual IBorder *GetBorder(bool depressed, bool armed, bool selected, bool keyfocus)
@@ -630,11 +626,11 @@ public:
 	{
 		BaseClass::ApplySchemeSettings(pScheme);
 
-		_enCol = GetSchemeColor("FrameSystemButton.FgColor", pScheme);
-		_disCol = GetSchemeColor("FrameSystemButton.BgColor", pScheme);
+		_enCol = GetSchemeColor("TitleBarBgColor", pScheme);
+		_disCol = GetSchemeColor("TitleBarDisabledBgColor", pScheme);
 		
-		_enabled = scheme()->GetImage(pScheme->GetResourceString("FrameSystemButton.Icon"), false);
-		_disabled = scheme()->GetImage(pScheme->GetResourceString( "FrameSystemButton.DisabledIcon"), false);
+		_enabled = scheme()->GetImage(pScheme->GetResourceString("TitleBarIcon"), false);
+		_disabled = scheme()->GetImage(pScheme->GetResourceString( "TitleBarDisabledIcon"), false);
 
 		SetTextInset(0, 0);
 	
@@ -759,20 +755,19 @@ Frame::Frame(Panel *parent, const char *panelName, bool showTaskbarIcon) : Edita
 	_captionGrip = new CaptionGripPanel(this, "frame_caption" );
 	_captionGrip->SetCursor(dc_arrow);
 
-	_minimizeButton = new FrameButton(this, "frame_minimize","0");
+	_minimizeButton = new FrameButton(this, "frame_minimize","resource/icon_minimize");
 	_minimizeButton->AddActionSignalTarget(this);
 	_minimizeButton->SetCommand(new KeyValues("Minimize"));
 	
-	_maximizeButton = new FrameButton(this, "frame_maximize", "1");
+	_maximizeButton = new FrameButton(this, "frame_maximize", "resource/icon_maximize");
 	//!! no maximize handler implemented yet, so leave maximize button disabled
 	SetMaximizeButtonVisible(false);
 
-	char str[] = { 0x6F, 0 };
-	_minimizeToSysTrayButton = new FrameButton(this, "frame_mintosystray", str);
+	_minimizeToSysTrayButton = new FrameButton(this, "frame_mintosystray", "");
 	_minimizeToSysTrayButton->SetCommand("MinimizeToSysTray");
 	SetMinimizeToSysTrayButtonVisible(false);
 	
-	_closeButton = new FrameButton(this, "frame_close", "r");
+	_closeButton = new FrameButton(this, "frame_close", "resource/icon_close");
 	_closeButton->AddActionSignalTarget(this);
 	_closeButton->SetCommand(new KeyValues("CloseFrameButtonPressed"));
 	
@@ -1560,10 +1555,10 @@ void Frame::ApplySchemeSettings(IScheme *pScheme)
 	// always chain back
 	BaseClass::ApplySchemeSettings(pScheme);
 
-	SetOverridableColor( &_titleBarFgColor, GetSchemeColor( "FrameTitleBar.TextColor", pScheme ) );
-	SetOverridableColor( &_titleBarBgColor, GetSchemeColor( "FrameTitleBar.BgColor", pScheme ) );
-	SetOverridableColor( &_titleBarDisabledFgColor, GetSchemeColor( "FrameTitleBar.DisabledTextColor", pScheme ) );
-	SetOverridableColor( &_titleBarDisabledBgColor, GetSchemeColor( "FrameTitleBar.DisabledBgColor", pScheme ) );
+	SetOverridableColor( &_titleBarFgColor, GetSchemeColor( "TitleBarFgColor", pScheme ) );
+	SetOverridableColor( &_titleBarBgColor, GetSchemeColor( "TitleBarBgColor", pScheme ) );
+	SetOverridableColor( &_titleBarDisabledFgColor, GetSchemeColor( "TitleBarDisabledFgColor", pScheme ) );
+	SetOverridableColor( &_titleBarDisabledBgColor, GetSchemeColor( "TitleBarDisabledBgColor", pScheme ) );
 
 	const char *font = NULL;
 	if ( m_bSmallCaption )
@@ -1609,9 +1604,14 @@ void Frame::ApplySchemeSettings(IScheme *pScheme)
 		m_iClientInsetY = atoi(resourceString);
 	}
 	resourceString = pScheme->GetResourceString("Frame.TitleTextInsetX");
-	if ( resourceString )
+	if ( resourceString && *resourceString )
 	{
 		m_iTitleTextInsetX = atoi(resourceString);
+	}
+	else
+	{
+		//TODO: Default from GoldSource engine version. This variable doesn't exist at all in it. - Solokiller
+		m_iTitleTextInsetX = 28;
 	}
 
 	SetBgColor(GetInFocusBgColor());
