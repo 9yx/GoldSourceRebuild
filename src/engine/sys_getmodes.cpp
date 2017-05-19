@@ -184,8 +184,8 @@ bool CVideoMode_Common::Init( void* pvInstance )
 		}
 	}
 
-	if( ( unsigned int ) height >> 31 && width > 0 )
-		height = ( signed int ) floor( ( long double ) width * 3.0 * 0.25 );
+	if( height < 0 && width > 0 )
+		height = static_cast<int>( width * 3.0 * 0.25 );
 
 	int iMode;
 
