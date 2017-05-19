@@ -45,7 +45,9 @@ char* hudGetCvarString( char* szName )
 int hudAddCommand( char* cmd_name, void( *function )( ) )
 {
 	//TODO: implement - Solokiller
-	return 0;
+	//g_engdstAddrs.pfnAddCommand();
+	Cmd_AddHUDCommand( cmd_name, function );
+	return true;
 }
 
 int hudHookUserMsg( char* szMsgName, pfnUserMsgHook pfn )
