@@ -3,6 +3,8 @@
 
 #include "quakedef.h"
 
+#include "vgui_int.h"
+
 static redirect_t sv_redirected = RD_NONE;
 
 static char outputbuf[ NET_MAX_FRAG_BUFFER ] = {};
@@ -83,12 +85,6 @@ void Con_DPrintf( const char* fmt, ... )
 	*/
 }
 
-void Con_Init()
-{
-	//TODO: implement - Solokiller
-	con_initialized = true;
-}
-
 int Con_IsVisible()
 {
 	//TODO: implement - Solokiller
@@ -102,8 +98,6 @@ Con_ToggleConsole_f
 */
 void Con_ToggleConsole_f()
 {
-	//TODO: implement - Solokiller
-	/*
 	if( VGuiWrap2_IsConsoleVisible() )
 	{
 		VGuiWrap2_HideConsole();
@@ -112,5 +106,11 @@ void Con_ToggleConsole_f()
 	{
 		VGuiWrap2_ShowConsole();
 	}
-	*/
+}
+
+void Con_Init()
+{
+	Cmd_AddCommand( "toggleconsole", Con_ToggleConsole_f );
+	//TODO: implement - Solokiller
+	con_initialized = true;
 }
