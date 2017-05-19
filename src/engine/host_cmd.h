@@ -7,4 +7,6 @@ extern CareerStateType g_careerState;
 
 extern bool g_iQuitCommandIssued;
 
+void Host_InitCommands();
+
 #endif //ENGINE_HOST_CMD_H

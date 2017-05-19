@@ -13,6 +13,7 @@
 
 #include "vgui2/src/vgui_key_translation.h"
 
+#include "dll_state.h"
 #include "client.h"
 #include "common.h"
 #include "buildnum.h"
@@ -338,6 +339,11 @@ void Sys_Shutdown()
 	Sys_ShutdownFloatTime();
 	Steam_ShutdownClient();
 	GL_Shutdown( pmainwindow, maindc, baseRC );
+}
+
+void Sys_Quit()
+{
+	giActive = DLL_CLOSE;
 }
 
 void Sys_InitMemory()

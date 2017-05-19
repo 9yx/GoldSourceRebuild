@@ -1,4 +1,6 @@
 #include "quakedef.h"
+#include "client.h"
+#include "dll_state.h"
 #include "host_cmd.h"
 #include "server.h"
 
@@ -84,5 +86,33 @@ LABEL_16:
 
 void Host_ClearSaveDirectory()
 {
+	//TODO: implement - Solokiller
+}
+
+void Host_Quit_f()
+{
+	if( Cmd_Argc() == 1 )
+	{
+		giActive = DLL_CLOSE;
+		g_iQuitCommandIssued = true;
+		//TODO: implement - Solokiller
+		/*
+		if( cls.state != ca_dedicated )
+			CL_Disconnect();
+		Host_ShutdownServer( 0 );
+		*/
+		Sys_Quit();
+	}
+	else
+	{
+		giActive = DLL_PAUSED;
+		giStateInfo = 4;
+	}
+}
+
+void Host_InitCommands()
+{
+	Cmd_AddCommand( "quit", Host_Quit_f );
+	Cmd_AddCommand( "exit", Host_Quit_f );
 	//TODO: implement - Solokiller
 }

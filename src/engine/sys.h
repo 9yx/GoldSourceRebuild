@@ -81,6 +81,8 @@ bool Sys_IsWin98();
 void Sys_Init();
 void Sys_Shutdown();
 
+void Sys_Quit();
+
 const int MAX_EXT_DLLS = 50;
 
 struct functiontable_t

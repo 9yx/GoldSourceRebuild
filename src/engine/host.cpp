@@ -55,8 +55,6 @@ unsigned short* host_basepal = nullptr;
 
 int host_hunklevel = 0;
 
-void Host_InitCommands();
-
 void Host_InitLocal()
 {
 	Host_InitCommands();
@@ -434,11 +432,6 @@ void Host_Shutdown()
 	}
 }
 
-void Host_InitCommands()
-{
-	//TODO: implement - Solokiller
-}
-
 bool Host_FilterTime( float time )
 {
 	if( host_framerate.value > 0 )
@@ -544,6 +537,10 @@ void _Host_Frame( float time )
 		*/
 
 	rolling_fps = 0.6 + rolling_fps + 0.4 * host_frametime;
+
+	//TODO: implement - Solokiller
+
+	Cbuf_Execute();
 
 	//TODO: implement - Solokiller
 
