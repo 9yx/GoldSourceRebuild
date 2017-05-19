@@ -5,6 +5,20 @@
 
 class IBaseSystem;
 
+typedef struct cl_enginefuncs_s cl_enginefunc_t;
+
+// reasons why the user can't connect to a game server
+enum ESteamLoginFailure
+{
+	STEAMLOGINFAILURE_NONE,
+	STEAMLOGINFAILURE_BADTICKET,
+	STEAMLOGINFAILURE_NOSTEAMLOGIN,
+	STEAMLOGINFAILURE_VACBANNED,
+	STEAMLOGINFAILURE_LOGGED_IN_ELSEWHERE,
+	STEAMLOGINFAILURE_CONNECTIONLOST,
+	STEAMLOGINFAILURE_NOCONNECTION
+};
+
 /**
 *	Interface to the GameUI library.
 */
@@ -31,12 +45,12 @@ public:
 	/**
 	*	Activates the Game UI, and pauses singleplayer games
 	*/
-	virtual void ActivateGameUI() = 0;
+	virtual int ActivateGameUI() = 0;
 
 	/**
 	*	Opens the Demo dialog.
 	*/
-	virtual void ActivateDemoUI() = 0;
+	virtual int ActivateDemoUI() = 0;
 
 	/**
 	*	@return Whether the Game UI has exclusive input at this time
@@ -90,8 +104,9 @@ public:
 	*	Continues the progress bar
 	*	@param progressPoint Progress point that has been reached
 	*	@param progressFraction Fraction of point progress
+	*	@return Whether the loading dialog is visible
 	*/
-	virtual void ContinueProgressBar( int progressPoint, float progressFraction ) = 0;
+	virtual int ContinueProgressBar( int progressPoint, float progressFraction ) = 0;
 
 	/**
 	*	Stops the progress bar
