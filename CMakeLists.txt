@@ -69,7 +69,20 @@ set( COPY_RESOURCES OFF CACHE BOOL "Flag used to track whether resources should 
 if( COPY_RESOURCES )
 	message( STATUS "Copying resources from game installation..." )
 	
-	set( FILES_TO_COPY chromehtml.dll libcef.dll icudt.dll vgui.dll vstdlib.dll ${GAME_NAME}/liblist.gam )
+	set( FILES_TO_COPY
+		chromehtml.dll
+		libcef.dll
+		icudt.dll
+		vgui.dll
+		vstdlib.dll
+		${GAME_NAME}/game.ico
+		${GAME_NAME}/game.tga
+		${GAME_NAME}/liblist.gam
+		${GAME_NAME}/settings.scr
+		${GAME_NAME}/user.scr
+		${GAME_NAME}/cl_dlls/client.dll
+		${GAME_NAME}/cl_dlls/particleman.dll
+	)
 	
 	foreach( filename IN LISTS FILES_TO_COPY )
 		message( STATUS "Copying file \"${filename}\"" )
@@ -78,7 +91,14 @@ if( COPY_RESOURCES )
 		file( COPY ${HL_DIR}/${FILE_DIR}/${FILE_NAME} DESTINATION ${ENGINE_BASE_PATH}/${FILE_DIR} )
 	endforeach()
 	
-	set( DIRS_TO_COPY  platform ${GAME_NAME}/cl_dlls ${GAME_NAME}/dlls ${GAME_NAME}/gfx ${GAME_NAME}/resource )
+	set( DIRS_TO_COPY 
+		platform
+		${GAME_NAME}/dlls
+		${GAME_NAME}/gfx
+		${GAME_NAME}/logos
+		${GAME_NAME}/models/player
+		${GAME_NAME}/resource
+	)
 	
 	foreach( dir IN LISTS DIRS_TO_COPY )
 		message( STATUS "Copying directory \"${dir}\"" )
