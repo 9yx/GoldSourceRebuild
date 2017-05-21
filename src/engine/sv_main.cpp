@@ -254,51 +254,39 @@ void SV_SetMaxclients()
 
 	svs.maxclients = 1;
 
-	int iMaxPlayers;
-
 	const int iCmdMaxPlayers = COM_CheckParm( "-maxplayers" );
 
 	if( iCmdMaxPlayers )
 	{
-		//TODO: no range check? - Solokiller
-		iMaxPlayers = Q_atoi( com_argv[ iCmdMaxPlayers + 1 ] );
-		svs.maxclients = iMaxPlayers;
-	}
-	else
-	{
-		iMaxPlayers = svs.maxclients;
+		svs.maxclients = Q_atoi( com_argv[ iCmdMaxPlayers + 1 ] );
 	}
 
 	cls.state = g_bIsDedicatedServer ? ca_dedicated : ca_disconnected;
 
-	if( iMaxPlayers <= 0 )
+	if( svs.maxclients <= 0 )
 	{
-		iMaxPlayers = MP_MIN_CLIENTS;
 		svs.maxclients = MP_MIN_CLIENTS;
 	}
-	else if( iMaxPlayers > MAX_CLIENTS )
+	else if( svs.maxclients > MAX_CLIENTS )
 	{
-		iMaxPlayers = MAX_CLIENTS;
 		svs.maxclients = MAX_CLIENTS;
 	}
 
-	int iMaxClientsLimit = MAX_CLIENTS;
+	svs.maxclientslimit = MAX_CLIENTS;
 
 	//If we're a listen server and we're low on memory, reduce maximum player limit.
 	if( !g_bIsDedicatedServer && host_parms.memsize < LISTENSERVER_SAFE_MINIMUM_MEMORY )
-		iMaxClientsLimit = 4;
-
-	svs.maxclientslimit = iMaxClientsLimit;
+		svs.maxclientslimit = 4;
 
 	//Increase the number of updates available for multiplayer.
 	SV_UPDATE_BACKUP = 8;
 
-	if( iMaxPlayers != 1 )
+	if( svs.maxclients != 1 )
 		SV_UPDATE_BACKUP = 64;
 
 	SV_UPDATE_MASK = SV_UPDATE_BACKUP - 1;
 
-	svs.clients = reinterpret_cast<client_t*>( Hunk_AllocName( sizeof( client_t ) * iMaxClientsLimit, "clients" ) );
+	svs.clients = reinterpret_cast<client_t*>( Hunk_AllocName( sizeof( client_t ) * svs.maxclientslimit, "clients" ) );
 
 	for( int i = 0; i < svs.maxclientslimit; ++i )
 	{
