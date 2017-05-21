@@ -45,9 +45,9 @@ public:
 
 	vgui2::HFont CreateFont();
 
-	CWin32Font* CFontManager::CreateOrFindWin32Font( const char* windowsFontName, int tall, int weight, int blur, int scanlines, int flags );
+	CWin32Font* CreateOrFindWin32Font( const char* windowsFontName, int tall, int weight, int blur, int scanlines, int flags );
 
-	bool CFontManager::AddGlyphSetToFont( vgui2::HFont font, const char* windowsFontName, int tall, int weight, int blur, int scanlines, int flags );
+	bool AddGlyphSetToFont( vgui2::HFont font, const char* windowsFontName, int tall, int weight, int blur, int scanlines, int flags );
 
 private:
 	CUtlVector<CFontAmalgam> m_FontAmalgams;

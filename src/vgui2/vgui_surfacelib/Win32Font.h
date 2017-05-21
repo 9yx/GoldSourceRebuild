@@ -52,6 +52,8 @@ public:
 		return m_szName[ 0 ] != '\0';
 	}
 
+	const char* GetName() { return m_szName; }
+
 	int GetHeight()
 	{
 		return m_iHeight;

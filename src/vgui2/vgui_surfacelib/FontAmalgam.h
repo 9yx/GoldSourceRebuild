@@ -23,9 +23,15 @@ public:
 
 	int GetFontMaxWidth();
 
+	const char* GetFontName( int i );
+
+	int GetFlags( int i );
+
 	int GetCount();
 
 	bool GetUnderlined();
+
+	void RemoveAll();
 
 private:
 	struct TFontRange

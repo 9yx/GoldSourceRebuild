@@ -62,6 +62,19 @@ int CFontAmalgam::GetFontMaxWidth()
 	return m_iMaxWidth;
 }
 
+const char* CFontAmalgam::GetFontName( int i )
+{
+	return m_Fonts[ i ].font->GetName();
+}
+
+int CFontAmalgam::GetFlags( int i )
+{
+	if( m_Fonts[ i ].font )
+		return m_Fonts[ i ].font->GetFlags();
+	
+	return 0;
+}
+
 int CFontAmalgam::GetCount()
 {
 	return m_Fonts.Count();
@@ -73,4 +86,13 @@ bool CFontAmalgam::GetUnderlined()
 		return m_Fonts[ 0 ].font->GetUnderlined();
 
 	return false;
+}
+
+void CFontAmalgam::RemoveAll()
+{
+	//Note: this is never called so it didn't exist in the binary, this is just a guess. - Solokiller
+	m_Fonts.RemoveAll();
+
+	m_iMaxWidth = 0;
+	m_iMaxHeight = 0;
 }
