@@ -5,6 +5,7 @@
 #include "cdll_exp.h"
 #include "vgui_int.h"
 #include "vid.h"
+#include "vgui2/text_draw.h"
 
 int hudGetScreenInfo( SCREENINFO* pscrinfo )
 {
@@ -16,8 +17,7 @@ int hudGetScreenInfo( SCREENINFO* pscrinfo )
 		pscrinfo->iWidth = vid.width;
 		pscrinfo->iHeight = vid.height;
 		pscrinfo->iFlags = SCRINFO_SCREENFLASH;
-		//TODO: implement - Solokiller
-		//pscrinfo->iCharHeight = VGUI2_MessageFontInfo( pscrinfo->charWidths, VGUI2_GetCreditsFont() );
+		pscrinfo->iCharHeight = VGUI2_MessageFontInfo( pscrinfo->charWidths, VGUI2_GetCreditsFont() );
 		return sizeof( SCREENINFO );
 	}
 
@@ -27,18 +27,47 @@ int hudGetScreenInfo( SCREENINFO* pscrinfo )
 cvar_t* hudRegisterVariable( char* szName, char* szValue, int flags )
 {
 	//TODO: implement - Solokiller
-	return nullptr;
+	//g_engdstAddrs.pfnRegisterVariable();
+
+	auto pCVar = reinterpret_cast<cvar_t*>( Z_Malloc( sizeof( cvar_t ) ) );
+	pCVar->name = szName;
+	pCVar->string = szValue;
+	pCVar->flags = flags | FCVAR_CLIENTDLL;
+
+	Cvar_RegisterVariable( pCVar );
+
+	return pCVar;
 }
 
 float hudGetCvarFloat( char* szName )
 {
-	//TODO: implement - Solokiller
+	if( szName )
+	{
+		//TODO: implement - Solokiller
+		//g_engdstAddrs.pfnGetCvarFloat();
+		auto pCVar = Cvar_FindVar( szName );
+
+		if( pCVar )
+			return pCVar->value;
+	}
+
 	return 0;
 }
 
 char* hudGetCvarString( char* szName )
 {
-	//TODO: implement - Solokiller
+	if( szName )
+	{
+		//TODO: implement - Solokiller
+		//g_engdstAddrs.pfnGetCvarString ();
+
+		auto pCVar = Cvar_FindVar( szName );
+
+		if( pCVar )
+			return pCVar->string;
+	}
+
+	//TODO: should return null, but crashes due to missing cvars - Solokiller
 	return "";
 }
 
@@ -58,8 +87,16 @@ int hudHookUserMsg( char* szMsgName, pfnUserMsgHook pfn )
 
 int hudServerCmd( char* pszCmdString )
 {
+	char buf[ 2048 ];
+
 	//TODO: implement - Solokiller
-	return 0;
+	//g_engdstAddrs.pfnServerCmd();
+
+	snprintf( buf, ARRAYSIZE( buf ), "cmd %s", pszCmdString );
+	Cmd_TokenizeString( buf );
+	Cmd_ForwardToServer();
+
+	return false;
 }
 
 int hudClientCmd( char* pszCmdString )
@@ -100,6 +137,9 @@ void hudDrawConsoleStringLen( const char* string, int* width, int* height )
 void hudConsolePrint( const char* string )
 {
 	//TODO: implement - Solokiller
+	//g_engdstAddrs.pfnConsolePrint();
+
+	Con_Printf( "%s", string );
 }
 
 void hudCenterPrint( const char* string )
@@ -175,8 +215,15 @@ byte* hudCOM_LoadFile( char* path, int usehunk, int* pLength )
 
 int hudServerCmdUnreliable( char* pszCmdString )
 {
+	char buf[ 2048 ];
+
 	//TODO: implement - Solokiller
-	return false;
+	//g_engdstAddrs.pfnServerCmdUnreliable();
+
+	snprintf( buf, ARRAYSIZE( buf ), "cmd %s", pszCmdString );
+	Cmd_TokenizeString( buf );
+
+	return Cmd_ForwardToServerUnreliable();
 }
 
 void* hudVguiWrap2_GetCareerUI()

@@ -178,8 +178,6 @@ const char* Cmd_Args();
 // functions. Cmd_Argv () will return an empty string, not a NULL
 // if arg > argc, so string operations are allways safe.
 
-void Cmd_ForwardToServer();
-
 /**
 *	Returns the position (1 to argc-1) in the command's argument list
 *	where the given parameter apears, or 0 if not present
@@ -204,5 +202,7 @@ void Cmd_ExecuteString( const char* text, cmd_source_t src );
 *	so when they are typed in at the console, they will need to be forwarded.
 */
 void Cmd_ForwardToServer();
+
+bool Cmd_ForwardToServerUnreliable();
 
 #endif //ENGINE_CMD_H
