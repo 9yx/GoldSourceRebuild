@@ -8,6 +8,15 @@
 
 void SystemWrapperCommandForwarder();
 
+void COM_RemoveEvilChars( char* string )
+{
+	for( char* i = string; i && *i; ++i )
+	{
+		if( *i == '%' || *i < ' ' )
+			*i = ' ';
+	}
+}
+
 SystemWrapper gSystemWrapper;
 
 bool EngineWrapper::Init( IBaseSystem* system, int serial, char* name )
@@ -434,13 +443,8 @@ void SystemWrapper::ExecuteString( char* commands )
 	if( !commands || !( *commands ) )
 		return;
 
-	//Convert invalid characters.
-	for( char* pszBuf = commands; *pszBuf; ++pszBuf )
-	{
-		//Remove format characters to block format string attacks.
-		if( *pszBuf == '%' || *pszBuf < ' ' )
-			*pszBuf = ' ';
-	}
+	//Remove format characters to block format string attacks.
+	COM_RemoveEvilChars( commands );
 
 	char singleCmd[ 256 ];
 
@@ -819,6 +823,14 @@ void SystemWrapper_RunFrame( double time )
 	gSystemWrapper.RunFrame( time );
 }
 
+void SystemWrapper_ExecuteString( char* command )
+{
+	if( command && *command )
+	{
+		gSystemWrapper.ExecuteString( command );
+	}
+}
+
 void SystemWrapperCommandForwarder()
 {
 	char cmd[ 1024 ];
@@ -838,6 +850,10 @@ void SystemWrapperCommandForwarder()
 
 	cmd[ ARRAYSIZE( cmd ) - 1 ] = '\0';
 
-	if( *cmd )
-		gSystemWrapper.ExecuteString( cmd );
+	SystemWrapper_ExecuteString( cmd );
+}
+
+int SystemWrapper_LoadModule( char* interfacename, char* library, char* instancename )
+{
+	return gSystemWrapper.GetModule( interfacename, library, instancename ) != nullptr;
 }

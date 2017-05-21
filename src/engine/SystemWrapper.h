@@ -190,4 +190,8 @@ void SystemWrapper_ShutDown();
 
 void SystemWrapper_RunFrame( double time );
 
+void SystemWrapper_ExecuteString( char* command );
+
+int SystemWrapper_LoadModule( char* interfacename, char* library, char* instancename );
+
 #endif //ENGINE_SYSTEMWRAPPER_H
