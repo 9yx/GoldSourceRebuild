@@ -39,8 +39,6 @@ bool g_bIsDedicatedServer = false;
 
 const char* argv[ MAX_NUM_ARGVS ];
 
-SDL_Window* pmainwindow = nullptr;
-
 void SetRateRegistrySetting( const char* pchRate )
 {
 	registry->WriteString( "rate", pchRate );

@@ -119,7 +119,7 @@ struct VertexBuffer_t
 	float vertex[ 2 ];
 };
 
-bool VguiSurfaceTexturesLessFunc( const Texture& lhs, const Texture& rhs )
+static bool VguiSurfaceTexturesLessFunc( const Texture& lhs, const Texture& rhs )
 {
 	return lhs._id < rhs._id;
 }
@@ -877,4 +877,9 @@ void EngineSurface::drawUpdateRegionTextureBGRA( int nTextureID, int x, int y, c
 	);
 
 	glPixelStorei( GL_UNPACK_ROW_LENGTH, 0 );
+}
+
+void VGui_ViewportPaintBackground( int* extents )
+{
+	//TODO: implement - Solokiller
 }

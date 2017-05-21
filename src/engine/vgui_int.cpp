@@ -2,11 +2,6 @@
 #include "vgui_EngineSurface.h"
 #include "vgui_int.h"
 
-void VGui_ViewportPaintBackground( int* extents )
-{
-	//TODO: implement - Solokiller
-}
-
 void VGui_Startup()
 {
 	VGuiWrap_Startup();

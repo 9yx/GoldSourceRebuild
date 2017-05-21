@@ -14,6 +14,8 @@
 #include "sys_getmodes.h"
 #include "VGUI_EngineSurfaceWrap.h"
 
+SDL_Window* pmainwindow = nullptr;
+
 static EngineSurfaceWrap* staticEngineSurface = nullptr;
 
 static vgui::Panel* staticPanel = nullptr;
