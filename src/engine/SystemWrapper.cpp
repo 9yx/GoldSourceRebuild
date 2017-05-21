@@ -741,7 +741,7 @@ ISystemModule* SystemWrapper::FindModule( char* type, char* name )
 
 SystemWrapper::library_t* SystemWrapper::GetLibrary( char* name )
 {
-	char fixedname[ 4096 ];
+	char fixedname[ MAX_PATH ];
 
 	strncpy( fixedname, name, ARRAYSIZE( fixedname ) - 1 );
 	//TODO: no null termination - Solokiller
