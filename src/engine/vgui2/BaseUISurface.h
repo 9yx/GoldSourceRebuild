@@ -196,6 +196,24 @@ public:
 
 	IHTMLChromeController *AccessChromeHTMLController() override;
 
+	/*
+	bool setFullscreenMode( int wide, int tall, int bpp ) override;
+	void setWindowedMode() override;
+
+	void SetAsTopMost( bool state ) override;
+	void SetAsToolBar( bool state ) override;
+
+	void PanelRequestFocus( vgui2::VPANEL panel ) override;
+	void EnableMouseCapture( bool state ) override;
+
+	void DrawPrintChar( int x, int y, int wide, int tall, float s0, float t0, float s1, float t1 ) override;
+
+	void SetNotifyIcon( vgui2::Image *, vgui2::VPANEL, char const* ) override;
+
+	bool SetWatchForComputerUse( bool state ) override;
+	double GetTimeSinceLastUse() override;
+	*/
+
 	bool VGUI2MouseControl() override;
 
 	void SetVGUI2MouseControl( bool state ) override;
@@ -245,5 +263,7 @@ private:
 extern BaseUISurface g_BaseUISurface;
 
 extern vgui2::IInputInternal* g_InputInternal;
+
+vgui2::IInputInternal* inputinternal();
 
 #endif //ENGINE_VGUI2_BASEUISURFACE_H

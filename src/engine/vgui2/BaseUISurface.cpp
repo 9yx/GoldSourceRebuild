@@ -32,6 +32,11 @@ BaseUISurface g_BaseUISurface;
 
 vgui2::IInputInternal* g_InputInternal = nullptr;
 
+vgui2::IInputInternal* inputinternal()
+{
+	return g_InputInternal;
+}
+
 cvar_t sdl_double_click_size = { "sdl_double_click_size", "2" };
 cvar_t sdl_double_click_time = { "sdl_double_click_time", "400" };
 
@@ -1368,6 +1373,61 @@ IHTMLChromeController* BaseUISurface::AccessChromeHTMLController()
 {
 	return m_pChromeController;
 }
+
+/*
+bool BaseUISurface::setFullscreenMode( int wide, int tall, int bpp )
+{
+	m_bFullScreen = true;
+	return false;
+}
+
+void BaseUISurface::setWindowedMode()
+{
+	m_bFullScreen = false;
+}
+
+void BaseUISurface::SetAsTopMost( bool state )
+{
+	//Nothing
+}
+
+void BaseUISurface::SetAsToolBar( bool state )
+{
+	//Nothing
+}
+
+void BaseUISurface::PanelRequestFocus( vgui2::VPANEL panel )
+{
+	//Nothing
+}
+
+void BaseUISurface::EnableMouseCapture( bool state )
+{
+	//Nothing
+}
+
+void BaseUISurface::DrawPrintChar( int x, int y, int wide, int tall, float s0, float t0, float s1, float t1 )
+{
+	_engineSurface->drawPrintChar( x, y, wide, tall, s0, t0, s1, t1 );
+}
+
+void BaseUISurface::SetNotifyIcon( vgui2::Image *, vgui2::VPANEL, char const* )
+{
+	//Nothing
+}
+
+bool BaseUISurface::SetWatchForComputerUse( bool state )
+{
+	//Nothing
+	return false;
+}
+
+double BaseUISurface::GetTimeSinceLastUse()
+{
+	//Nothing
+	return 0;
+}
+*/
 
 bool BaseUISurface::VGUI2MouseControl()
 {

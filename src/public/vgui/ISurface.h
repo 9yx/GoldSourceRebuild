@@ -371,7 +371,7 @@ public:
 
 	virtual IHTMLChromeController *AccessChromeHTMLController() = 0;
 
-	//These *might* work, but will likely cause crashes due to interface compatibility issues. - Solokiller
+	//TODO: figure out why enabling these causes crashes - Solokiller
 	/*
 	virtual bool setFullscreenMode( int wide, int tall, int bpp ) = 0;
 	virtual void setWindowedMode() = 0;
