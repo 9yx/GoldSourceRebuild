@@ -111,6 +111,26 @@ size_t VGuiWrap2_GetLocalizedStringLength( const char* label );
 
 void VguiWrap2_GetMouseDelta( int* x, int* y );
 
+void VGUI2_OnDisconnectFromServer( int eLoginFailure );
+
+void StartLoadingProgressBar( const char* loadingType, int numProgressPoints );
+
+void ContinueLoadingProgressBar( const char* loadingType, int progressPoint, float progressFraction );
+
+void SetLoadingProgressBarStatusText( const char* statusText );
+
+void StopLoadingProgressBar();
+
+void SetSecondaryProgressBar( float progress );
+
+void SetSecondaryProgressBarText( const char *statusText );
+
+void ValidateCDKey( int force, int inConnect );
+
+void RegisterTutorMessageShown( int mid );
+
+int GetTimesTutorMessageShown( int mid );
+
 void ProcessTutorMessageDecayBuffer( int* buffer, int bufferLength );
 
 void ConstructTutorMessageDecayBuffer( int* buffer, int bufferLength );

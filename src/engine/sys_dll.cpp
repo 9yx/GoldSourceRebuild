@@ -33,6 +33,10 @@ int giActive = DLL_INACTIVE;
 int giStateInfo = 0;
 int giSubState = 0;
 
+bool gfExtendedError = false;
+char gszDisconnectReason[ 256 ] = {};
+char gszExtendedDisconnectReason[ 256 ] = {};
+
 DLL_FUNCTIONS gEntityInterface = {};
 NEW_DLL_FUNCTIONS gNewDLLFunctions = {};
 

@@ -63,3 +63,9 @@ dlight_t* CL_AllocElight( int key )
 	//TODO: implement - Solokiller
 	return nullptr;
 }
+
+bool UserIsConnectedOnLoopback()
+{
+	//TODO: implement - Solokiller
+	return false;
+}

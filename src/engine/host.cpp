@@ -617,3 +617,11 @@ int Host_Frame( float time, int iState, int* stateInfo )
 
 	return giActive;
 }
+
+bool Host_IsSinglePlayerGame()
+{
+	if( sv.active )
+		return svs.maxclients == 1;
+	else
+		return cl.maxclients == 1;
+}

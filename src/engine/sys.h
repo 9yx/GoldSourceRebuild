@@ -149,6 +149,10 @@ extern int giActive;
 extern int giStateInfo;
 extern int giSubState;
 
+extern bool gfExtendedError;
+extern char gszDisconnectReason[ 256 ];
+extern char gszExtendedDisconnectReason[ 256 ];
+
 extern bool g_bIsDedicatedServer;
 
 extern SDL_Window* pmainwindow;

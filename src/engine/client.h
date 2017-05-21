@@ -215,9 +215,8 @@ struct client_state_t
 	int num_consistency;
 
 	int highentity;
-
-	char levelname[ 40 ];
 	*/
+	char levelname[ 40 ];
 
 	int maxclients;
 

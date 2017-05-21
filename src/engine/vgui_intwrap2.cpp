@@ -8,12 +8,16 @@
 #include "host_cmd.h"
 
 #include "cdll_int.h"
+#include "cl_main.h"
 #include "APIProxy.h"
 #include "BaseUI/IBaseUI.h"
 #include "GameUI/IClientVGUI.h"
 #include "GameUI/IGameConsole.h"
 #include "GameUI/IGameUI.h"
 #include "gl_rmain.h"
+#include "gl_screen.h"
+#include "host.h"
+#include "modinfo.h"
 #include "sys_getmodes.h"
 #include "vgui_int.h"
 #include "vgui2/BaseUI_Interface.h"
@@ -24,6 +28,8 @@ static CUtlVector<char> g_TempConsoleBuffer;
 static IBaseUI* staticUIFuncs = nullptr;
 
 static bool staticExclusiveInputShadow = false;
+
+static int s_tutorMessageDecayData[ 256 ] = {};
 
 void VGuiWrap2_Startup()
 {
@@ -110,13 +116,10 @@ bool VGuiWrap2_GameUIKeyPressed()
 
 	if( staticGameUIFuncs->IsGameUIActive() )
 	{
-		//TODO: implement - Solokiller
-		/*
 		if( cl.levelname[ 0 ] )
 		{
 			staticUIFuncs->HideGameUI();
 		}
-		*/
 	}
 	else
 	{
@@ -278,12 +281,10 @@ void VGuiWrap2_NotifyOfServerConnect( const char* game, int IP, int port )
 {
 	if( staticGameUIFuncs )
 	{
-		//TODO: implement - Solokiller
-		/*
+		gfExtendedError = false;
 		gszDisconnectReason[ 0 ] = '\0';
 		gszExtendedDisconnectReason[ 0 ] = '\0';
 		StopLoadingProgressBar();
-		*/
 
 		staticGameUIFuncs->ConnectToServer( game, IP, port );
 	}
@@ -320,17 +321,130 @@ void VguiWrap2_GetMouseDelta( int* x, int* y )
 	g_BaseUISurface.GetMouseDelta( *x, *y );
 }
 
+void VGUI2_OnDisconnectFromServer( int eLoginFailure )
+{
+	if( staticGameUIFuncs )
+		staticGameUIFuncs->OnDisconnectFromServer( eLoginFailure, "" );
+}
+
+void StartLoadingProgressBar( const char* loadingType, int numProgressPoints )
+{
+	//Display the bar only if we're playing a multiplayer game or are connected to a server
+	if( !Host_IsSinglePlayerGame() && ( !UserIsConnectedOnLoopback() || gmodinfo.type != SINGLEPLAYER_ONLY ) )
+	{
+		if( staticUIFuncs )
+			staticUIFuncs->ActivateGameUI();
+
+		if( staticGameUIFuncs )
+		{
+			staticGameUIFuncs->StartProgressBar( loadingType, numProgressPoints );
+			SCR_UpdateScreen();
+		}
+	}
+}
+
+void ContinueLoadingProgressBar( const char* loadingType, int progressPoint, float progressFraction )
+{
+	if( staticGameUIFuncs )
+	{
+		if( staticGameUIFuncs->ContinueProgressBar( progressPoint, progressFraction ) )
+			SCR_UpdateScreen();
+	}
+}
+
+void SetLoadingProgressBarStatusText( const char* statusText )
+{
+	if( staticGameUIFuncs )
+	{
+		if( staticGameUIFuncs->SetProgressBarStatusText( statusText ) )
+			SCR_UpdateScreen();
+	}
+}
+
+void StopLoadingProgressBar()
+{
+	if( cls.state == ca_active )
+	{
+		if( staticUIFuncs )
+			staticUIFuncs->HideGameUI();
+	}
+	else if( staticUIFuncs )
+	{
+		if( staticClient )
+		{
+			staticClient->HideAllVGUIMenu();
+		}
+
+		staticUIFuncs->ActivateGameUI();
+	}
+	if( staticGameUIFuncs )
+		staticGameUIFuncs->StopProgressBar( gfExtendedError != 0, gszDisconnectReason, gszExtendedDisconnectReason );
+	
+	gfExtendedError = false;
+	gszDisconnectReason[ 0 ] = '\0';
+	gszExtendedDisconnectReason[ 0 ] = '\0';
+}
+
+void SetSecondaryProgressBar( float progress )
+{
+	if( staticGameUIFuncs )
+		staticGameUIFuncs->SetSecondaryProgressBar( progress );
+}
+
+void SetSecondaryProgressBarText( const char *statusText )
+{
+	if( staticGameUIFuncs )
+		staticGameUIFuncs->SetSecondaryProgressBarText( statusText );
+}
+
+void ValidateCDKey( int force, int inConnect )
+{
+	if( staticGameUIFuncs )
+		staticGameUIFuncs->ValidateCDKey( force != 0, inConnect != 0 );
+}
+
+void RegisterTutorMessageShown( int mid )
+{
+	if( mid >= 0 && mid < ARRAYSIZE( s_tutorMessageDecayData ) )
+		++s_tutorMessageDecayData[ mid ];
+}
+
+int GetTimesTutorMessageShown( int mid )
+{
+	if( mid >= 0 && mid < ARRAYSIZE( s_tutorMessageDecayData ) )
+		return s_tutorMessageDecayData[ mid ];
+
+	return -1;
+}
+
 void ProcessTutorMessageDecayBuffer( int* buffer, int bufferLength )
 {
-	//TODO: implement - Solokiller
+	ResetTutorMessageDecayData();
+
+	const auto count = min( static_cast<int>( ARRAYSIZE( s_tutorMessageDecayData ) ), bufferLength );
+
+	if( count > 0 )
+	{
+		memcpy( s_tutorMessageDecayData, buffer, sizeof( int ) * count );
+	}
 }
 
 void ConstructTutorMessageDecayBuffer( int* buffer, int bufferLength )
 {
-	//TODO: implement - Solokiller
+	if( !buffer )
+		return;
+
+	memset( buffer, 0, sizeof( int ) * bufferLength );
+
+	const auto count = min( static_cast<int>( ARRAYSIZE( s_tutorMessageDecayData ) ), bufferLength );
+
+	if( count > 0 )
+	{
+		memcpy( buffer, s_tutorMessageDecayData, sizeof( int ) * count );
+	}
 }
 
 void ResetTutorMessageDecayData()
 {
-	//TODO: implement - Solokiller
+	memset( s_tutorMessageDecayData, 0, sizeof( s_tutorMessageDecayData ) );
 }

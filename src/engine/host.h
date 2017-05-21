@@ -9,4 +9,6 @@ extern cvar_t developer;
 
 int Host_Frame( float time, int iState, int* stateInfo );
 
+bool Host_IsSinglePlayerGame();
+
 #endif //ENGINE_HOST_H
