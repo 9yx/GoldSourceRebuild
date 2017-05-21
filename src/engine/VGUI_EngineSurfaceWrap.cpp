@@ -6,7 +6,7 @@
 #include <VGUI_Font.h>
 
 #include "quakedef.h"
-
+#include "EngineSurface.h"
 #include "VGUI_EngineSurfaceWrap.h"
 
 struct FontInfoVGUI
@@ -128,8 +128,7 @@ bool EngineSurfaceWrap::isWithin( int x, int y )
 
 int EngineSurfaceWrap::createNewTextureID()
 {
-	//TODO: implement - Solokiller
-	return 0;
+	return _engineSurface->createNewTextureID();
 }
 
 void EngineSurfaceWrap::GetMousePos( int &x, int &y )
@@ -139,17 +138,17 @@ void EngineSurfaceWrap::GetMousePos( int &x, int &y )
 
 void EngineSurfaceWrap::drawSetColor( int r, int g, int b, int a )
 {
-	//TODO: implement - Solokiller
+	_engineSurface->drawSetColor( r, g, b, a );
 }
 
 void EngineSurfaceWrap::drawFilledRect( int x0, int y0, int x1, int y1 )
 {
-	//TODO: implement - Solokiller
+	_engineSurface->drawFilledRect( x0, y0, x1, y1 );
 }
 
 void EngineSurfaceWrap::drawOutlinedRect( int x0, int y0, int x1, int y1 )
 {
-	//TODO: implement - Solokiller
+	_engineSurface->drawOutlinedRect( x0, y0, x1, y1 );
 }
 
 void EngineSurfaceWrap::drawSetTextFont( vgui::Font* font )
@@ -159,12 +158,12 @@ void EngineSurfaceWrap::drawSetTextFont( vgui::Font* font )
 
 void EngineSurfaceWrap::drawSetTextColor( int r, int g, int b, int a )
 {
-	//TODO: implement - Solokiller
+	_engineSurface->drawSetTextColor( r, g, b, a );
 }
 
 void EngineSurfaceWrap::drawSetTextPos( int x, int y )
 {
-	//TODO: implement - Solokiller
+	_engineSurface->drawSetTextPos( x, y );
 }
 
 void EngineSurfaceWrap::drawPrintText( const char* text, int textLen )
@@ -174,17 +173,17 @@ void EngineSurfaceWrap::drawPrintText( const char* text, int textLen )
 
 void EngineSurfaceWrap::drawSetTextureRGBA( int id, const char* rgba, int wide, int tall )
 {
-	//TODO: implement - Solokiller
+	_engineSurface->drawSetTextureRGBA( id, reinterpret_cast<const byte*>( rgba ), wide, tall, false, false ); 
 }
 
 void EngineSurfaceWrap::drawSetTexture( int id )
 {
-	//TODO: implement - Solokiller
+	_engineSurface->drawSetTexture( id );
 }
 
 void EngineSurfaceWrap::drawTexturedRect( int x0, int y0, int x1, int y1 )
 {
-	//TODO: implement - Solokiller
+	_engineSurface->drawTexturedRect( x0, y0, x1, y1 );
 }
 
 void EngineSurfaceWrap::invalidate( vgui::Panel* panel )
@@ -229,10 +228,12 @@ void EngineSurfaceWrap::AppHandler( void* event, void* userData )
 
 void EngineSurfaceWrap::lockCursor()
 {
-	//TODO: implement - Solokiller
+	_cursorLocked = true;
 }
 
 void EngineSurfaceWrap::unlockCursor()
 {
-	//TODO: implement - Solokiller
+	_cursorLocked = false;
+
+	setCursor( _currentCursor );
 }
