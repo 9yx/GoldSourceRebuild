@@ -50,9 +50,9 @@ public:
 	vmode_t* GetMode( int num ) override;
 	int GetModeCount() override;
 
-	bool IsWindowedMode() override;
+	bool IsWindowedMode() const override;
 
-	bool GetInitialized() override;
+	bool GetInitialized() const override;
 	void SetInitialized( bool init ) override;
 
 	void UpdateWindowPosition() override;
@@ -109,7 +109,7 @@ void SetupSDLVideoModes()
 	SDL_QuitSubSystem( SDL_INIT_VIDEO );
 }
 
-int VideoModeCompare( const void *arg1, const void *arg2 )
+static int VideoModeCompare( const void *arg1, const void *arg2 )
 {
 	auto& lhs = *reinterpret_cast<const vmode_t*>( arg1 );
 	auto& rhs = *reinterpret_cast<const vmode_t*>( arg2 );
@@ -567,12 +567,12 @@ int CVideoMode_Common::GetModeCount()
 	return m_nNumModes;
 }
 
-bool CVideoMode_Common::IsWindowedMode()
+bool CVideoMode_Common::IsWindowedMode() const
 {
 	return m_bWindowed;
 }
 
-bool CVideoMode_Common::GetInitialized()
+bool CVideoMode_Common::GetInitialized() const
 {
 	return m_bInitialized;
 }

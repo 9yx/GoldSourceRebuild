@@ -19,9 +19,9 @@ public:
 	virtual vmode_t* GetMode( int num ) = 0;
 	virtual int GetModeCount() = 0;
 
-	virtual bool IsWindowedMode() = 0;
+	virtual bool IsWindowedMode() const = 0;
 
-	virtual bool GetInitialized() = 0;
+	virtual bool GetInitialized() const = 0;
 	virtual void SetInitialized( bool init ) = 0;
 
 	virtual void UpdateWindowPosition() = 0;
