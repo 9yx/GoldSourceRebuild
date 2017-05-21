@@ -117,6 +117,12 @@ typedef struct cache_user_s
 
 void Cache_Flush( void );
 
+/**
+*	Throw everything out, so new data will be demand cached
+*	This does what Cache_Flush used to do in Quake.
+*/
+void Cache_Force_Flush();
+
 void *Cache_Check( cache_user_t *c );
 // returns the cached data, and moves to the head of the LRU list
 // if present, otherwise returns NULL
@@ -128,5 +134,7 @@ void *Cache_Alloc( cache_user_t *c, int size, char *name );
 // wasn't enough room.
 
 void Cache_Report( void );
+
+int Cache_TotalUsed();
 
 #endif //ENGINE_ZONE_H

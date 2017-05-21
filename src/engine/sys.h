@@ -83,6 +83,18 @@ void Sys_Shutdown();
 
 void Sys_Quit();
 
+#define MAX_SPLITPATH_BUF 255
+
+/**
+*	Splits a path into its individual components
+*	@param[ in ] path Path to split
+*	@param[ out ] drive Optional. The drive letter, if present. Contains the colon
+*	@param[ out ] dir Required. The directory component of the path, including leading and trailing slashes, if present
+*	@param[ out ] fname Optional. The filename component, if present
+*	@param[ out ] ext Optional. The extension component, if present
+*/
+void Sys_SplitPath( const char* path, char* drive, char* dir, char* fname, char* ext );
+
 const int MAX_EXT_DLLS = 50;
 
 struct functiontable_t

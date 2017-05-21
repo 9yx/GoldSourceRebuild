@@ -21,6 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <cstdlib>
 
 #include "quakedef.h"
+#include "client.h"
 
 //TODO: not registered? - Solokiller
 cvar_t mem_dbgfile = { "mem_dbgfile", ".\\mem.txt" };
@@ -827,11 +828,24 @@ Throw everything out, so new data will be demand cached
 */
 void Cache_Flush( void )
 {
+	//TODO: implement - Solokiller
+	if( cl.maxclients <= 1 /*|| allow_cheats*/ )
+	{
+		Cache_Force_Flush();
+	}
+	else
+	{
+		Con_Printf( "Server must enable sv_cheats to activate the flush command in multiplayer games.\n" );
+	}
+}
+
+void Cache_Force_Flush()
+{
 	while( cache_head.next != &cache_head )
 		Cache_Free( cache_head.next->user );	// reclaim the space
 }
 
-int CacheSystemCompare( const void *ppcs1, const void *ppcs2 )
+static int CacheSystemCompare( const void *ppcs1, const void *ppcs2 )
 {
 	return stricmp( 
 		reinterpret_cast<const cache_system_t*>( ppcs1 )->name, 
@@ -870,9 +884,111 @@ void Cache_Print( void )
 	for( int i = 0; i < num; ++i )
 	{
 		CommatizeNumber( sortarray[ i ]->size, commabuf );
-		FS_FPrintf( file, "%16.16s : %-16s\n", commabuf, sortarray[ i ]->name );
+		FS_FPrintf( file, "%16.16s : %s\n", commabuf, sortarray[ i ]->name );
 	}
 
+	FS_Close( file );
+}
+
+void Cache_Print_Models_And_Totals()
+{
+	FileHandle_t file = FS_Open( mem_dbgfile.string, "a" );
+
+	if( file == FILESYSTEM_INVALID_HANDLE )
+		return;
+
+	//TODO: is 512 the maximum or an arbitrary number? - Solokiller
+	cache_system_t* sortarray[ 512 ];
+	char commabuf[ MAX_COMMA_BUFFER ];
+
+	//Note: this memset is wrong in GoldSource, the fill and count args are swapped. - Solokiller
+	Q_memset( sortarray, 0, sizeof( sortarray ) );
+
+	int num = 0;
+
+	for( cache_system_t *cd = cache_head.next; cd != &cache_head; cd = cd->next )
+	{
+		if( Q_strstr( cd->name, ".mdl" ) )
+			sortarray[ num++ ] = cd;
+	}
+
+	qsort( sortarray, num, sizeof( cache_system_t* ), &CacheSystemCompare );
+
+	FS_FPrintf( file, "\nCACHED MODELS:\n" );
+
+	int iTotalSize = 0;
+
+	for( int i = 0; i < num; ++i )
+	{
+		CommatizeNumber( sortarray[ i ]->size, commabuf );
+		FS_FPrintf( file, "\t%16.16s : %s\n", commabuf, sortarray[ i ]->name );
+		iTotalSize += sortarray[ i ]->size;
+	}
+
+	FS_FPrintf( file, "Total bytes in cache used by models:  %s\n", CommatizeNumber( iTotalSize, commabuf ) );
+	FS_Close( file );
+}
+
+bool ComparePath1( const char* path1, const char* path2 )
+{
+	for( int i = 0; path1[ i ] == path2[ i ]; ++i )
+	{
+		if( *path1 == '\\' || *path1 == '/' || !( *path1 ) )
+			return true;
+	}
+
+	return false;
+}
+
+void Cache_Print_Sounds_And_Totals()
+{
+	FileHandle_t file = FS_Open( mem_dbgfile.string, "a" );
+
+	if( file == FILESYSTEM_INVALID_HANDLE )
+		return;
+
+	//TODO: is 512 the maximum or an arbitrary number? - Solokiller
+	cache_system_t* sortarray[ 512 ];
+	char commabuf[ MAX_COMMA_BUFFER ];
+
+	//Note: this memset is wrong in GoldSource, the fill and count args are swapped. - Solokiller
+	Q_memset( sortarray, 0, sizeof( sortarray ) );
+
+	int num = 0;
+
+	for( cache_system_t *cd = cache_head.next; cd != &cache_head; cd = cd->next )
+	{
+		if( Q_strstr( cd->name, ".wav" ) )
+			sortarray[ num++ ] = cd;
+	}
+
+	qsort( sortarray, num, sizeof( cache_system_t* ), &CacheSystemCompare );
+
+	FS_FPrintf( file, "\nCACHED SOUNDS:\n" );
+
+	int iTotalSize = 0;
+	int subtot = 0;
+
+	char pathbuf[ 512 ];
+
+	for( int i = 0; i < num; ++i )
+	{
+		auto pSys = sortarray[ i ];
+
+		CommatizeNumber( pSys->size, commabuf );
+		FS_FPrintf( file, "\t%16.16s : %s\n", commabuf, pSys->name );
+		iTotalSize += pSys->size;
+
+		//Determine the total size of each directory
+		if( i + 1 >= num || !ComparePath1( pSys->name, sortarray[ i + 1 ]->name ) )
+		{
+			Sys_SplitPath( pSys->name, nullptr, pathbuf, 0, 0 );
+			FS_FPrintf( file, "\tTotal Bytes used in \"%s\": %s\n", pathbuf, CommatizeNumber( iTotalSize - subtot, commabuf ) );
+			subtot = iTotalSize;
+		}
+	}
+
+	FS_FPrintf( file, "Total bytes in cache used by sound:  %s\n", CommatizeNumber( iTotalSize, commabuf ) );
 	FS_Close( file );
 }
 
@@ -885,6 +1001,18 @@ Cache_Report
 void Cache_Report( void )
 {
 	Con_DPrintf( "%4.1f megabyte data cache\n", ( hunk_size - hunk_high_used - hunk_low_used ) / ( float ) ( 1024 * 1024 ) );
+}
+
+int Cache_TotalUsed()
+{
+	int result = 0;
+
+	for( auto pSys = cache_head.next; pSys != &cache_head; pSys = pSys->next )
+	{
+		result += pSys->size;
+	}
+
+	return result;
 }
 
 /*

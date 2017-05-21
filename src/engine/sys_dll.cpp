@@ -790,3 +790,88 @@ void Sys_Init()
 
 	Sys_InitFloatTime();
 }
+
+void Sys_SplitPath( const char* path, char* drive, char* dir, char* fname, char* ext )
+{
+	if( drive )
+		*drive = '\0';
+
+	if( dir )
+		*dir = '\0';
+
+	if( ext )
+		*ext = '\0';
+
+	auto pszNameStart = path;
+
+	//On Windows, paths start with a drive letter and ':'
+	if( *path && path[ 1 ] == ':' )
+	{
+		if( drive )
+		{
+			strncpy( drive, path, 2 );
+			drive[ 2 ] = '\0';
+		}
+
+		pszNameStart = path + 2;
+	}
+
+	const char* pszDot = nullptr;
+	auto pszEnd = pszNameStart;
+
+	if( *pszNameStart )
+	{
+		const char* pszLastSlash = nullptr;
+
+		while( *pszEnd )
+		{
+			if( *pszEnd == '\\' || *pszEnd == '/' )
+			{
+				pszLastSlash = pszEnd + 1;
+			}
+			else if( *pszEnd == '.' )
+			{
+				pszDot = pszEnd;
+			}
+
+			++pszEnd;
+		}
+
+		if( pszLastSlash )
+		{
+			if( dir )
+			{
+				auto iSize = min( MAX_SPLITPATH_BUF, pszLastSlash - pszNameStart );
+				strncpy( dir, pszNameStart, iSize );
+				dir[ iSize ] = '\0';
+			}
+
+			pszNameStart = pszLastSlash;
+		}
+	}
+
+	if( pszDot && pszNameStart <= pszDot )
+	{
+		if( fname )
+		{
+			auto iSize = min( MAX_SPLITPATH_BUF, pszDot - pszNameStart );
+			strncpy( fname, pszNameStart, iSize );
+			fname[ iSize ] = '\0';
+		}
+		if( ext )
+		{
+			auto iSize = min( MAX_SPLITPATH_BUF, pszEnd - pszDot );
+			strncpy( ext, pszDot, iSize );
+			ext[ iSize ] = '\0';
+		}
+	}
+	else
+	{
+		if( fname )
+		{
+			auto iSize = min( MAX_SPLITPATH_BUF, pszEnd - pszNameStart );
+			strncpy( fname, pszNameStart, iSize );
+			fname[ iSize ] = '\0';
+		}
+	}
+}
