@@ -207,3 +207,25 @@ int KeyCode_VGUIToVirtualKey( vgui2::KeyCode code )
 
 	return -1;
 }
+
+int32 MouseCode_VGUIToVirtualKey( vgui2::MouseCode keyCode )
+{
+	//Nothing
+	return 0;
+}
+
+vgui2::MouseCode MouseCode_VirtualKeyToVGUI( int vk_code )
+{
+	//Nothing
+	return vgui2::MOUSE_LAST;
+}
+
+bool IsKeyCode( int vk_code )
+{
+	return vk_code <= 255 && vk_code > 0;
+}
+
+bool IsMouseCode( int vk_code )
+{
+	return false;
+}
