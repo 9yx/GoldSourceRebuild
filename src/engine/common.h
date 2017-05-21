@@ -111,7 +111,15 @@ void COM_AddAppDirectory( const char* pszBaseDir );
 
 const char* COM_FileExtension( const char* in );
 
+/**
+*	Creates a hierarchy of directories specified by path
+*	Modifies the given string while performing this operation, but restores it to its original state
+*/
+void COM_CreatePath( char* path );
+
 unsigned int COM_GetApproxWavePlayLength( const char* filepath );
+
+char* Info_Serverinfo();
 
 /**
 *	does a varargs printf into a temp buffer, so I don't need to have

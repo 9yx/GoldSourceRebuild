@@ -72,11 +72,14 @@ void Host_InitLocal()
 	Cvar_RegisterVariable( &host_framerate );
 	Cvar_RegisterVariable( &host_speeds );
 	Cvar_RegisterVariable( &host_profile );
+	*/
 	Cvar_RegisterVariable( &mp_logfile );
 	Cvar_RegisterVariable( &mp_logecho );
 	Cvar_RegisterVariable( &sv_log_onefile );
 	Cvar_RegisterVariable( &sv_log_singleplayer );
 	Cvar_RegisterVariable( &sv_logsecret );
+	//TODO: implement - Solokiller
+	/*
 	Cvar_RegisterVariable( &sv_stats );
 	*/
 	Cvar_RegisterVariable( &developer );

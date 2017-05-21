@@ -514,10 +514,37 @@ const char* COM_FileExtension( const char* in )
 	return "";
 }
 
+void COM_CreatePath( char* path )
+{
+	//TODO: check if null or empty - Solokiller
+	//TODO: copy into temp buffer - Solokiller
+	auto pszNext = path + 1;
+
+	while( *pszNext )
+	{
+		if( *pszNext == '\\' || *pszNext == '/' )
+		{
+			const auto cSave = *pszNext;
+			*pszNext = '\0';
+
+			FS_CreateDirHierarchy( path, nullptr );
+
+			*pszNext = cSave;
+		}
+
+		++pszNext;
+	}
+}
+
 unsigned int COM_GetApproxWavePlayLength( const char* filepath )
 {
 	//TODO: implement - Solokiller
 	return 0;
+}
+
+char* Info_Serverinfo()
+{
+	return serverinfo;
 }
 
 char* va( const char* format, ... )
