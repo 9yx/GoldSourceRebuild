@@ -2,7 +2,7 @@
 
 #include "quakedef.h"
 #include "BaseUISurface.h"
-#include "IEngineSurface.h"
+#include "EngineSurface.h"
 #include "text_draw.h"
 
 #include <vgui/ILocalize.h>

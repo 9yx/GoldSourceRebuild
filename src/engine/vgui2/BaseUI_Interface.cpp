@@ -24,7 +24,7 @@
 #include "BasePanel.h"
 #include "BaseUI_Interface.h"
 #include "BaseUISurface.h"
-#include "IEngineSurface.h"
+#include "EngineSurface.h"
 #include "keys.h"
 #include "SystemWrapper.h"
 

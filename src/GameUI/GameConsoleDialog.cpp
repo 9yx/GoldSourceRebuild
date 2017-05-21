@@ -7,9 +7,9 @@
 #include <vgui_controls/Menu.h>
 
 #include "EngineInterface.h"
+#include "igameuifuncs.h"
 #include "LoadingDialog.h"
-#include "GameUI/IBaseUI.h"
-#include "GameUI/IGameUIFuncs.h"
+#include "BaseUI/IBaseUI.h"
 
 #include "GameConsoleDialog.h"
 

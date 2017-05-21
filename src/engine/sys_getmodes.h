@@ -1,7 +1,7 @@
 #ifndef ENGINE_SYS_GETMODES_H
 #define ENGINE_SYS_GETMODES_H
 
-#include "GameUI/IGameUIFuncs.h"
+#include "igameuifuncs.h"
 
 /**
 *	Manages the main window's video modes.

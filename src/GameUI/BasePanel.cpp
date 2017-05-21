@@ -7,7 +7,7 @@
 #include "BasePanel.h"
 #include "EngineInterface.h"
 #include "GameUI_Interface.h"
-#include "GameUI/IGameUIFuncs.h"
+#include "igameuifuncs.h"
 #include "Taskbar.h"
 
 CBasePanel::CBasePanel()

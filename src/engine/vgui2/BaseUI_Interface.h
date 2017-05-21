@@ -2,8 +2,8 @@
 #define ENGINE_VGUI2_BASEUI_INTERFACE_H
 
 #include "cdll_int.h"
-#include "GameUI/IBaseUI.h"
 #include "ienginevgui.h"
+#include "BaseUI/IBaseUI.h"
 
 class BaseUISurface;
 class ICareerUI;

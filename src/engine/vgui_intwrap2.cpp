@@ -9,7 +9,7 @@
 
 #include "cdll_int.h"
 #include "APIProxy.h"
-#include "GameUI/IBaseUI.h"
+#include "BaseUI/IBaseUI.h"
 #include "GameUI/IClientVGUI.h"
 #include "GameUI/IGameConsole.h"
 #include "GameUI/IGameUI.h"

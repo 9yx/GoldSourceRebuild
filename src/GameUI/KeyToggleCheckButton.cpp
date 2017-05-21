@@ -1,7 +1,7 @@
 #include "EngineInterface.h"
 #include "GameUI_Interface.h"
+#include "igameuifuncs.h"
 #include "KeyToggleCheckButton.h"
-#include "GameUI/IGameUIFuncs.h"
 
 CKeyToggleCheckButton::CKeyToggleCheckButton( vgui2::Panel* parent, const char* panelName, const char* text, const char* key, const char* cmdname )
 	: BaseClass( parent, panelName, text )

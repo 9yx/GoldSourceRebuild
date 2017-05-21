@@ -12,9 +12,9 @@
 #include "CareerMapFrame.h"
 #include "EngineInterface.h"
 #include "GameUI_Interface.h"
+#include "igameuifuncs.h"
 #include "LoadingDialog.h"
 #include "ModInfo.h"
-#include "GameUI/IGameUIFuncs.h"
 
 CLoadingDialog* LoadingDialog()
 {

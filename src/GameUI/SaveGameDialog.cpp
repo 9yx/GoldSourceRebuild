@@ -8,7 +8,7 @@
 #include "savegame_version.h"
 #include "SaveGameDialog.h"
 #include "Taskbar.h"
-#include "GameUI/IBaseUI.h"
+#include "BaseUI/IBaseUI.h"
 
 int TimeStampSortFunc( vgui2::ListPanel* pPanel, const vgui2::ListPanelItem& p1, const vgui2::ListPanelItem& p2 )
 {

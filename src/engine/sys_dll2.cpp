@@ -9,8 +9,6 @@
 
 #include "cdll_int.h"
 
-#include "GameUI/IGameUIFuncs.h"
-
 #include "vgui2/src/vgui_key_translation.h"
 
 #include "dll_state.h"
@@ -21,6 +19,7 @@
 #include "filesystem.h"
 #include "IEngine.h"
 #include "IGame.h"
+#include "igameuifuncs.h"
 #include "IRegistry.h"
 #include "kbutton.h"
 #include "keys.h"

@@ -9,7 +9,7 @@
 
 #include "interface.h"
 
-#include "IEngineSurface.h"
+#include "EngineSurface.h"
 #include "snd.h"
 #include "sys_getmodes.h"
 #include "VGUI_EngineSurfaceWrap.h"

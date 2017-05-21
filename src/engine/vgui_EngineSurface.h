@@ -1,7 +1,7 @@
 #ifndef ENGINE_VGUI_ENGINESURFACE_H
 #define ENGINE_VGUI_ENGINESURFACE_H
 
-#include "IEngineSurface.h"
+#include "EngineSurface.h"
 
 class EngineSurfaceRenderPlat;
 

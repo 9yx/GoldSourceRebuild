@@ -8,13 +8,12 @@ set( PROJECT_NAME hw )
 add_sources(
 	${SRC_DIR}/cl_dll/kbutton.h
 	${SRC_DIR}/cl_dll/wrect.h
+	${SRC_DIR}/common/BaseUI/IBaseUI.h
 	${SRC_DIR}/common/GameUI/CareerDefs.h
-	${SRC_DIR}/common/GameUI/IBaseUI.h
 	${SRC_DIR}/common/GameUI/ICareerUI.h
 	${SRC_DIR}/common/GameUI/IClientVGUI.h
 	${SRC_DIR}/common/GameUI/IGameConsole.h
 	${SRC_DIR}/common/GameUI/IGameUI.h
-	${SRC_DIR}/common/GameUI/IGameUIFuncs.h
 	${SRC_DIR}/common/BaseSystemModule.cpp
 	${SRC_DIR}/common/BaseSystemModule.h
 	${SRC_DIR}/common/beamdef.h
@@ -29,6 +28,7 @@ add_sources(
 	${SRC_DIR}/common/demo_api.h
 	${SRC_DIR}/common/dlight.h
 	${SRC_DIR}/common/dll_state.h
+	${SRC_DIR}/common/EngineSurface.h
 	${SRC_DIR}/common/entity_state.h
 	${SRC_DIR}/common/event_api.h
 	${SRC_DIR}/common/event_args.h
@@ -68,6 +68,7 @@ add_sources(
 	${SRC_DIR}/pm_shared/pm_materials.h
 	${SRC_DIR}/pm_shared/pm_movevars.h
 	${SRC_DIR}/public/engine_launcher_api.h
+	${SRC_DIR}/public/igameuifuncs.h
 	${SRC_DIR}/public/interface.cpp
 	${SRC_DIR}/public/interface.h
 	${SRC_DIR}/public/keydefs.h
@@ -164,7 +165,6 @@ add_sources(
 	host_cmd.cpp
 	host_cmd.h
 	IEngine.h
-	IEngineSurface.h
 	IGame.h
 	info.cpp
 	info.h

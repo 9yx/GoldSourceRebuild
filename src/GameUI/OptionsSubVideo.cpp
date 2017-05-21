@@ -8,9 +8,9 @@
 #include "CvarToggleCheckButton.h"
 #include "EngineInterface.h"
 #include "GameUI_Interface.h"
+#include "igameuifuncs.h"
 #include "ModInfo.h"
 #include "OptionsSubVideo.h"
-#include "GameUI/IGameUIFuncs.h"
 
 //TODO: add software mode (windows only) - Solokiller
 

@@ -11,12 +11,11 @@ else()
 endif()
 
 add_sources(
-	${SRC_DIR}/common/GameUI/IBaseUI.h
+	${SRC_DIR}/common/BaseUI/IBaseUI.h
 	${SRC_DIR}/common/GameUI/ICareerUI.h
 	${SRC_DIR}/common/GameUI/IClientVGUI.h
 	${SRC_DIR}/common/GameUI/IGameConsole.h
 	${SRC_DIR}/common/GameUI/IGameUI.h
-	${SRC_DIR}/common/GameUI/IGameUIFuncs.h
 	${SRC_DIR}/common/GameUI/IMusicManager.h
 	${SRC_DIR}/common/ServerBrowser/IServerBrowser.h
 	${SRC_DIR}/common/IRunGameEngine.h
@@ -32,6 +31,7 @@ add_sources(
 	${SRC_DIR}/game_shared/shared_util.h
 	${SRC_DIR}/game_shared/simple_checksum.h
 	${SRC_DIR}/public/steam/friends/IFriendsUser.h
+	${SRC_DIR}/public/igameuifuncs.h
 	${SRC_DIR}/public/interface.cpp
 	${SRC_DIR}/public/interface.h
 	${SRC_DIR}/public/savegame_version.h

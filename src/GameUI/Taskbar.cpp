@@ -21,7 +21,7 @@
 #include "TaskButton.h"
 #include "Taskbar.h"
 #include "VGuiSystemModuleLoader.h"
-#include "GameUI/IBaseUI.h"
+#include "BaseUI/IBaseUI.h"
 
 CGameMenuItem::CGameMenuItem( vgui2::Menu* parent, const char* panelName )
 	: BaseClass( parent, panelName, "GameMenuItem" )

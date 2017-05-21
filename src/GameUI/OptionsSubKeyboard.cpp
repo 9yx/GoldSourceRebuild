@@ -11,9 +11,9 @@
 
 #include "EngineInterface.h"
 #include "GameUI_Interface.h"
+#include "igameuifuncs.h"
 #include "OptionsSubKeyboard.h"
 #include "vcontrolslistpanel.h"
-#include "GameUI/IGameUIFuncs.h"
 
 //TODO: refactor so engine versions are in shared file - Solokiller
 SDL_Keycode GetSDLKeycodeFromEngineKey( int iKey )

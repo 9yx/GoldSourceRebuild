@@ -20,14 +20,14 @@
 #include "EngineInterface.h"
 #include "GameUI_Interface.h"
 #include "ienginevgui.h"
+#include "igameuifuncs.h"
 #include "LoadingDialog.h"
 #include "ModInfo.h"
 #include "Sys_Utils.h"
 #include "Taskbar.h"
 #include "VGuiSystemModuleLoader.h"
+#include "BaseUI/IBaseUI.h"
 #include "cl_dll/IGameClientExports.h"
-#include "GameUI/IBaseUI.h"
-#include "GameUI/IGameUIFuncs.h"
 #include "steam/friends/IFriendsUser.h"
 
 static CBasePanel* staticPanel = nullptr;
