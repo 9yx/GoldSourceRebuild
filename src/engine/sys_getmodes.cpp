@@ -39,6 +39,7 @@ public:
 
 protected:
 	void LoadStartupGraphic();
+	void CenterEngineWindow( SDL_Window* hWndCenter, int width, int height );
 	void AdjustWindowForMode();
 	void DrawStartupGraphic( SDL_Window* window );
 
@@ -220,9 +221,7 @@ bool CVideoMode_Common::Init( void* pvInstance )
 
 	auto& mode = m_rgModeList[ iMode ];
 
-	registry->WriteInt( "ScreenWidth", mode.width );
-	registry->WriteInt( "ScreenHeight", mode.height );
-	registry->WriteInt( "ScreenBPP", mode.bpp );
+	VideoMode_SetVideoMode( mode.width, mode.height, mode.bpp );
 
 	LoadStartupGraphic();
 	AdjustWindowForMode();
@@ -288,6 +287,24 @@ void CVideoMode_Common::LoadStartupGraphic()
 	}
 }
 
+void CVideoMode_Common::CenterEngineWindow( SDL_Window* hWndCenter, int width, int height )
+{
+	SDL_Rect rect;
+
+	SDL_GetDisplayBounds( 0, &rect );
+
+	int x = ( rect.w - width ) / 2;
+	if( x < 0 )
+		x = 0;
+
+	int y = ( rect.h - height ) / 2;
+	if( y < 0 )
+		y = 0;
+
+	game->SetWindowXY( x, y );
+	SDL_SetWindowPosition( reinterpret_cast<SDL_Window*>( game->GetMainWindow() ), x, y );
+}
+
 void CVideoMode_Common::AdjustWindowForMode()
 {
 	auto pMode = GetCurrentMode();
@@ -316,20 +333,7 @@ void CVideoMode_Common::AdjustWindowForMode()
 
 	game->SetWindowSize( width, height );
 
-	SDL_Rect rect;
-
-	SDL_GetDisplayBounds( 0, &rect );
-
-	int x = ( rect.w - width ) / 2;
-	if( x < 0 )
-		x = 0;
-
-	int y = ( rect.h - height ) / 2;
-	if( y < 0 )
-		y = 0;
-
-	game->SetWindowXY( x, y );
-	SDL_SetWindowPosition( reinterpret_cast<SDL_Window*>( game->GetMainWindow() ), x, y );
+	CenterEngineWindow( reinterpret_cast<SDL_Window*>( game->GetMainWindow() ), width, height );
 
 	Snd_AcquireBuffer();
 	VOX_Init();
@@ -730,7 +734,7 @@ void VideoMode_Create()
 		bWindowed = false;
 	}
 
-	registry->WriteInt( "ScreenWindowed", bWindowed );
+	VideoMode_SwitchMode( true, bWindowed );
 
 	registry->ReadInt( "EngineD3D", 0 );
 
@@ -788,4 +792,16 @@ void VideoMode_GetCurrentRenderer( char* name, int namelen, int* windowed, int* 
 void VideoMode_RestoreVideo()
 {
 	videomode->RestoreVideo();
+}
+
+void VideoMode_SetVideoMode( int width, int height, int bpp )
+{
+	registry->WriteInt( "ScreenWidth", width );
+	registry->WriteInt( "ScreenHeight", height );
+	registry->WriteInt( "ScreenBPP", bpp );
+}
+
+void VideoMode_SwitchMode( int hardware, int windowed )
+{
+	registry->WriteInt( "ScreenWindowed", windowed );
 }

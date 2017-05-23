@@ -50,4 +50,8 @@ void VideoMode_GetCurrentRenderer( char* name, int namelen, int* windowed, int* 
 
 void VideoMode_RestoreVideo();
 
+void VideoMode_SetVideoMode( int width, int height, int bpp );
+
+void VideoMode_SwitchMode( int hardware, int windowed );
+
 #endif //ENGINE_SYS_GETMODES_H
