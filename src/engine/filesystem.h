@@ -22,6 +22,10 @@ bool FileSystem_SetGameDirectory( const char *pDefaultDir, const char *pGameDir 
 
 int Host_GetVideoLevel();
 
+void Host_SetAddonsFolder_f();
+void Host_SetHDModels_f();
+void Host_SetVideoLevel_f();
+
 FileHandle_t FS_Open( const char *pFileName, const char *pOptions );
 FileHandle_t FS_OpenPathID( const char *pFileName, const char *pOptions, const char *pathID );
 void FS_Close( FileHandle_t file );

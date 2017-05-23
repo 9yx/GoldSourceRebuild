@@ -6,6 +6,7 @@
 
 #include "quakedef.h"
 
+#include "client.h"
 #include "FilePaths.h"
 #include "IRegistry.h"
 #include "sv_main.h"
@@ -397,9 +398,44 @@ int Host_GetVideoLevel()
 	return registry->ReadInt( "vid_level", 0 );
 }
 
-//TODO: implement - Solokiller
-/*
-void Host_SetAddonsFolder_f();
-void Host_SetHDModels_f();
-void Host_SetVideoLevel_f();
-*/
+void Host_SetAddonsFolder_f()
+{
+	if( cls.state != ca_dedicated && Cmd_Argc() == 2 )
+	{
+		const auto bOldState = registry->ReadInt( "addons_folder", 0 ) > 0;
+
+		registry->WriteInt( "addons_folder", !stricmp( Cmd_Argv( 1 ), "1" ) ? 1 : 0 );
+
+		const auto bNewState =
+			COM_CheckParm( "-addons" ) ||
+			( registry->ReadInt( "addons_folder", 0 ) > 0 );
+
+		if( bOldState != bNewState )
+			COM_SetupDirectories();
+	}
+}
+
+void Host_SetHDModels_f()
+{
+	if( cls.state != ca_dedicated && Cmd_Argc() == 2 )
+	{
+		const bool bOldState = registry->ReadInt( "hdmodels", 1 ) > 0;
+
+		registry->WriteInt( "hdmodels", !stricmp( Cmd_Argv( 1 ), "1" ) ? 1 : 0 );
+
+		const bool bNewState =
+			!COM_CheckParm( "-nohdmodels" ) &&
+			( registry->ReadInt( "hdmodels", 1 ) > 0 );
+
+		if( bOldState != bNewState )
+			COM_SetupDirectories();
+	}
+}
+
+void Host_SetVideoLevel_f()
+{
+	if( cls.state != ca_dedicated && Cmd_Argc() == 2 )
+	{
+		registry->WriteInt( "vid_level", !stricmp( Cmd_Argv( 1 ), "1" ) ? 1 : 0 );
+	}
+}

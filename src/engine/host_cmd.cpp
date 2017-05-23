@@ -112,7 +112,12 @@ void Host_Quit_f()
 
 void Host_InitCommands()
 {
+	//TODO: implement - Solokiller
 	Cmd_AddCommand( "quit", Host_Quit_f );
+	//TODO: implement - Solokiller
+	Cmd_AddCommand( "_sethdmodels", Host_SetHDModels_f );
+	Cmd_AddCommand( "_setaddons_folder", Host_SetAddonsFolder_f );
+	Cmd_AddCommand( "_set_vid_level", Host_SetVideoLevel_f );
 	Cmd_AddCommand( "exit", Host_Quit_f );
 	//TODO: implement - Solokiller
 }
