@@ -7,6 +7,8 @@ extern jmp_buf host_abortserver;
 
 extern cvar_t developer;
 
+extern double host_frametime;
+
 int Host_Frame( float time, int iState, int* stateInfo );
 
 bool Host_IsSinglePlayerGame();

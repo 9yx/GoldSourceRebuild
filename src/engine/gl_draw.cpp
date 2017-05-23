@@ -17,15 +17,48 @@ void Draw_FillRGBA( int x, int y, int w, int h, int r, int g, int b, int a )
 	//TODO: implement - Solokiller
 }
 
+int Draw_Character( int x, int y, int num, unsigned int font )
+{
+	return VGUI2_Draw_Character( x, y, num, font );
+}
+
 int Draw_String( int x, int y, char* str )
 {
-	//TODO: implement - Solokiller
-	return 0;
+	const auto iWidth = VGUI2_DrawString( x, y, str, VGUI2_GetConsoleFont() );
+
+	Draw_ResetTextColor();
+
+	return iWidth + x;
+}
+
+int Draw_StringLen( const char* psz, unsigned int font )
+{
+	return VGUI2_Draw_StringLen( psz, font );
 }
 
 void Draw_SetTextColor( float r, float g, float b )
 {
 	//TODO: implement - Solokiller
+	//g_engdstAddrs.pfnDrawSetTextColor();
+
+	VGUI2_Draw_SetTextColor(
+		static_cast<int>( r * 255.0 ),
+		static_cast<int>( g * 255.0 ),
+		static_cast<int>( b * 255.0 )
+	);
+}
+
+void Draw_GetDefaultColor()
+{
+	int r, g, b;
+
+	if( sscanf( con_color.string, "%i %i %i", &r, &g, &b ) == 3 )
+		VGUI2_Draw_SetTextColor( r, g, b );
+}
+
+void Draw_ResetTextColor()
+{
+	Draw_GetDefaultColor();
 }
 
 void Draw_FillRGBABlend( int x, int y, int w, int h, int r, int g, int b, int a )

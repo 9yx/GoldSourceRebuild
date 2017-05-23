@@ -189,12 +189,18 @@ struct client_state_t
 
 	int pushmsec;
 	int light_level;
+	*/
 	int intermission;
 
+	//TODO: implement - Solokiller
+	/*
 	double mtime[ 2 ];
+	*/
 	double time;
 	double oldtime;
 
+	//TODO: implement - Solokiller
+	/*
 	frame_t frames[ 64 ];
 
 	cmd_t commands[ 64 ];

@@ -12,6 +12,7 @@
 #include "delta.h"
 #include "DemoPlayerWrapper.h"
 #include "dll_state.h"
+#include "gl_draw.h"
 #include "gl_screen.h"
 #include "hashpak.h"
 #include "host.h"

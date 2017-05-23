@@ -81,19 +81,7 @@ void R_InitTextures();
 
 void R_Init();
 
-void Draw_Init();
-
 void Draw_Shutdown();
-
-void Draw_FillRGBA( int x, int y, int w, int h, int r, int g, int b, int a );
-
-int Draw_String( int x, int y, char* str );
-
-void Draw_SetTextColor( float r, float g, float b );
-
-void Draw_FillRGBABlend( int x, int y, int w, int h, int r, int g, int b, int a );
-
-void SCR_Init();
 
 #ifndef APIENTRY
 #define APIENTRY

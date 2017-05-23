@@ -13,6 +13,7 @@
 #include "cdll_exp.h"
 #include "eiface.h"
 #include "eventapi.h"
+#include "gl_draw.h"
 #include "gl_vidnt.h"
 #include "kbutton.h"
 #include "net_api_int.h"
@@ -240,6 +241,12 @@ kbutton_t* ClientDLL_FindKey( const char* name )
 		return nullptr;
 
 	return cl_funcs.pFindKey( name );
+}
+
+void ClientDLL_ChatInputPosition( int* x, int* y )
+{
+	if( cl_funcs.pChatInputPosition )
+		cl_funcs.pChatInputPosition( x, y );
 }
 
 int hudCenterX()

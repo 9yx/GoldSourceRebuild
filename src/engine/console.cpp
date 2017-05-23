@@ -9,12 +9,28 @@
 #include "quakedef.h"
 
 #include "client.h"
+#include "gl_draw.h"
+#include "gl_screen.h"
 #include "host.h"
 #include "vgui_int.h"
 #include "vid.h"
+#include "vgui2/text_draw.h"
 
-#define	CON_TEXTSIZE	16384
-#define	MAXPRINTMSG		4096
+#define	CON_TEXTSIZE			16384
+#define	MAXPRINTMSG				4096
+#define CON_MAX_DEBUG_AREAS		32
+#define CON_DEBUG_AREA_OFFSET_Y	20
+
+struct da_notify_t
+{
+	char szNotify[ 80 ];
+	float expire;
+	float color[ 3 ];
+};
+
+da_notify_t da_notify[ CON_MAX_DEBUG_AREAS ];
+
+float da_default_color[ 3 ] = { 1, 1, 1 };
 
 static redirect_t sv_redirected = RD_NONE;
 
@@ -23,6 +39,8 @@ static char outputbuf[ NET_MAX_FRAG_BUFFER ] = {};
 static char g_szNotifyAreaString[ 256 ] = {};
 
 char* con_text = nullptr;
+
+int con_x = 0;
 
 int con_linewidth = 1;
 int con_totallines = 0;
@@ -33,11 +51,15 @@ int con_num_times = 4;
 float* con_times = nullptr;
 void* con_notifypos = nullptr;
 
+int con_notifylines = 0;
+
 bool con_forcedup = false;		// because no entities to refresh
 
 bool con_debuglog = false;
 
-float scr_con_current = 0;
+float con_cursorspeed =  4.0f;
+
+bool flIsDebugPrint = false;
 
 bool con_initialized = false;
 
@@ -358,4 +380,161 @@ void Con_Init()
 	Cmd_AddCommand( "condebug", Con_Debug_f );
 
 	con_initialized = true;
+}
+
+void Con_DrawDebugArea( int idx )
+{
+	if( 0 <= idx && idx < CON_MAX_DEBUG_AREAS )
+	{
+		const auto iOffset = idx * VGUI2_GetFontTall( VGUI2_GetConsoleFont() );
+
+		const auto iWidth = Draw_StringLen( da_notify[ idx ].szNotify, VGUI2_GetConsoleFont() );
+
+		if( ( iOffset + CON_DEBUG_AREA_OFFSET_Y - 1 ) < static_cast<int>( vid.height - CON_DEBUG_AREA_OFFSET_Y ) )
+		{
+			Draw_SetTextColor( da_notify[ idx ].color[ 0 ], da_notify[ idx ].color[ 1 ], da_notify[ idx ].color[ 2 ] );
+			Draw_String( vid.width - 10 - iWidth, iOffset + CON_DEBUG_AREA_OFFSET_Y, da_notify[ idx ].szNotify );
+		}
+	}
+}
+
+void Con_DrawDebugAreas()
+{
+	for( int i = 0; i < CON_MAX_DEBUG_AREAS; ++i )
+	{
+		auto& notify = da_notify[ i ];
+
+		if( notify.expire > realtime )
+		{
+			Con_DrawDebugArea( i );
+		}
+	}
+}
+
+void Con_DrawNotify()
+{
+	Con_DrawDebugAreas();
+
+	int v = 0;
+
+	Draw_ResetTextColor();
+
+	for( int i = con_current - con_num_times + 1; i <= con_current; ++i )
+	{
+		if( i >= 0 && con_times[ i % con_num_times ] )
+		{
+			if( ( realtime - con_times[ i % con_num_times ] ) <= con_notifytime.value )
+			{
+				clearnotify = false;
+				scr_copytop = true;
+
+				int x = 8;
+
+				for( int j = 0; j < con_linewidth; ++j )
+				{
+					x += Draw_Character( x, v, g_szNotifyAreaString[ x ], VGUI2_GetConsoleFont() );
+				}
+
+				v += VGUI2_GetFontTall( VGUI2_GetConsoleFont() );
+			}
+		}
+	}
+
+	if( key_dest == key_message )
+	{
+		clearnotify = false;
+		scr_copytop = true;
+
+		int xOffset = 8;
+
+		ClientDLL_ChatInputPosition( &xOffset, &v );
+
+		auto pszBuffer = chat_buffer;
+
+		if( static_cast<int>( vid.width / 10 ) < chat_bufferlen )
+			pszBuffer = Q_UnicodeAdvance( chat_buffer, chat_bufferlen - vid.width / 10 );
+
+		xOffset = Draw_String( xOffset, v, message_type );
+		xOffset = Draw_String( xOffset + 3, v, ":" );
+		xOffset = Draw_String( xOffset + 3, v, pszBuffer );
+
+		Draw_Character( xOffset + 1, v, ( static_cast<int>( con_cursorspeed * realtime ) % 2 ) ? '\v' : '\n', VGUI2_GetConsoleFont() );
+		v += VGUI2_GetFontTall( VGUI2_GetConsoleFont() );
+	}
+
+	if( con_notifylines < v )
+		con_notifylines = v;
+}
+
+void Con_Linefeed()
+{
+	con_x = 0;
+	++con_current;
+	Q_memset( &con_text[ con_linewidth * ( con_current % con_totallines ) ], ' ', con_linewidth );
+}
+
+void Con_SafePrintf( const char* fmt, ... )
+{
+	char msg[ 1024 ];
+
+	va_list va;
+
+	va_start( va, fmt );
+	vsnprintf( msg, ARRAYSIZE( msg ), fmt, va );
+	va_end( va );
+
+	flIsDebugPrint = true;
+
+	Con_Printf( "%s", msg );
+
+	flIsDebugPrint = false;
+}
+
+void Con_NPrintf( int idx, const char* fmt, ... )
+{
+	va_list va;
+
+	va_start( va, fmt );
+
+	//TODO: implement - Solokiller
+	//g_engdstAddrs.Con_NPrintf();
+
+	if( 0 <= idx && idx < CON_MAX_DEBUG_AREAS )
+	{
+		vsnprintf( da_notify[ idx ].szNotify, ARRAYSIZE( da_notify[ idx ].szNotify ), fmt, va );
+	
+		da_notify[ idx ].expire = realtime + 4.0;
+		da_notify[ idx ].color[ 0 ] = da_default_color[ 0 ];
+		da_notify[ idx ].color[ 1 ] = da_default_color[ 1 ];
+		da_notify[ idx ].color[ 2 ] = da_default_color[ 2 ];
+	}
+
+	va_end( va );
+}
+
+void Con_NXPrintf( con_nprint_t* info, const char* fmt, ... )
+{
+	va_list va;
+
+	va_start( va, fmt );
+
+	//TODO: implement - Solokiller
+	//g_engdstAddrs.Con_NXPrintf();
+
+	if( info )
+	{
+		//TODO: doesn't check if < 0 - Solokiller
+		if( info->index < CON_MAX_DEBUG_AREAS )
+		{
+			vsnprintf( da_notify[ info->index ].szNotify, ARRAYSIZE( da_notify[ info->index ].szNotify ), fmt, va );
+			da_notify[ info->index ].szNotify[ ARRAYSIZE( da_notify[ info->index ].szNotify ) - 1 ] = '\0';
+			
+			da_notify[ info->index ].expire = info->time_to_live + realtime;
+			da_notify[ info->index ].color[ 0 ] = info->color[ 0 ];
+			da_notify[ info->index ].color[ 1 ] = info->color[ 1 ];
+			da_notify[ info->index ].color[ 2 ] = info->color[ 2 ];
+		}
+	}
+
+	va_end( va );
 }
