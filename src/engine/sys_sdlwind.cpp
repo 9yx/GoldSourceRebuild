@@ -41,6 +41,46 @@ bool BUsesSDLInput()
 	return s_bUseRawInput;
 }
 
+void GetWindowNameFromGameDir( char* output, int outputBufferSize )
+{
+	FileHandle_t hLiblist = FS_Open( "liblist.gam", "rt" );
+
+	if( hLiblist )
+	{
+		char line[ 512 ];
+
+		while( !FS_EndOfFile( hLiblist ) )
+		{
+			*line = '\0';
+			FS_ReadLine( line, sizeof( line ) - 1, hLiblist );
+
+			if( !strnicmp( line, "game", 4 ) )
+			{
+				auto pszStart = strchr( line, '"' );
+
+				if( pszStart )
+				{
+					auto pszEnd = strchr( pszStart + 1, '"' );
+
+					if( pszEnd )
+					{
+						const int uiLength = pszEnd - pszStart;
+
+						if( ( uiLength - 1 ) < outputBufferSize )
+						{
+							strncpy( output, pszStart + 1, uiLength - 1 );
+							output[ uiLength - 1 ] = '\0';
+						}
+					}
+				}
+				break;
+			}
+		}
+
+		FS_Close( hLiblist );
+	}
+}
+
 class CGame final : public IGame
 {
 public:
@@ -137,42 +177,7 @@ bool CGame::CreateGameWindow()
 	strcpy( gameWindowName, "Half-Life" );
 
 	//Check if liblist overrides the window title.
-	FileHandle_t hLiblist = FS_Open( "liblist.gam", "rt" );
-
-	if( hLiblist )
-	{
-		char pOutput[ 512 ];
-		
-		while( !FS_EndOfFile( hLiblist ) )
-		{
-			*pOutput = '\0';
-			FS_ReadLine( pOutput, sizeof( pOutput ) - 1, hLiblist );
-
-			if( !strnicmp( pOutput, "game", 4 ) )
-			{
-				auto pszStart = strchr( pOutput, '"' );
-
-				if( pszStart )
-				{
-					auto pszEnd = strchr( pszStart + 1, '"' );
-
-					if( pszEnd )
-					{
-						const size_t uiLength = pszEnd - pszStart;
-
-						if( ( uiLength - 1 ) <= ( sizeof( gameWindowName ) - 1 ) )
-						{
-							strncpy( gameWindowName, pszStart + 1, uiLength - 1 );
-							gameWindowName[ uiLength - 1 ] = '\0';
-						}
-					}
-				}
-				break;
-			}
-		}
-
-		FS_Close( hLiblist );
-	}
+	GetWindowNameFromGameDir( gameWindowName, sizeof( gameWindowName ) );
 
 	//Added SDL_WINDOW_OPENGL. - Solokiller
 	Uint32 uiFlags = SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN | SDL_WINDOW_OPENGL;
