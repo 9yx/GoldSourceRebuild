@@ -30,8 +30,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "quakedef.h"
 #include "qgl.h"
 
-const char* gl_renderer = nullptr;
-
 glwstate_t glw_state;
 
 int ( WINAPI * qwglSwapIntervalEXT )( int interval );
@@ -425,6 +423,10 @@ void ( APIENTRY * qglFramebufferTexture2DEXT )( GLenum, GLenum, GLenum, GLuint, 
 void ( APIENTRY * qglFramebufferRenderbufferEXT )( GLenum, GLenum, GLenum, GLuint );
 void ( APIENTRY * qglBlitFramebufferEXT )( GLint, GLint, GLint, GLint, GLint, GLint, GLint, GLint, GLbitfield, GLenum );
 void ( APIENTRY * qglRenderbufferStorageMultisampleEXT )( GLenum, GLsizei, GLenum, GLsizei, GLsizei );
+
+PFNGLCOLORTABLEEXTPROC qglColorTableEXT;
+PFNGLMULTITEXCOORD2FARBPROC qglMTexCoord2fSGIS;
+PFNGLACTIVETEXTUREARBPROC qglSelectTextureSGIS;
 
 static void ( APIENTRY * dllAccum )( GLenum op, GLfloat value );
 static void ( APIENTRY * dllAlphaFunc )( GLenum func, GLclampf ref );

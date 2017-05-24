@@ -1,14 +1,28 @@
 #include "quakedef.h"
 #include "decals.h"
 #include "gl_draw.h"
+#include "gl_rmain.h"
+#include "gl_vidnt.h"
 #include "qgl.h"
 
 #include "vgui2/text_draw.h"
+
+cvar_t gl_ansio = { "gl_ansio", "16" };
 
 void Draw_Init()
 {
 	m_bDrawInitialized = true;
 	VGUI2_Draw_Init();
+
+	//TODO: implement - Solokiller
+
+	Cvar_RegisterVariable( &gl_ansio );
+
+	if( Host_GetVideoLevel() > 0 )
+	{
+		Cvar_DirectSet( &gl_ansio, "4" );
+		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, gl_ansio.value );
+	}
 	//TODO: implement - Solokiller
 }
 
@@ -73,4 +87,21 @@ GLuint GL_GenTexture()
 	qglGenTextures( 1, &tex );
 
 	return tex;
+}
+
+GLenum oldtarget = TEXTURE0_SGIS;
+
+void GL_SelectTexture( GLenum target )
+{
+	if( !gl_mtexable )
+		return;
+
+	qglSelectTextureSGIS( target );
+
+	if( target == oldtarget )
+		return;
+
+	cnttextures[ oldtarget - TEXTURE0_SGIS ] = currenttexture;
+	currenttexture = cnttextures[ target - TEXTURE0_SGIS ];
+	oldtarget = target;
 }

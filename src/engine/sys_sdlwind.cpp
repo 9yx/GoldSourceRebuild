@@ -10,6 +10,7 @@
 #include "vgui2/BaseUISurface.h"
 
 #include "cdll_int.h"
+#include "gl_vidnt.h"
 #include "IGame.h"
 #include "qgl.h"
 #include "render.h"

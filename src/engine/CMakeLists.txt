@@ -135,6 +135,8 @@ add_sources(
 	delta.h
 	DemoPlayerWrapper.cpp
 	DemoPlayerWrapper.h
+	DetailTexture.cpp
+	DetailTexture.h
 	edict.h
 	eiface.h
 	eventapi.cpp

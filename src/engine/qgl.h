@@ -41,8 +41,6 @@ extern cvar_t gl_vsync;
 extern bool scr_skipupdate;
 extern bool scr_skiponeupdate;
 
-extern const char* gl_renderer;
-
 struct glwstate_t
 {
 	void* hInstance;
@@ -184,6 +182,9 @@ extern	void ( APIENTRY * qglFramebufferRenderbufferEXT )( GLenum, GLenum, GLenum
 extern	void ( APIENTRY * qglBlitFramebufferEXT )( GLint, GLint, GLint, GLint, GLint, GLint, GLint, GLint, GLbitfield, GLenum );
 extern	void ( APIENTRY * qglRenderbufferStorageMultisampleEXT )( GLenum, GLsizei, GLenum, GLsizei, GLsizei );
 
+extern PFNGLCOLORTABLEEXTPROC qglColorTableEXT;
+extern PFNGLMULTITEXCOORD2FARBPROC qglMTexCoord2fSGIS;
+extern PFNGLACTIVETEXTUREARBPROC qglSelectTextureSGIS;
 //===========================================================================
 
 // non-windows systems will just redefine qgl* to gl*
