@@ -23,6 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <SDL2/SDL.h>
 
 #include "quakedef.h"
+#include "eiface.h"
 
 //TODO: Ridiculously low memory size represent. change this. - Solokiller
 #define MINIMUM_MEMORY 0x0E00000						//~14 Mb
@@ -54,6 +55,10 @@ void Sys_Printf( const char* fmt, ... );
 */
 void Sys_Error( const char* error, ... );
 
+void Sys_Warning( const char* pszWarning, ... );
+
+void Sys_DebugOutStraight( const char* pStr );
+
 extern PrintfFunc Launcher_ConsolePrintf;
 
 /** @} */
@@ -74,6 +79,8 @@ void Sys_ShutdownFloatTime();
 
 void GameSetSubState( int iSubState );
 void GameSetState( int iState );
+void Dispatch_Substate( int iSubState );
+void GameSetBackground( bool bNewSetting );
 
 bool Sys_IsWin95();
 bool Sys_IsWin98();
@@ -98,6 +105,16 @@ void Sys_GetCDKey( char* pszCDKey, int* nLength, int* bDedicated );
 *	@param[ out ] ext Optional. The extension component, if present
 */
 void Sys_SplitPath( const char* path, char* drive, char* dir, char* fname, char* ext );
+
+void Sys_Sleep( int msec );
+
+void Sys_PageIn( void* ptr, int size );
+
+void Sys_MakeCodeWriteable( unsigned long startaddr, unsigned long length );
+
+void AlertMessage( ALERT_TYPE atype, const char* szFmt, ... );
+
+void EngineFprintf();
 
 const int MAX_EXT_DLLS = 50;
 

@@ -20,6 +20,7 @@
 #include "winheaders.h"
 #else
 #error
+#include <unistd.h>
 #endif
 
 bool gHasMMXTechnology = false;
@@ -106,6 +107,24 @@ void Sys_Error( const char* error, ... )
 	fprintf( stderr, "%s\n", text );
 
 	longjmp( host_abortserver, 2 );
+}
+
+void Sys_Warning( const char* pszWarning, ... )
+{
+	char text[ 1024 ];
+	va_list va;
+
+	va_start( va, pszWarning );
+	vsnprintf( text, ARRAYSIZE( text ), pszWarning, va );
+	va_end( va );
+
+	Sys_Printf( text );
+}
+
+void Sys_DebugOutStraight( const char* pStr )
+{
+	//TODO: verify that calls to fprintf use this function if needed - Solokiller
+	fprintf( stderr, "%s\n", pStr );
 }
 
 static FileFindHandle_t g_hfind = FILESYSTEM_INVALID_FIND_HANDLE;
@@ -321,6 +340,13 @@ static void LoadThisDll( const char* szDllFilename )
 	}
 }
 
+//TODO: separate suffix for OSX? - Solokiller
+#ifdef WIN32
+#define GAMEDLL_KEY "gamedll"
+#else
+#define GAMEDLL_KEY "gamedll_linux"
+#endif
+
 void LoadEntityDLLs( const char* szBaseDir )
 {
 	SV_ResetModInfo();
@@ -381,7 +407,7 @@ void LoadEntityDLLs( const char* szBaseDir )
 
 			Q_strncpy( szValue, com_token, ARRAYSIZE( szValue ) );
 
-			if( Q_stricmp( szKey, "gamedll_linux" ) )
+			if( Q_stricmp( szKey, GAMEDLL_KEY ) )
 			{
 				DLL_SetModKey( &gmodinfo, szKey, szValue );
 			}
@@ -690,6 +716,7 @@ void Sys_ShutdownFloatTime()
 	curtime = 0.0;
 }
 
+//TODO: should refactor references to the globals to use these functions instead - Solokiller
 void GameSetSubState( int iSubState )
 {
 	//TODO: define constants - Solokiller
@@ -706,6 +733,16 @@ void GameSetSubState( int iSubState )
 void GameSetState( int iState )
 {
 	giActive = iState;
+}
+
+void Dispatch_Substate( int iSubState )
+{
+	giSubState = iSubState;
+}
+
+void GameSetBackground( bool bNewSetting )
+{
+	gfBackground = bNewSetting;
 }
 
 void Sys_Init()
@@ -835,4 +872,90 @@ void Sys_SplitPath( const char* path, char* drive, char* dir, char* fname, char*
 			fname[ iSize ] = '\0';
 		}
 	}
+}
+
+void Sys_Sleep( int msec )
+{
+#ifdef WIN32
+	Sleep( msec );
+#else
+	usleep( 1000 * msec );
+#endif
+}
+
+void Sys_PageIn( void* ptr, int size )
+{
+	//Obsolete due to vastly increased available memory & I/O speeds
+}
+
+void Sys_MakeCodeWriteable( unsigned long startaddr, unsigned long length )
+{
+#ifdef WIN32
+	DWORD  flOldProtect;
+
+	if( !VirtualProtect( ( LPVOID ) startaddr, length, PAGE_READWRITE, &flOldProtect ) )
+		Sys_Error( "Protection change failed\n" );
+#endif
+}
+
+void AlertMessage( ALERT_TYPE atype, const char* szFmt, ... )
+{
+	static char szOut[ 1024 ];
+
+	va_list va;
+
+	va_start( va, szFmt );
+
+	if( atype != at_logged || svs.maxclients <= 1 )
+	{
+		if( developer.value != 0.0 )
+		{
+			if( at_notice <= atype && atype <= at_error )
+			{
+				switch( atype )
+				{
+				case at_aiconsole:
+					if( developer.value < 2.0 )
+					{
+						va_end( va );
+						return;
+					}
+
+				case at_console:
+					szOut[ 0 ] = '\0';
+					break;
+
+				case at_warning:
+					Q_strcpy( szOut, "WARNING:  " );
+					break;
+
+				case at_notice:
+					Q_strcpy( szOut, "NOTE:  " );
+					break;
+
+				case at_error:
+					Q_strcpy( szOut, "ERROR:  " );
+					break;
+
+				default:
+					break;
+				}
+			}
+
+			vsnprintf( &szOut[ Q_strlen( szOut ) ], ARRAYSIZE( szOut ) - Q_strlen( szOut ), szFmt, va );
+			Con_Printf( "%s", szOut );
+		}
+	}
+	else
+	{
+		vsnprintf( szOut, ARRAYSIZE( szOut ), szFmt, va );
+		Log_Printf( "%s", szOut );
+	}
+
+	va_end( va );
+}
+
+void EngineFprintf()
+{
+	AlertMessage( at_console, "EngineFprintf:  Obsolete API\n" );
 }
