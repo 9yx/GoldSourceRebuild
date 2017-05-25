@@ -98,6 +98,7 @@ if( COPY_RESOURCES )
 		platform
 		${GAME_NAME}/dlls
 		${GAME_NAME}/gfx
+		${GAME_NAME}/hw
 		${GAME_NAME}/logos
 		${GAME_NAME}/models/player
 		${GAME_NAME}/resource
