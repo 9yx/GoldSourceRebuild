@@ -113,6 +113,12 @@ void COM_AddAppDirectory( const char* pszBaseDir );
 
 const char* COM_FileExtension( const char* in );
 
+void COM_DefaultExtension( char* path, char* extension );
+
+void COM_StripExtension( char* in, char* out );
+
+void COM_StripTrailingSlash( char* ppath );
+
 /**
 *	Creates a hierarchy of directories specified by path
 *	Modifies the given string while performing this operation, but restores it to its original state
@@ -130,13 +136,86 @@ char* Info_Serverinfo();
 */
 char* va( const char* format, ... );
 
+/**
+*	Converts a vector to a string representation.
+*/
+char* vstr( vec_t* v );
+
+/**
+*	Searches for a byte of data in a binary buffer
+*/
+int memsearch( byte* start, int count, int search );
+
+/**
+*	Compares filenames
+*	@return -1 if file1 is not equal to file2, 0 otherwise
+*/
+int Q_FileNameCmp( const char* file1, const char* file2 );
+
 byte* COM_LoadFile( const char* path, int usehunk, int* pLength );
 
 void COM_FreeFile( void *buffer );
 
 byte* COM_LoadHunkFile( const char* path );
 
+byte* COM_LoadTempFile( const char* path, int* pLength );
+
+void COM_LoadCacheFile( const char* path, cache_user_t* cu );
+
+byte* COM_LoadStackFile( const char* path, void* buffer, int bufsize, int* length );
+
+byte* COM_LoadFileForMe( const char* filename, int* pLength );
+
+byte* COM_LoadFileLimit( const char* path, int pos, int cbmax, int* pcbread, FileHandle_t* phFile );
+
+void COM_WriteFile( char* filename, void* data, int len );
+
+int COM_FileSize( const char* filename );
+
+bool COM_ExpandFilename( char* filename );
+
+int COM_CompareFileTime( const char* filename1, const char* filename2, int* iCompare );
+
+/**
+*	@param cachepath Modified by the function but restored before returning
+*/
+void COM_CopyFile( const char* netpath, char* cachepath );
+
+void COM_CopyFileChunk( FileHandle_t dst, FileHandle_t src, int nSize );
+
+void COM_Log( const char* pszFile, const char* fmt, ... );
+
+void COM_ListMaps( const char* pszSubString );
+
+void COM_GetGameDir( char* szGameDir );
+
+const char* COM_SkipPath( const char* pathname );
+
 char* COM_BinPrintf( byte* buf, int nLen );
+
+unsigned char COM_Nibble( char c );
+
+void COM_HexConvert( const char* pszInput, int nInputLength, byte* pOutput );
+
+/**
+*	Normalizes the angles to a range of [ -180, 180 ]
+*/
+void COM_NormalizeAngles( vec_t* angles );
+
+int COM_EntsForPlayerSlots( int nPlayers );
+
+/**
+*	Set explanation for disconnection
+*	@param bPrint Whether to print the explanation to the console
+*/
+void COM_ExplainDisconnection( bool bPrint, const char* fmt, ... );
+
+/**
+*	Set extended explanation for disconnection
+*	Only used if COM_ExplainDisconnection has been called as well
+*	@param bPrint Whether to print the explanation to the console
+*/
+void COM_ExtendedExplainDisconnection( bool bPrint, const char* fmt, ... );
 
 void MSG_WriteChar( sizebuf_t *sb, int c );
 void MSG_WriteByte( sizebuf_t *sb, int c );

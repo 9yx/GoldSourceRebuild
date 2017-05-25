@@ -23,6 +23,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <cstdio>
 
 #include "quakedef.h"
+#include "bspfile.h"
+#include "modinfo.h"
 
 char gpszProductString[ 32 ] = {};
 char gpszVersionString[ 32 ] = {};
@@ -527,6 +529,69 @@ const char* COM_FileExtension( const char* in )
 	return "";
 }
 
+void COM_DefaultExtension( char* path, char* extension )
+{
+	//
+	// if path doesn't have a .EXT, append extension
+	// (extension should include the .)
+	//
+	char* src = path + strlen( path ) - 1;
+
+	while( *src != '/' && src != path )
+	{
+		if( *src == '.' )
+			return;                 // it has an extension
+		src--;
+	}
+
+	//TODO: define this constant, it's 260 on Linux as well - Solokiller
+	strncat( path, extension, 260 - strlen( src ) );
+}
+
+void COM_StripExtension( char* in, char* out )
+{
+	if( !in || !( *in ) )
+		return;
+
+	const auto uiLength = strlen( in );
+
+	auto pszSrc = in + uiLength - 1;
+	auto pszDest = out + uiLength - 1;
+
+	bool bHandledExt = false;
+
+	for( ; in <= pszSrc; --pszSrc, --pszDest )
+	{
+		if( bHandledExt || *pszSrc != '.' )
+		{
+			if( *pszSrc == '\\' || *pszSrc == '/' )
+				bHandledExt = true;
+
+			*pszSrc = *pszDest;
+		}
+		else
+		{
+			*pszSrc = '\0';
+			bHandledExt = true;
+		}
+	}
+}
+
+void COM_StripTrailingSlash( char* ppath )
+{
+	const auto uiLength = strlen( ppath );
+
+	if( uiLength > 0 )
+	{
+		auto pszEnd = &ppath[ uiLength - 1 ];
+
+		if( *pszEnd == '/' || *pszEnd == '\\' )
+		{
+			*pszEnd = '\0';
+		}
+	}
+}
+
 void COM_CreatePath( char* path )
 {
 	//TODO: check if null or empty - Solokiller
@@ -571,6 +636,60 @@ char* va( const char* format, ... )
 	va_end( argptr );
 
 	return string;
+}
+
+const int MAX_VEC_STRINGS = 16;
+
+char* vstr( vec_t* v )
+{
+	static char string[ MAX_VEC_STRINGS ][ 1024 ];
+	static int idx = 0;
+
+	idx = ( idx + 1 ) % MAX_VEC_STRINGS;
+
+	snprintf( string[ idx ], ARRAYSIZE( string[ idx ] ), "%.4f %.4f %.4f", v[ 0 ], v[ 1 ], v[ 2 ] );
+
+	return string[ idx ];
+}
+
+int memsearch( byte* start, int count, int search )
+{
+	if( count <= 0 )
+		return -1;
+
+	int result = 0;
+
+	if( *start != search )
+	{
+		while( 1 )
+		{
+			++result;
+			if( result == count )
+				break;
+
+			if( start[ result ] == search )
+				return result;
+		}
+
+		result = -1;
+	}
+
+	return result;
+}
+
+int Q_FileNameCmp( const char* file1, const char* file2 )
+{
+	for( auto pszLhs = file1, pszRhs = file2; *pszLhs && *pszRhs; ++pszLhs, ++pszRhs )
+	{
+		if( ( *pszLhs != '/' || *pszRhs != '\\' ) &&
+			( *pszLhs != '\\' || *pszRhs != '/' ) )
+		{
+			if( tolower( *pszLhs ) != tolower( *pszRhs ) )
+				return -1;
+		}
+	}
+
+	return 0;
 }
 
 static cache_user_t* loadcache = nullptr;
@@ -657,6 +776,313 @@ byte* COM_LoadHunkFile( const char* path )
 	return COM_LoadFile( path, 1, nullptr );
 }
 
+byte* COM_LoadTempFile( const char* path, int* pLength )
+{
+	return COM_LoadFile( path, 2, pLength );
+}
+
+void COM_LoadCacheFile( const char* path, cache_user_t* cu )
+{
+	loadcache = cu;
+	COM_LoadFile( path, 3, nullptr );
+}
+
+byte* COM_LoadStackFile( const char* path, void* buffer, int bufsize, int* length )
+{
+	loadbuf = reinterpret_cast<byte*>( buffer );
+	loadsize = bufsize;
+
+	return COM_LoadFile( path, 4, length );
+}
+
+byte* COM_LoadFileForMe( const char* filename, int* pLength )
+{
+	return COM_LoadFile( filename, 5, pLength );
+}
+
+byte* COM_LoadFileLimit( const char* path, int pos, int cbmax, int* pcbread, FileHandle_t* phFile )
+{
+	auto hFile = *phFile;
+
+	if( FILESYSTEM_INVALID_HANDLE == *phFile )
+	{
+		hFile = FS_Open( path, "rb" );
+	}
+
+	byte* pData = nullptr;
+
+	if( FILESYSTEM_INVALID_HANDLE != hFile )
+	{
+		const auto uiSize = FS_Size( hFile );
+
+		if( uiSize < static_cast<decltype( uiSize )>( pos ) )
+			Sys_Error( "COM_LoadFileLimit: invalid seek position for %s", path );
+
+		FS_Seek( hFile, pos, FILESYSTEM_SEEK_HEAD );
+
+		*pcbread = min( cbmax, static_cast<int>( uiSize ) );
+
+		char base[ 32 ];
+
+		if( path )
+		{
+			COM_FileBase( path, base );
+		}
+
+		pData = reinterpret_cast<byte*>( Hunk_TempAlloc( *pcbread + 1 ) );
+
+		if( pData )
+		{
+			pData[ uiSize ] = '\0';
+
+			FS_Read( pData, uiSize, hFile );
+		}
+		else
+		{
+			if( path )
+				Sys_Error( "COM_LoadFileLimit: not enough space for %s", path );
+
+			FS_Close( hFile );
+		}
+	}
+
+	*phFile = hFile;
+
+	return pData;
+}
+
+void COM_WriteFile( char* filename, void* data, int len )
+{
+	char name[ MAX_PATH ];
+	snprintf( name, ARRAYSIZE( name ), "%s", filename );
+
+	COM_FixSlashes( name );
+	COM_CreatePath( name );
+
+	auto hFile = FS_Open( name, "wb" );
+
+	if( FILESYSTEM_INVALID_HANDLE != hFile )
+	{
+		Sys_Printf( "COM_WriteFile: %s\n", name );
+		FS_Write( data, len, hFile );
+		FS_Close( hFile );
+	}
+	else
+	{
+		Sys_Printf( "COM_WriteFile: failed on %s\n", name );
+	}
+}
+
+int COM_FileSize( const char* filename )
+{
+	int result;
+
+	auto hFile = FS_Open( filename, "rb" );
+
+	if( FILESYSTEM_INVALID_HANDLE != hFile )
+	{
+		result = FS_Size( hFile );
+		FS_Close( hFile );
+	}
+	else
+	{
+		result = -1;
+	}
+
+	return result;
+}
+
+bool COM_ExpandFilename( char* filename )
+{
+	char netpath[ MAX_PATH ];
+
+	FS_GetLocalPath( filename, netpath, ARRAYSIZE( netpath ) );
+	strcpy( filename, netpath );
+
+	return *filename != '\0';
+}
+
+int COM_CompareFileTime( const char* filename1, const char* filename2, int* iCompare )
+{
+	*iCompare = 0;
+
+	if( filename1 && filename2 )
+	{
+		const auto iLhs = FS_GetFileTime( filename1 );
+		const auto iRhs = FS_GetFileTime( filename2 );
+
+		if( iLhs < iRhs )
+		{
+			*iCompare = -1;
+		}
+		else if( iLhs > iRhs )
+		{
+			*iCompare = 1;
+		}
+
+		return true;
+	}
+
+	return false;
+}
+
+void COM_CopyFile( const char* netpath, char* cachepath )
+{
+	auto hSrcFile = FS_Open( netpath, "rb" );
+
+	if( FILESYSTEM_INVALID_HANDLE != hSrcFile )
+	{
+		auto uiSize = FS_Size( hSrcFile );
+
+		//TODO: copy path instead of modifying original - Solokiller
+
+		COM_CreatePath( cachepath );
+
+		auto hDestFile = FS_Open( cachepath, "wb" );
+
+		//TODO: check if file failed to open - Solokiller
+
+		char buf[ 4096 ];
+
+		while( uiSize >= sizeof( buf ) )
+		{
+			FS_Read( buf, sizeof( buf ), hSrcFile );
+			FS_Write( buf, sizeof( buf ), hDestFile );
+
+			uiSize -= sizeof( buf );
+		}
+
+		if( uiSize )
+		{
+			FS_Read( buf, uiSize, hSrcFile );
+			FS_Write( buf, uiSize, hDestFile );
+		}
+
+		FS_Close( hSrcFile );
+		FS_Close( hDestFile );
+	}
+}
+
+void COM_CopyFileChunk( FileHandle_t dst, FileHandle_t src, int nSize )
+{
+	char copybuf[ 1024 ];
+
+	auto iSizeLeft = nSize;
+
+	if( iSizeLeft > sizeof( copybuf ) )
+	{
+		while( iSizeLeft > sizeof( copybuf ) )
+		{
+			FS_Read( copybuf, sizeof( copybuf ), src );
+			FS_Write( copybuf, sizeof( copybuf ), dst );
+			iSizeLeft -= sizeof( copybuf );
+		}
+
+		//Compute size left
+		iSizeLeft = nSize - ( ( nSize - ( sizeof( copybuf ) + 1 ) ) & ~( sizeof( copybuf ) - 1 ) ) - sizeof( copybuf );
+	}
+
+	FS_Read( copybuf, iSizeLeft, src );
+	FS_Write( copybuf, iSizeLeft, dst );
+	FS_Flush( src );
+	FS_Flush( dst );
+}
+
+void COM_Log( const char* pszFile, const char* fmt, ... )
+{
+	char string[ 1024 ];
+	va_list va;
+
+	va_start( va, fmt );
+
+	auto pszFileName = pszFile ? pszFile : "c:\\hllog.txt";
+
+	vsnprintf( string, ARRAYSIZE( string ), fmt, va );
+	va_end( va );
+
+	auto hFile = FS_Open( pszFileName, "a+t" );
+
+	if( FILESYSTEM_INVALID_HANDLE != hFile )
+	{
+		FS_FPrintf( hFile, "%s", string );
+		FS_Close( hFile );
+	}
+}
+
+void COM_ListMaps( const char* pszSubString )
+{
+	const size_t uiSubStrLength = pszSubString && *pszSubString ? strlen( pszSubString ) : 0;
+
+	Con_Printf( "-------------\n" );
+	int showOutdated = 1;
+
+	char curDir[ MAX_PATH ];
+	char mapwild[ 64 ];
+	char sz[ 64 ];
+
+	dheader_t header;
+
+	do
+	{
+		strcpy( mapwild, "maps/*.bsp" );
+		for( auto i = Sys_FindFirst( mapwild, nullptr ); i; i = Sys_FindNext( nullptr ) )
+		{
+			snprintf( curDir, ARRAYSIZE( curDir ), "maps/%s", i );
+			FS_GetLocalPath( curDir, curDir, ARRAYSIZE( curDir ) );
+			if( strstr( curDir, com_gamedir ) && ( !uiSubStrLength || !strnicmp( i, pszSubString, uiSubStrLength ) ) )
+			{
+				memset( &header, 0, sizeof( header ) );
+
+				sprintf( sz, "maps/%s", i );
+
+				auto hFile = FS_Open( sz, "rb" );
+
+				if( hFile )
+				{
+					FS_Read( &header, sizeof( header ), hFile );
+					FS_Close( hFile );
+				}
+
+				//TODO: shouldn't this be calling LittleLong? - Solokiller
+				if( header.version == BSPVERSION )
+				{
+					if( !showOutdated )
+						Con_Printf( "%s\n", i );
+				}
+				else if( showOutdated )
+				{
+					Con_Printf( "OUTDATED:  %s\n", i );
+				}
+			}
+		}
+		Sys_FindClose();
+		--showOutdated;
+	}
+	while( showOutdated != -1 );
+}
+
+void COM_GetGameDir( char* szGameDir )
+{
+	//TODO: define this particular limit. It's 260 for Linux as well - Solokiller
+	if( szGameDir )
+		snprintf( szGameDir, 259U, "%s", com_gamedir );
+}
+
+const char* COM_SkipPath( const char* pathname )
+{
+	auto pszLast = pathname;
+
+	for( auto pszPath = pathname; *pszPath; ++pszPath )
+	{
+		if( *pszPath == '\\' || *pszPath == '/' )
+		{
+			pszLast = pszPath;
+		}
+	}
+
+	return pszLast;
+}
+
 char* COM_BinPrintf( byte* buf, int nLen )
 {
 	static char szReturn[ 4096 ];
@@ -672,6 +1098,116 @@ char* COM_BinPrintf( byte* buf, int nLen )
 	}
 
 	return szReturn;
+}
+
+unsigned char COM_Nibble( char c )
+{
+	if( ( c >= '0' ) &&
+		( c <= '9' ) )
+	{
+		return ( unsigned char ) ( c - '0' );
+	}
+
+	if( ( c >= 'A' ) &&
+		( c <= 'F' ) )
+	{
+		return ( unsigned char ) ( c - 'A' + 0x0a );
+	}
+
+	if( ( c >= 'a' ) &&
+		( c <= 'f' ) )
+	{
+		return ( unsigned char ) ( c - 'a' + 0x0a );
+	}
+
+	return '0';
+}
+
+void COM_HexConvert( const char* pszInput, int nInputLength, byte* pOutput )
+{
+	const auto iBytes = ( ( max( nInputLength - 1, 0 ) ) / 2 ) + 1;
+
+	auto p = pszInput;
+
+	for( int i = 0; i < iBytes; ++i, ++p )
+	{
+		pOutput[ i ] = ( 0x10 * COM_Nibble( p[ 0 ] ) ) | COM_Nibble( p[ 1 ] );
+	}
+}
+
+void COM_NormalizeAngles( vec_t* angles )
+{
+	for( int i = 0; i < 3; ++i )
+	{
+		if( angles[ i ] < -180.0 )
+		{
+			angles[ i ] = fmod( angles[ i ], 360.0 ) + 360.0;
+		}
+		else if( angles[ i ] > 180.0 )
+		{
+			angles[ i ] = fmod( angles[ i ], 360.0 ) - 360.0;
+		}
+	}
+}
+
+int COM_EntsForPlayerSlots( int nPlayers )
+{
+	int num_edicts = gmodinfo.num_edicts;
+
+	const auto parm = COM_CheckParm( "-num_edicts" );
+
+	if( parm != 0 )
+	{
+		const auto iSetting = atoi( com_argv[ parm + 1 ] );
+
+		if( num_edicts <= iSetting )
+			num_edicts = iSetting;
+	}
+
+	//TODO: this can exceed MAX_EDICTS - Solokiller
+	return num_edicts + 15 * ( nPlayers - 1 );
+}
+
+void COM_ExplainDisconnection( bool bPrint, const char* fmt, ... )
+{
+	static char string[ 1024 ];
+
+	va_list va;
+
+	va_start( va, fmt );
+	vsnprintf( string, ARRAYSIZE( string ), fmt, va );
+	va_end( va );
+
+	strncpy( gszDisconnectReason, string, ARRAYSIZE( gszDisconnectReason ) - 1 );
+	gszDisconnectReason[ ARRAYSIZE( gszDisconnectReason ) - 1 ] = '\0';
+
+	gfExtendedError = true;
+
+	if( bPrint )
+	{
+		if( gszDisconnectReason[ 0 ] != '#' )
+			Con_Printf( "%s\n", gszDisconnectReason );
+	}
+}
+
+void COM_ExtendedExplainDisconnection( bool bPrint, const char* fmt, ... )
+{
+	static char string[ 1024 ];
+
+	va_list va;
+
+	va_start( va, fmt );
+	vsnprintf( string, ARRAYSIZE( string ), fmt, va );
+	va_end( va );
+
+	strncpy( gszExtendedDisconnectReason, string, ARRAYSIZE( gszExtendedDisconnectReason ) - 1 );
+	gszExtendedDisconnectReason[ ARRAYSIZE( gszExtendedDisconnectReason ) - 1 ] = '\0';
+
+	if( bPrint )
+	{
+		if( gszExtendedDisconnectReason[ 0 ] != '#' )
+			Con_Printf( "%s\n", gszExtendedDisconnectReason );
+	}
 }
 
 /*
