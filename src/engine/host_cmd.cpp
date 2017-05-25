@@ -8,6 +8,8 @@ CareerStateType g_careerState = CAREER_NONE;
 
 bool g_iQuitCommandIssued = false;
 
+bool g_bMajorMapChange = false;
+
 void Host_InitializeGameDLL()
 {
 	Cbuf_Execute();

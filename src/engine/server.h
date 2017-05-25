@@ -41,8 +41,10 @@ struct server_t
 
 	int lastcheck;
 	double lastchecktime;
-
+	*/
 	char name[ 64 ];
+	//TODO: implement - Solokiller
+	/*
 	char oldname[ 64 ];
 	char startspot[ 64 ];
 	char modelname[ 64 ];

@@ -629,3 +629,34 @@ bool Host_IsSinglePlayerGame()
 	else
 		return cl.maxclients == 1;
 }
+
+void Host_GetHostInfo( float* fps, int* nActive, int* unused, int* nMaxPlayers, char* pszMap )
+{
+	int clients = 0;
+
+	if( rolling_fps > 0.0 )
+	{
+		*fps = 1.0 / rolling_fps;
+	}
+	else
+	{
+		rolling_fps = 0.0;
+		*fps = rolling_fps;
+	}
+
+	SV_CountPlayers( &clients );
+	*nActive = clients;
+
+	if( unused )
+		*unused = 0;
+
+	if( pszMap )
+	{
+		if( sv.name[ 0 ] )
+			Q_strcpy( pszMap, sv.name );
+		else
+			*pszMap = '\0';
+	}
+
+	*nMaxPlayers = svs.maxclients;
+}

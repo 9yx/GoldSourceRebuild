@@ -17,6 +17,7 @@ add_sources(
 	${SRC_DIR}/common/BaseSystemModule.cpp
 	${SRC_DIR}/common/BaseSystemModule.h
 	${SRC_DIR}/common/beamdef.h
+	${SRC_DIR}/common/bspfile.h
 	${SRC_DIR}/common/cl_entity.h
 	${SRC_DIR}/common/com_model.h
 	${SRC_DIR}/common/con_nprint.h
@@ -67,7 +68,9 @@ add_sources(
 	${SRC_DIR}/pm_shared/pm_info.h
 	${SRC_DIR}/pm_shared/pm_materials.h
 	${SRC_DIR}/pm_shared/pm_movevars.h
+	${SRC_DIR}/public/engine_hlds_api.h
 	${SRC_DIR}/public/engine_launcher_api.h
+	${SRC_DIR}/public/idedicatedexports.h
 	${SRC_DIR}/public/igameuifuncs.h
 	${SRC_DIR}/public/interface.cpp
 	${SRC_DIR}/public/interface.h
@@ -125,6 +128,7 @@ add_sources(
 	common.h
 	console.cpp
 	console.h
+	crc.cpp
 	custom.h
 	customentity.h
 	cvar.cpp

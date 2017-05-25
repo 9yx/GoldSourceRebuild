@@ -544,10 +544,6 @@ static bool s_bTimeInitialized = false;
 static double curtime = 0.0;
 static double lastcurtime = 0.0;
 
-static bool Win32AtLeastV4 = false;
-static bool g_bIsWin95 = false;
-static bool g_bIsWin98 = false;
-
 #ifdef WIN32
 static double pfreq = 0;
 static int lowshift = 0;
@@ -712,50 +708,6 @@ void GameSetState( int iState )
 	giActive = iState;
 }
 
-bool Sys_IsWin95()
-{
-	return g_bIsWin95;
-}
-
-bool Sys_IsWin98()
-{
-	return g_bIsWin98;
-}
-
-#ifdef WIN32
-/**
-*	Determine Windows OS version, set globals.
-*	Information for fields retrieved from: https://www.go4expert.com/articles/os-version-detection-32-64-bit-os-t1472/
-*/
-void Sys_CheckOSVersion()
-{
-	OSVERSIONINFO vinfo;
-
-	vinfo.dwOSVersionInfoSize = sizeof( vinfo );
-
-	if( !GetVersionEx( &vinfo ) )
-		Sys_Error( "Couldn't get OS info" );
-
-	Win32AtLeastV4 = vinfo.dwMajorVersion >= 4;
-
-	if( vinfo.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS && 
-		vinfo.dwMajorVersion == 4 )
-	{
-		if( vinfo.dwMinorVersion == 0 )
-		{
-			g_bIsWin95 = true;
-		}
-		else
-		{
-			if( vinfo.dwMinorVersion < 90 )
-			{
-				g_bIsWin98 = true;
-			}
-		}
-	}
-}
-#endif
-
 void Sys_Init()
 {
 #ifdef WIN32
@@ -793,6 +745,11 @@ void Sys_Init()
 #endif
 
 	Sys_InitFloatTime();
+}
+
+void Sys_Quit()
+{
+	giActive = DLL_CLOSE;
 }
 
 void Sys_SplitPath( const char* path, char* drive, char* dir, char* fname, char* ext )

@@ -5,6 +5,9 @@
 
 struct client_frame_t;
 
+extern cvar_t mapcyclefile;
+extern cvar_t servercfgfile;
+
 AppId_t GetGameAppID();
 
 bool IsGameSubscribed( const char *game );
@@ -31,5 +34,7 @@ void SV_Init();
 void SV_Shutdown();
 
 void SV_SetMaxclients();
+
+void SV_CountPlayers( int* clients );
 
 #endif //ENGINE_SV_MAIN_H

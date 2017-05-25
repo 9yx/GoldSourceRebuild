@@ -78,10 +78,14 @@ void GameSetState( int iState );
 bool Sys_IsWin95();
 bool Sys_IsWin98();
 
+void Sys_CheckOSVersion();
+
 void Sys_Init();
 void Sys_Shutdown();
 
 void Sys_Quit();
+
+void Sys_GetCDKey( char* pszCDKey, int* nLength, int* bDedicated );
 
 #define MAX_SPLITPATH_BUF 255
 
@@ -136,6 +140,8 @@ void ClearIOStates();
 
 void SetRateRegistrySetting( const char* pchRate );
 const char* GetRateRegistrySetting( const char* pchDef );
+
+const char* GetCurrentSteamAppName();
 
 extern bool gHasMMXTechnology;
 

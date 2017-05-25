@@ -1,7 +1,14 @@
 #include <clocale>
+#include <cstdint>
 #include <cstring>
 
 #include "winheaders.h"
+
+#ifdef WIN32
+#include <Winsock2.h>
+#else
+#error "Implement me"
+#endif
 
 #include "steam/steam_api.h"
 
@@ -15,8 +22,12 @@
 #include "client.h"
 #include "common.h"
 #include "buildnum.h"
+#include "engine_hlds_api.h"
 #include "engine_launcher_api.h"
 #include "filesystem.h"
+#include "host.h"
+#include "host_cmd.h"
+#include "idedicatedexports.h"
 #include "IEngine.h"
 #include "IGame.h"
 #include "igameuifuncs.h"
@@ -29,14 +40,22 @@
 #include "strtools.h"
 #include "sv_steam3.h"
 #include "sys.h"
-#include "traceinit.h"
 #include "sys_getmodes.h"
+#include "traceinit.h"
+#include "vgui_int.h"
 
 char* g_pPostRestartCmdLineArgs = nullptr;
 
 bool g_bIsDedicatedServer = false;
 
+const char* szReslistsBaseDir = "reslists";
+const char* szCommonPreloads = "multiplayer_preloads";
+const char* szReslistsExt = ".lst";
+
 const char* argv[ MAX_NUM_ARGVS ];
+
+void Sys_InitArgv( char* lpCmdLine );
+void Sys_ShutdownArgv();
 
 void SetRateRegistrySetting( const char* pchRate )
 {
@@ -46,6 +65,41 @@ void SetRateRegistrySetting( const char* pchRate )
 const char* GetRateRegistrySetting( const char* pchDef )
 {
 	return registry->ReadString( "rate", pchDef );
+}
+
+const char* GetCurrentSteamAppName()
+{
+	if( !stricmp( com_gamedir, "cstrike" ) ||
+		!stricmp( com_gamedir, "cstrike_beta" ) )
+	{
+		return "Counter-Strike";
+	}
+	else if( !stricmp( com_gamedir, "valve" ) )
+	{
+		return "Half-Life";
+	}
+	else if( !stricmp( com_gamedir, "ricochet" ) )
+	{
+		return "Ricochet";
+	}
+	else if( !stricmp( com_gamedir, "dod" ) )
+	{
+		return "Day of Defeat";
+	}
+	else if( !stricmp( com_gamedir, "tfc" ) )
+	{
+		return "Team Fortress Classic";
+	}
+	else if( !stricmp( com_gamedir, "dmc" ) )
+	{
+		return "Deathmatch Classic";
+	}
+	else if( !stricmp( com_gamedir, "czero" ) )
+	{
+		return "Condition Zero";
+	}
+
+	return "Half-Life";
 }
 
 int RunListenServer( void *instance, char *basedir, char *cmdline, char *postRestartCmdLineArgs, CreateInterfaceFn launcherFactory, CreateInterfaceFn filesystemFactory );
@@ -66,6 +120,115 @@ int CEngineAPI::Run( void* instance, char* basedir, char* cmdline, char* postRes
 	}
 
 	return RunListenServer( instance, basedir, cmdline, postRestartCmdLineArgs, launcherFactory, filesystemFactory );
+}
+
+//Legacy factory function used to acquire the client launcher interface
+DLL_EXPORT void F( void* pv )
+{
+	auto factory = Sys_GetFactoryThis();
+
+	auto api = reinterpret_cast<IEngineAPI**>( pv );
+
+	*api = static_cast<IEngineAPI*>( factory( ENGINE_LAUNCHER_INTERFACE_VERSION, nullptr ) );
+}
+
+class CDedicatedServerAPI : IDedicatedServerAPI
+{
+public:
+	bool Init( char* basedir, char* cmdline, CreateInterfaceFn launcherFactory, CreateInterfaceFn filesystemFactory ) override;
+
+	int Shutdown() override;
+
+	bool RunFrame() override;
+
+	void AddConsoleText( char* text ) override;
+
+	void UpdateStatus( float* fps, int* nActive, int* nMaxPlayers, char* pszMap ) override;
+
+private:
+	char m_OrigCmd[ 1024 ];
+};
+
+IDedicatedExports* dedicated = nullptr;
+
+EXPOSE_SINGLE_INTERFACE( CDedicatedServerAPI, IDedicatedServerAPI, ENGINE_HLDS_INTERFACE_VERSION );
+
+bool CDedicatedServerAPI::Init( char* basedir, char* cmdline, CreateInterfaceFn launcherFactory, CreateInterfaceFn filesystemFactory )
+{
+	dedicated = static_cast<IDedicatedExports*>( launcherFactory( "VENGINE_DEDICATEDEXPORTS_API_VERSION001", nullptr ) );
+	
+	if( dedicated )
+	{
+		strcpy( m_OrigCmd, cmdline );
+
+		if( !strstr( cmdline, "-nobreakpad" ) )
+		{
+			SteamAPI_UseBreakpadCrashHandler( va( "%d", build_number() ), __DATE__, __TIME__, false, nullptr, nullptr );
+		}
+
+		TraceInit( "Sys_InitArgv( m_OrigCmd )", "Sys_ShutdownArgv()", 0 );
+		Sys_InitArgv( m_OrigCmd );
+
+		eng->SetQuitting( IEngine::QUIT_NOTQUITTING );
+
+		registry->Init();
+
+		g_bIsDedicatedServer = true;
+
+		TraceInit( "FileSystem_Init(basedir, (void *)filesystemFactory)", "FileSystem_Shutdown()", 0 );
+		if( FileSystem_Init( basedir, filesystemFactory ) &&
+			game->Init( nullptr ) &&
+			eng->Load( true, basedir, cmdline ) )
+		{
+			char szCommand[ 256 ];
+			snprintf( szCommand, ARRAYSIZE( szCommand ), "exec %s\n", servercfgfile.string );
+			szCommand[ ARRAYSIZE( szCommand ) - 1 ] = '\0';
+			Cbuf_InsertText( szCommand );
+
+			return true;
+		}
+	}
+
+	return false;
+}
+
+int CDedicatedServerAPI::Shutdown()
+{
+	eng->Unload();
+	game->Shutdown();
+
+	TraceShutdown( "FileSystem_Shutdown()", 0 );
+	FileSystem_Shutdown();
+
+	registry->Shutdown();
+
+	TraceShutdown( "Sys_ShutdownArgv()", 0 );
+	Sys_ShutdownArgv();
+
+	dedicated = nullptr;
+
+	return giActive;
+}
+
+bool CDedicatedServerAPI::RunFrame()
+{
+	if( !eng->GetQuitting() )
+	{
+		eng->Frame();
+		return true;
+	}
+
+	return false;
+}
+
+void CDedicatedServerAPI::AddConsoleText( char* text )
+{
+	Cbuf_AddText( text );
+}
+
+void CDedicatedServerAPI::UpdateStatus( float* fps, int* nActive, int* nMaxPlayers, char* pszMap )
+{
+	Host_GetHostInfo( fps, nActive, nullptr, nMaxPlayers, pszMap );
 }
 
 vgui2::KeyCode GetVGUI2KeyCodeForBind( const char* bind )
@@ -194,6 +357,11 @@ void Sys_InitArgv( char* lpCmdLine )
 	host_parms.argv = com_argv;
 }
 
+void Sys_ShutdownArgv()
+{
+	//Nothing
+}
+
 int RunListenServer( void *instance, char *basedir, char *cmdline, char *postRestartCmdLineArgs, CreateInterfaceFn launcherFactory, CreateInterfaceFn filesystemFactory )
 {
 	static char OrigCmd[ 1024 ];
@@ -251,11 +419,12 @@ int RunListenServer( void *instance, char *basedir, char *cmdline, char *postRes
 		}
 
 		TraceShutdown( "FileSystem_Shutdown()", 0 );
-
 		FileSystem_Shutdown();
+
 		registry->Shutdown();
 
 		TraceShutdown( "Sys_ShutdownArgv()", 0 );
+		Sys_ShutdownArgv();
 	}
 
 	return result;
@@ -283,6 +452,21 @@ int Sys_GetSurfaceCacheSize( int width, int height )
 	return size;
 }
 
+void Legacy_MP3subsys_Resume_Audio()
+{
+	//Nothing
+}
+
+void Legacy_MP3subsys_Suspend_Audio()
+{
+	//Nothing
+}
+
+void Legacy_ErrorMessage( int nLevel, const char* pszErrorMessage )
+{
+	//Nothing
+}
+
 void Legacy_Sys_Printf( const char* fmt, ... )
 {
 	char text[ 1024 ];
@@ -292,11 +476,8 @@ void Legacy_Sys_Printf( const char* fmt, ... )
 	vsnprintf( text, ARRAYSIZE( text ), fmt, va );
 	va_end( va );
 
-	//TODO: implement - Solokiller
-	/*
 	if( dedicated )
-		dedicated->AddConsoleText( text );
-		*/
+		dedicated->Sys_Printf( text );
 }
 
 void Sys_VID_FlipScreen()
@@ -317,15 +498,73 @@ void Sys_SetupLegacyAPIs()
 	Launcher_ConsolePrintf = &Legacy_Sys_Printf;
 }
 
+static bool Win32AtLeastV4 = false;
+static bool g_bIsWin95 = false;
+static bool g_bIsWin98 = false;
+
+bool Sys_IsWin95()
+{
+	return g_bIsWin95;
+}
+
+bool Sys_IsWin98()
+{
+	return g_bIsWin98;
+}
+
+/**
+*	Determine Windows OS version, set globals.
+*	Information for fields retrieved from: https://www.go4expert.com/articles/os-version-detection-32-64-bit-os-t1472/
+*/
+void Sys_CheckOSVersion()
+{
+#ifdef WIN32
+	OSVERSIONINFO vinfo;
+
+	vinfo.dwOSVersionInfoSize = sizeof( vinfo );
+
+	if( !GetVersionEx( &vinfo ) )
+		Sys_Error( "Couldn't get OS info" );
+
+	Win32AtLeastV4 = vinfo.dwMajorVersion >= 4;
+
+	if( vinfo.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS &&
+		vinfo.dwMajorVersion == 4 )
+	{
+		if( vinfo.dwMinorVersion == 0 )
+		{
+			g_bIsWin95 = true;
+		}
+		else
+		{
+			if( vinfo.dwMinorVersion < 90 )
+			{
+				g_bIsWin98 = true;
+			}
+		}
+	}
+#endif
+}
+
 void Sys_InitLauncherInterface()
 {
 	gHasMMXTechnology = true;
 	Sys_SetupLegacyAPIs();
 }
 
+void Sys_ShutdownLauncherInterface()
+{
+	//Nothing
+}
+
 void Sys_InitAuthentication()
 {
 	Sys_Printf( "STEAM Auth Server\r\n" );
+}
+
+void Sys_ShutdownAuthentication()
+{
+	//Nothing
 }
 
 static HDC maindc;
@@ -336,11 +575,6 @@ void Sys_Shutdown()
 	Sys_ShutdownFloatTime();
 	Steam_ShutdownClient();
 	GL_Shutdown( pmainwindow, maindc, baseRC );
-}
-
-void Sys_Quit()
-{
-	giActive = DLL_CLOSE;
 }
 
 void Sys_InitMemory()
@@ -483,7 +717,6 @@ void Sys_ShutdownGame()
 	}
 
 	TraceShutdown( "Host_Shutdown()", 0 );
-
 	Host_Shutdown();
 
 	if( g_bIsDedicatedServer )
@@ -492,13 +725,15 @@ void Sys_ShutdownGame()
 	}
 
 	TraceShutdown( "Sys_ShutdownLauncherInterface()", 0 );
-	TraceShutdown( "Sys_ShutdownAuthentication()", 0 );
-	TraceShutdown( "Sys_ShutdownMemory()", 0 );
+	Sys_ShutdownLauncherInterface();
 
+	TraceShutdown( "Sys_ShutdownAuthentication()", 0 );
+	Sys_ShutdownAuthentication();
+
+	TraceShutdown( "Sys_ShutdownMemory()", 0 );
 	Sys_ShutdownMemory();
 
 	TraceShutdown( "Sys_Shutdown()", 0 );
-
 	Sys_Shutdown();
 }
 
@@ -511,4 +746,212 @@ void ClearIOStates()
 
 	Key_ClearStates();
 	ClientDLL_ClearStates();
+}
+
+//TODO: obsolete - Solokiller
+static double g_flLastSteamProgressUpdateTime = 0;
+static bool g_bPrintingKeepAliveDots = false;
+
+void Sys_ShowProgressTicks()
+{
+	static bool recursionGuard = false;
+	static int32 numTics = 0;
+
+	if( !recursionGuard )
+	{
+		recursionGuard = true;
+
+		if( COM_CheckParm( "-steam" ) )
+		{
+			const auto flTime = Sys_FloatTime();
+			if( g_flLastSteamProgressUpdateTime + 2.0 <= flTime )
+			{
+				g_flLastSteamProgressUpdateTime = flTime;
+
+				const auto iTics = ++numTics;
+
+				if( g_bIsDedicatedServer )
+				{
+					if( g_bMajorMapChange )
+					{
+						g_bPrintingKeepAliveDots = 1;
+						Sys_Printf( "." );
+					}
+				}
+				else
+				{
+					char msg[ 128 ] = "Updating game resources";
+
+					if( iTics % 5 >= 0 )
+					{
+						const auto iNumTics = iTics % 5 + 2;
+
+						//TODO: not necessarily null terminated - Solokiller
+						for( int i = 1; i < iNumTics; ++i )
+						{
+							msg[ strlen( msg ) ] = '.';
+						}
+					}
+
+					SetLoadingProgressBarStatusText( msg );
+				}
+			}
+		}
+
+		recursionGuard = false;
+	}
+}
+
+#ifdef WIN32
+#define CDKEY_RANDOM_MAX INT16_MAX
+#else
+#define CDKEY_RANDOM_MAX INT32_MAX
+#endif
+
+void Sys_GetCDKey( char* pszCDKey, int* nLength, int* bDedicated )
+{
+	char hostname[ MAX_PATH ];
+	char key[ 65 ];
+
+	if( 0 != gethostname( hostname, ARRAYSIZE( hostname ) ) )
+	{
+		snprintf( key, ARRAYSIZE( key ), "%u", RandomLong( 0, CDKEY_RANDOM_MAX ) );
+	}
+	else
+	{
+		auto pHost = gethostbyname( hostname );
+
+		if( pHost && pHost->h_length == 4 && pHost->h_addr_list[ 0 ] )
+		{
+			auto pszAddr = pHost->h_addr_list[ 0 ];
+
+			snprintf(
+				key, ARRAYSIZE( key ),
+				"%u.%u.%u.%u",
+				static_cast<unsigned int>( pszAddr[ 0 ] ),
+				static_cast<unsigned int>( pszAddr[ 1 ] ),
+				static_cast<unsigned int>( pszAddr[ 2 ] ),
+				static_cast<unsigned int>( pszAddr[ 3 ] )
+			);
+		}
+		else
+		{
+			CRC32_t crc;
+			CRC32_ProcessBuffer( &crc, hostname, strlen( hostname ) );
+			snprintf( key, ARRAYSIZE( key ), "%u", static_cast<unsigned int>( crc ) );
+		}
+	}
+
+	key[ ARRAYSIZE( key ) - 1 ] = '\0';
+
+	strcpy( pszCDKey, key );
+
+	if( nLength )
+		*nLength = strlen( key );
+
+	if( bDedicated )
+		*bDedicated = false;
+}
+
+int BuildMapCycleListHints( char** hints )
+{
+	char szMod[ MAX_PATH ];
+	COM_FileBase( com_gamedir, szMod );
+
+	char cszMapCycleTxtFile[ MAX_PATH ];
+	sprintf( cszMapCycleTxtFile, "%s/%s", szMod, mapcyclefile.string );
+
+	auto pFile = FS_Open( cszMapCycleTxtFile, "rb" );
+
+	if( FILESYSTEM_INVALID_HANDLE == pFile )
+	{
+		Con_Printf( "Unable to open %s\n", cszMapCycleTxtFile );
+		return false;
+	}
+
+	char szMap[ MAX_PATH + 2 ];
+	sprintf(
+		szMap, "%s\\%s\\%s%s\r\n",
+		szReslistsBaseDir,
+		GetCurrentSteamAppName(),
+		szCommonPreloads,
+		szReslistsExt
+	);
+
+	*hints = ( char * ) malloc( strlen( szMap ) + 1 );
+
+	if( !*hints )
+	{
+		//TODO: file needs closing - Solokiller
+		Con_Printf( "Unable to allocate memory for map cycle hints list" );
+		return false;
+	}
+
+	strcpy( *hints, szMap );
+
+	const auto uiSize = FS_Size( pFile );
+
+	if( uiSize )
+	{
+		auto pszData = reinterpret_cast<char*>( malloc( uiSize ) );
+
+		if( pszData )
+		{
+			auto pszParseToken = pszData;
+
+			//TODO: this code will never work properly because FS_Read returns size read, not number of elements - Solokiller
+			if( FS_Read( pszData, uiSize, pFile ) == 1 )
+			{
+				char mapLine[ MAX_PATH + 2 ];
+
+				while( true )
+				{
+					pszParseToken = COM_Parse( pszParseToken );
+
+					if( !com_token[ 0 ] )
+					{
+						break;
+					}
+
+					strncpy( szMap, com_token, ARRAYSIZE( szMap ) - 1 );
+					szMap[ ARRAYSIZE( szMap ) - 1 ] = '\0';
+
+					if( COM_TokenWaiting( pszParseToken ) )
+						pszParseToken = COM_Parse( pszParseToken );
+
+					snprintf(
+						mapLine, ARRAYSIZE( mapLine ),
+						"%s\\%s\\%s%s\r\n",
+						szReslistsBaseDir,
+						GetCurrentSteamAppName(),
+						szMap,
+						szReslistsExt
+					);
+
+					*hints = reinterpret_cast<char*>( realloc( *hints, strlen( *hints ) + strlen( mapLine ) + 2 ) );
+
+					if( !*hints )
+					{
+						//TODO: file needs closing - Solokiller
+						Con_Printf( "Unable to reallocate memory for map cycle hints list" );
+						return 0;
+					}
+
+					strcat( *hints, mapLine );
+				}
+			}
+
+			//TODO: this is the wrong address, it should be pszData - Solokiller
+			free( pszParseToken );
+		}
+	}
+
+	FS_Close( pFile );
+
+	sprintf( szMap, "%s\\%s\\mp_maps.txt\r\n", szReslistsBaseDir, GetCurrentSteamAppName() );
+
+	*hints = reinterpret_cast<char*>( realloc( *hints, strlen( *hints ) + strlen( szMap ) + 2 ) );
+	strcat( *hints, szMap );
+
+	return true;
 }

@@ -12,6 +12,9 @@ server_t sv;
 playermove_t g_svmove;
 globalvars_t gGlobalVariables = {};
 
+cvar_t mapcyclefile = { "mapcyclefile", "mapcycle.txt" };
+cvar_t servercfgfile = { "servercfgfile", "server.cfg" };
+
 int SV_UPDATE_BACKUP = 1 << 3;
 int SV_UPDATE_MASK = SV_UPDATE_BACKUP - 1;
 
@@ -238,6 +241,10 @@ void SV_ServerShutdown()
 void SV_Init()
 {
 	//TODO: implement - Solokiller
+	Cvar_RegisterVariable( &mapcyclefile );
+	//TODO: implement - Solokiller
+	Cvar_RegisterVariable( &servercfgfile );
+	//TODO: implement - Solokiller
 }
 
 void SV_Shutdown()
@@ -309,4 +316,19 @@ void SV_SetMaxclients()
 		maxclients = svs.maxclients;
 
 	svs.maxclients = maxclients;
+}
+
+void SV_CountPlayers( int* clients )
+{
+	*clients = 0;
+
+	for( int i = 0; i < svs.maxclients; ++i )
+	{
+		auto& client = svs.clients[ i ];
+
+		if( client.active || client.spawned || client.connected )
+		{
+			++*clients;
+		}
+	}
 }
