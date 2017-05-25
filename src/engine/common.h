@@ -88,6 +88,8 @@ char *COM_Parse( char *data );
 */
 char* COM_ParseLine( char* data );
 
+bool COM_TokenWaiting( const char* buffer );
+
 /**
 *	Returns the position (1 to argc-1) in the program's argument list
 *	where the given parameter apears, or 0 if not present
@@ -133,6 +135,8 @@ byte* COM_LoadFile( const char* path, int usehunk, int* pLength );
 void COM_FreeFile( void *buffer );
 
 byte* COM_LoadHunkFile( const char* path );
+
+char* COM_BinPrintf( byte* buf, int nLen );
 
 void MSG_WriteChar( sizebuf_t *sb, int c );
 void MSG_WriteByte( sizebuf_t *sb, int c );

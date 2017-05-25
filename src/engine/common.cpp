@@ -18,6 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 // common.c -- misc functions used in client and server
+#include <cctype>
 #include <cstdarg>
 #include <cstdio>
 
@@ -279,6 +280,18 @@ char* COM_ParseLine( char* data )
 		return nullptr;
 
 	return data;
+}
+
+//From SharedTokenWaiting - Solokiller
+bool COM_TokenWaiting( const char* buffer )
+{
+	for( auto p = buffer; *p && *p != '\n'; ++p )
+	{
+		if( !isspace( *p ) || isalnum( *p ) )
+			return true;
+	}
+
+	return false;
 }
 
 int COM_CheckParm( const char* parm )
@@ -642,6 +655,23 @@ void COM_FreeFile( void *buffer )
 byte* COM_LoadHunkFile( const char* path )
 {
 	return COM_LoadFile( path, 1, nullptr );
+}
+
+char* COM_BinPrintf( byte* buf, int nLen )
+{
+	static char szReturn[ 4096 ];
+
+	memset( szReturn, 0, sizeof( szReturn ) );
+
+	char szChunk[ 10 ];
+	for( int i = 0; i < nLen; ++i )
+	{
+		snprintf( szChunk, ARRAYSIZE( szChunk ), "%02x", buf[ i ] );
+
+		strncat( szReturn, szChunk, ARRAYSIZE( szReturn ) - 1 - strlen( szReturn ) );
+	}
+
+	return szReturn;
 }
 
 /*
