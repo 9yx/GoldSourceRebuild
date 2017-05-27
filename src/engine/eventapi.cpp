@@ -3,7 +3,7 @@
 #include "cl_pmove.h"
 #include "cl_pred.h"
 #include "eventapi.h"
-#include "snd.h"
+#include "sound.h"
 
 event_api_t eventapi = 
 {

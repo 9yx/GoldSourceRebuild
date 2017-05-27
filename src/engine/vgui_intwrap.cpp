@@ -10,7 +10,7 @@
 #include "interface.h"
 
 #include "EngineSurface.h"
-#include "snd.h"
+#include "sound.h"
 #include "sys_getmodes.h"
 #include "VGUI_EngineSurfaceWrap.h"
 

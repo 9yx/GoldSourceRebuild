@@ -23,7 +23,7 @@
 #include "r_efx.h"
 #include "r_triangle.h"
 #include "Sequence.h"
-#include "snd.h"
+#include "sound.h"
 #include "tmessage.h"
 #include "vgui_int.h"
 #include "view.h"

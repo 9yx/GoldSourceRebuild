@@ -24,7 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "quakedef.h"
-#include "snd.h"
+#include "sound.h"
 
 cvar_t suitvolume = { "suitvolume", "0.25", FCVAR_ARCHIVE };
 

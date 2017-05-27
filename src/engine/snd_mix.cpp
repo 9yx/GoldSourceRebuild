@@ -5,7 +5,7 @@
 */
 
 #include "quakedef.h"
-#include "snd.h"
+#include "sound.h"
 
 void VOX_Init()
 {

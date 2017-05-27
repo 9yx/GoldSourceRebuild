@@ -1,5 +1,5 @@
 #include "quakedef.h"
-#include "snd.h"
+#include "sound.h"
 
 bool g_fUseDInput = false;
 

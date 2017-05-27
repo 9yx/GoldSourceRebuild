@@ -8,7 +8,7 @@
 #include "host.h"
 #include "net_chan.h"
 #include "qgl.h"
-#include "snd.h"
+#include "sound.h"
 #include "vgui_int.h"
 #include "vid.h"
 #include "view.h"

@@ -21,7 +21,7 @@
 #include "pmove.h"
 #include "qgl.h"
 #include "server.h"
-#include "snd.h"
+#include "sound.h"
 #include "sv_main.h"
 #include "SystemWrapper.h"
 #include "vgui_int.h"

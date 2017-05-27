@@ -210,7 +210,7 @@ add_sources(
 	sequence.cpp
 	server.h
 	shake.h
-	snd.h
+	sound.h
 	snd_dma.cpp
 	snd_mix.cpp
 	snd_sdl.cpp

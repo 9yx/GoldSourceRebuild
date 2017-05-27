@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "quakedef.h"
 #include "cdll_int.h"
 #include "dll_state.h"
-#include "snd.h"
+#include "sound.h"
 #include "vgui_int.h"
 
 /*

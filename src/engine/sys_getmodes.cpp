@@ -9,7 +9,7 @@
 #include "IGame.h"
 #include "IRegistry.h"
 #include "render.h"
-#include "snd.h"
+#include "sound.h"
 #include "sys_getmodes.h"
 #include "vid.h"
 
