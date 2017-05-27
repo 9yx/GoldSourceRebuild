@@ -11,6 +11,8 @@ void S_Shutdown();
 
 void S_StopSound( int entnum, int entchannel );
 
+void S_StopAllSounds( bool clear );
+
 void Snd_AcquireBuffer();
 void Snd_ReleaseBuffer();
 

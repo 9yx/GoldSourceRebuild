@@ -42,3 +42,8 @@ void S_StopSound( int entnum, int entchannel )
 {
 	//TODO: implement - Solokiller
 }
+
+void S_StopAllSounds( bool clear )
+{
+	//TODO: implement  - Solokiller
+}

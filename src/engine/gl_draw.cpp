@@ -2,12 +2,16 @@
 #include "decals.h"
 #include "gl_draw.h"
 #include "gl_rmain.h"
+#include "gl_screen.h"
 #include "gl_vidnt.h"
 #include "qgl.h"
+#include "wad.h"
 
 #include "vgui2/text_draw.h"
 
 cvar_t gl_ansio = { "gl_ansio", "16" };
+
+qpic_t* draw_disc = nullptr;
 
 void Draw_Init()
 {
@@ -104,4 +108,15 @@ void GL_SelectTexture( GLenum target )
 	cnttextures[ oldtarget - TEXTURE0_SGIS ] = currenttexture;
 	currenttexture = cnttextures[ target - TEXTURE0_SGIS ];
 	oldtarget = target;
+}
+
+void Draw_Pic( int x, int y, qpic_t* pic )
+{
+	//TODO: implement - Solokiller
+}
+
+void Draw_BeginDisc()
+{
+	if( draw_disc )
+		Draw_CenterPic( draw_disc );
 }

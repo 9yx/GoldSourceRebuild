@@ -29,4 +29,8 @@ GLuint GL_GenTexture();
 
 void GL_SelectTexture( GLenum target );
 
+void Draw_Pic( int x, int y, qpic_t* pic );
+
+void Draw_BeginDisc();
+
 #endif //ENGINE_GL_DRAW_H

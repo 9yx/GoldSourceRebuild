@@ -26,6 +26,12 @@ void V_Init()
 	//TODO: implement - Solokiller
 }
 
+bool V_CheckGamma()
+{
+	//TODO: implement - Solokiller
+	return false;
+}
+
 void V_CalcShake()
 {
 	//TODO: implement - Solokiller

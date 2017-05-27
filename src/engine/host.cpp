@@ -154,6 +154,8 @@ void CheckGore()
 
 	Q_memset( szBuffer, 0, sizeof( szBuffer ) );
 
+	//TODO: needs Windows specific code - Solokiller
+
 	if( bLowViolenceBuild )
 	{
 		Cvar_SetValue( "violence_hblood", 0 );

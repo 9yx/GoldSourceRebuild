@@ -24,6 +24,9 @@ void Con_Shutdown();
 void Con_Printf( const char* fmt, ... );
 void Con_DPrintf( const char* fmt, ... );
 
+void Con_ClearNotify();
+void Con_CheckResize();
+
 void Con_Init();
 
 int Con_IsVisible();

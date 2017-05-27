@@ -3,6 +3,7 @@
 #include "quakedef.h"
 #include "client.h"
 #include "cdll_exp.h"
+#include "gl_screen.h"
 #include "vgui_int.h"
 #include "vid.h"
 #include "vgui2/text_draw.h"
@@ -145,6 +146,8 @@ void hudConsolePrint( const char* string )
 void hudCenterPrint( const char* string )
 {
 	//TODO: implement - Solokiller
+	//g_engdstAddrs.pfnConsolePrint();
+	SCR_CenterPrint( string );
 }
 
 void hudCvar_SetValue( char* var_name, float value )

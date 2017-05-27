@@ -68,6 +68,7 @@ struct client_static_t
 
 	float slist_time;
 
+	//TODO: define constants - Solokiller
 	int signon;
 
 	char servername[ FILENAME_MAX ];	// name of server from original connect
@@ -177,9 +178,12 @@ struct client_state_t
 	vec3_t viewheight;
 
 	screenfade_t sf;
+	*/
 
 	bool paused;
 
+	//TODO: implement - Solokiller
+	/*
 	int onground;
 	int moving;
 	int waterlevel;
