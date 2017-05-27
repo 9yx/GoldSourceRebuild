@@ -675,19 +675,19 @@ void EngineSurface::drawSetTextureFile( int id, const char* filename, int hardwa
 		drawSetTexture( id );
 }
 
-void EngineSurface::drawGetTextureSize( int id, int* wide, int* tall )
+void EngineSurface::drawGetTextureSize( int id, int& wide, int& tall )
 {
 	auto pTexture = staticGetTextureById( id );
 
 	if( pTexture )
 	{
-		*wide = pTexture->_wide;
-		*tall = pTexture->_tall;
+		wide = pTexture->_wide;
+		tall = pTexture->_tall;
 	}
 	else
 	{
-		*wide = 0;
-		*tall = 0;
+		wide = 0;
+		tall = 0;
 	}
 }
 

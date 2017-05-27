@@ -1,13 +1,25 @@
 #include <SDL2/SDL.h>
 
+#include <VGUI_App.h>
 #include <VGUI_Cursor.h>
 #include <VGUI_Dar.h>
 #include <VGUI_FileInputStream.h>
 #include <VGUI_Font.h>
+#include <VGUI_ImagePanel.h>
+#include <VGUI_Panel.h>
 
 #include "quakedef.h"
+#include "client.h"
 #include "EngineSurface.h"
+#include "gl_vidnt.h"
+#include "IGame.h"
+#include "vgui2/IMouseControl.h"
+#include "sys_getmodes.h"
 #include "VGUI_EngineSurfaceWrap.h"
+#include "vgui_int.h"
+#include "vgui2/BaseUISurface.h"
+#include "vgui2/BaseUI_Interface.h"
+#include "vgui2/src/vgui_key_translation.h"
 
 struct FontInfoVGUI
 {
@@ -133,7 +145,22 @@ int EngineSurfaceWrap::createNewTextureID()
 
 void EngineSurfaceWrap::GetMousePos( int &x, int &y )
 {
-	//TODO: implement - Solokiller
+	SDL_GetMouseState( &x, &y );
+
+	if( !VideoMode_IsWindowed() )
+	{
+		int wwidth, wheight;
+		SDL_GetWindowSize( reinterpret_cast<SDL_Window*>( game->GetMainWindow() ), &wwidth, &wheight );
+
+		int vwidth, vheight;
+		VideoMode_GetCurrentVideoMode( &vwidth, &vheight, nullptr );
+
+		x = static_cast<int>( x * ( static_cast<double>( vwidth ) / wwidth ) );
+		y = static_cast<int>( y * ( static_cast<double>( vheight ) / wheight ) );
+
+		x = static_cast<int>( x + static_cast<double>( x - vwidth / 2 ) * ( GetXMouseAspectRatioAdjustment() - 1.0 ) );
+		y = static_cast<int>( y + static_cast<double>( y - vheight / 2 ) * ( GetYMouseAspectRatioAdjustment() - 1.0 ) );
+	}
 }
 
 void EngineSurfaceWrap::drawSetColor( int r, int g, int b, int a )
@@ -198,7 +225,68 @@ void EngineSurfaceWrap::enableMouseCapture( bool state )
 
 void EngineSurfaceWrap::setCursor( vgui::Cursor* cursor )
 {
-	//TODO: implement - Solokiller
+	if( mousecontrol->VGUI2MouseControl() ||
+		VGuiWrap2_IsGameUIVisible() ||
+		!cursor ||
+		_cursorLocked )
+		return;
+
+	_currentCursor = cursor;
+	const bool bWasVisible = s_bCursorVisible;
+	s_bCursorVisible = true;
+	_emulatedCursor->setImage( _emulatedMouseImage );
+
+	switch( cursor->getDefaultCursor() )
+	{
+	case vgui::Cursor::dc_none:
+		{
+			_emulatedCursor->setImage( nullptr );
+			s_bCursorVisible = false;
+		}
+
+	case vgui::Cursor::dc_arrow:
+	case vgui::Cursor::dc_ibeam:
+	case vgui::Cursor::dc_hourglass:
+	case vgui::Cursor::dc_crosshair:
+	case vgui::Cursor::dc_up:
+	case vgui::Cursor::dc_sizenwse:
+	case vgui::Cursor::dc_sizenesw:
+	case vgui::Cursor::dc_sizewe:
+	case vgui::Cursor::dc_sizens:
+	case vgui::Cursor::dc_sizeall:
+	case vgui::Cursor::dc_no:
+	case vgui::Cursor::dc_hand:
+		{
+			staticCurrentCursor = staticDefaultCursor[ cursor->getDefaultCursor() ];
+			break;
+		}
+
+	default: break;
+	}
+
+	if( s_bCursorVisible )
+		SDL_SetCursor( staticCurrentCursor );
+
+	if( !_cursorLocked )
+	{
+		//Cursor state change, update.
+		if( s_bCursorVisible != bWasVisible )
+		{
+			if( m_rawinput.value && BUsesSDLInput() )
+			{
+				SDL_SetRelativeMouseMode( s_bCursorVisible ? SDL_FALSE : SDL_TRUE );
+			}
+			else
+			{
+				SDL_ShowCursor( s_bCursorVisible ? 1 : 0 );
+			}
+		}
+
+		SDL_PumpEvents();
+
+		int x, y;
+		SDL_GetRelativeMouseState( &x, &y );
+	}
 }
 
 void EngineSurfaceWrap::swapBuffers()
@@ -208,12 +296,40 @@ void EngineSurfaceWrap::swapBuffers()
 
 void EngineSurfaceWrap::pushMakeCurrent( vgui::Panel* panel, bool useInsets )
 {
-	//TODO: implement - Solokiller
+	int insets[ 4 ] = { 0, 0, 0, 0 };
+	int absExtents[ 4 ];
+	int clipRect[ 4 ];
+
+	if( useInsets )
+	{
+		panel->getInset( 
+			insets[ 0 ],
+			insets[ 1 ],
+			insets[ 2 ],
+			insets[ 3 ]
+		);
+	}
+
+	panel->getAbsExtents(
+		absExtents[ 0 ],
+		absExtents[ 1 ],
+		absExtents[ 2 ],
+		absExtents[ 3 ]
+	);
+
+	panel->getClipRect(
+		clipRect[ 0 ],
+		clipRect[ 1 ],
+		clipRect[ 2 ],
+		clipRect[ 3 ]
+	);
+
+	_engineSurface->pushMakeCurrent( insets, absExtents, clipRect, true );
 }
 
 void EngineSurfaceWrap::popMakeCurrent( vgui::Panel* panel )
 {
-	//TODO: implement - Solokiller
+	_engineSurface->popMakeCurrent();
 }
 
 void EngineSurfaceWrap::applyChanges()
@@ -221,8 +337,150 @@ void EngineSurfaceWrap::applyChanges()
 	//Nothing
 }
 
+static void CheckModState( vgui::App* app, vgui::SurfaceBase* surface )
+{
+	static uint32 s_lastModifierCode = 0;
+
+	auto state = SDL_GetModState();
+
+	auto changed = s_lastModifierCode ^ state;
+
+	auto helper = [ = ]( auto mod, auto key )
+	{
+		if( changed & mod )
+		{
+			if( s_lastModifierCode & mod )
+			{
+				app->internalKeyReleased( key, surface );
+			}
+			else
+			{
+				app->internalKeyPressed( key, surface );
+				//TODO: missing? - Solokiller
+				//app->internalKeyCodeTyped( key, surface );
+			}
+		}
+	};
+
+	helper( KMOD_LSHIFT, vgui::KEY_LSHIFT );
+	helper( KMOD_LALT, vgui::KEY_LALT );
+	helper( KMOD_LCTRL, vgui::KEY_LCONTROL );
+
+	//TODO: shouldn't this be KEY_RSHIFT? - Solokiller
+	helper( KMOD_RSHIFT, vgui::KEY_LSHIFT );
+	helper( KMOD_RALT, vgui::KEY_RALT );
+	helper( KMOD_RCTRL, vgui::KEY_RCONTROL );
+
+	helper( KMOD_CAPS, vgui::KEY_CAPSLOCK );
+	helper( KMOD_LGUI, vgui::KEY_LWIN );
+	helper( KMOD_RGUI, vgui::KEY_RWIN );
+
+	s_lastModifierCode = state;
+}
+
 void EngineSurfaceWrap::AppHandler( void* event, void* userData )
 {
+	auto pApp = vgui::App::getInstance();
+
+	if( pApp && this )
+	{
+		auto& ev = *reinterpret_cast<SDL_Event*>( event );
+
+		switch( ev.type )
+		{
+		case SDL_MOUSEMOTION:
+			{
+				if( VideoMode_IsWindowed() )
+				{
+					pApp->internalCursorMoved( ev.motion.x, ev.motion.y, this );
+				}
+				else
+				{
+					int wW, wT;
+					SDL_GetWindowSize( reinterpret_cast<SDL_Window*>( game->GetMainWindow() ), &wW, &wT );
+
+					int vW, vT;
+					VideoMode_GetCurrentVideoMode( &vW, &vT, nullptr );
+
+					const int relX = static_cast<int>( floor( ev.motion.x * ( static_cast<double>( vW ) / wW ) ) );
+					const int relY = static_cast<int>( floor( ev.motion.y * ( static_cast<double>( vT ) / wT ) ) );
+
+					const double flX = static_cast<double>( relX - vW / 2 ) * ( GetXMouseAspectRatioAdjustment() - 1.0 ) + relX;
+					const double flY = static_cast<double>( relY - vT / 2 ) * ( GetYMouseAspectRatioAdjustment() - 1.0 ) + relY;
+
+					pApp->internalCursorMoved(
+						static_cast<int>( flX ),
+						static_cast<int>( flY ),
+						this
+					);
+				}
+				break;
+			}
+
+		case SDL_MOUSEWHEEL:
+			{
+				pApp->internalMouseWheeled( ev.wheel.x, this );
+				break;
+			}
+
+		case SDL_MOUSEBUTTONDOWN:
+		case SDL_MOUSEBUTTONUP:
+			{
+				vgui::MouseCode code;
+
+				switch( ev.button.button )
+				{
+				default:
+				case SDL_BUTTON_LEFT:
+					{
+						code = vgui::MOUSE_LEFT;
+						break;
+					}
+
+				case SDL_BUTTON_MIDDLE:
+					{
+						code = vgui::MOUSE_MIDDLE;
+						break;
+					}
+
+				case SDL_BUTTON_RIGHT:
+					{
+						code = vgui::MOUSE_RIGHT;
+						break;
+					}
+				}
+
+				if( ev.type == SDL_MOUSEBUTTONDOWN )
+					pApp->internalMousePressed( code, this );
+				else
+					pApp->internalMouseReleased( code, this );
+
+				break;
+			}
+
+		case SDL_KEYDOWN:
+			{
+				//VGUI1 key codes start at KEY_0, VGUI2 key codes start at KEY_NONE, so adjust the code
+				pApp->internalKeyPressed( static_cast<vgui::KeyCode>( KeyCode_VirtualKeyToVGUI( ev.key.keysym.sym ) - vgui2::KEY_0 ), this );
+				pApp->internalKeyTyped( static_cast<vgui::KeyCode>( KeyCode_VirtualKeyToVGUI( ev.key.keysym.sym ) - vgui2::KEY_0 ), this );
+				
+				CheckModState( pApp, this );
+				break;
+			}
+
+		case SDL_KEYUP:
+			{
+				pApp->internalKeyReleased( static_cast<vgui::KeyCode>( KeyCode_VirtualKeyToVGUI( ev.key.keysym.sym ) - vgui2::KEY_0 ), this );
+				
+				CheckModState( pApp, this );
+				break;
+			}
+
+			//TODO: missing case for double pressed - Solokiller
+
+		default: break;
+		}
+	}
 	//TODO: implement - Solokiller
 }
 
@@ -236,4 +494,44 @@ void EngineSurfaceWrap::unlockCursor()
 	_cursorLocked = false;
 
 	setCursor( _currentCursor );
+}
+
+void EngineSurfaceWrap::drawLine( int x1, int y1, int x2, int y2 )
+{
+	_engineSurface->drawLine( x1, y1, x2, y2 );
+}
+
+void EngineSurfaceWrap::drawPolyLine( int* px, int* py, int n )
+{
+	_engineSurface->drawPolyLine( px, py, n );
+}
+
+void EngineSurfaceWrap::drawTexturedPolygon( vgui2::VGuiVertex* pVertices, int n )
+{
+	_engineSurface->drawTexturedPolygon( pVertices, n );
+}
+
+void EngineSurfaceWrap::drawSetTextureBGRA( int id, const char* rgba, int wide, int tall, int hardwareFilter, int hasAlphaChannel )
+{
+	_engineSurface->drawSetTextureBGRA( id, reinterpret_cast<const byte*>( rgba ), wide, tall, hardwareFilter, hasAlphaChannel );
+}
+
+void EngineSurfaceWrap::drawUpdateRegionTextureBGRA( int nTextureID, int x, int y, const byte* pchData, int wide, int tall )
+{
+	_engineSurface->drawUpdateRegionTextureBGRA( nTextureID, x, y, pchData, wide, tall );
+}
+
+void EngineSurfaceWrap::drawGetTextPos( int& x, int& y )
+{
+	_engineSurface->drawGetTextPos( x, y );
+}
+
+void EngineSurfaceWrap::drawPrintChar( int x, int y, int wide, int tall, float s0, float t0, float s1, float t1 )
+{
+	_engineSurface->drawPrintChar( x, y, wide, tall, s0, t0, s1, t1 );
+}
+
+void EngineSurfaceWrap::drawPrintCharAdd( int x, int y, int wide, int tall, float s0, float t0, float s1, float t1 )
+{
+	_engineSurface->drawPrintCharAdd( x, y, wide, tall, s0, t0, s1, t1 );
 }

@@ -29,12 +29,12 @@ public:
 
 	void drawSetTextColor( int r, int g, int b, int a ) override;
 	void drawSetTextPos( int x, int y ) override;
-	void drawGetTextPos( int* x, int* y ) override;
+	void drawGetTextPos( int& x, int& y ) override;
 	void drawPrintChar( int x, int y, int wide, int tall, float s0, float t0, float s1, float t1 ) override;
 	void drawPrintCharAdd( int x, int y, int wide, int tall, float s0, float t0, float s1, float t1 ) override;
 
 	void drawSetTextureFile( int id, const char* filename, int hardwareFilter, bool forceReload ) override;
-	void drawGetTextureSize( int id, int* wide, int* tall ) override;
+	void drawGetTextureSize( int id, int& wide, int& tall ) override;
 	int isTextureIdValid( int id ) override;
 
 	void drawSetSubTextureRGBA( int textureID, int drawX, int drawY, const byte* rgba, int subTextureWide, int subTextureTall ) override;

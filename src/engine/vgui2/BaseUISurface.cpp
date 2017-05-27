@@ -436,7 +436,7 @@ void BaseUISurface::DrawSetTextPos( int x, int y )
 
 void BaseUISurface::DrawGetTextPos( int& x, int& y )
 {
-	_engineSurface->drawGetTextPos( &x, &y );
+	_engineSurface->drawGetTextPos( x, y );
 }
 
 void BaseUISurface::DrawPrintText( const wchar_t* text, int textLen )
@@ -589,7 +589,7 @@ void BaseUISurface::DrawSetTexture( int id )
 
 void BaseUISurface::DrawGetTextureSize( int id, int& wide, int& tall )
 {
-	_engineSurface->drawGetTextureSize( id, &wide, &tall );
+	_engineSurface->drawGetTextureSize( id, wide, tall );
 }
 
 void BaseUISurface::DrawTexturedRect( int x0, int y0, int x1, int y1 )
@@ -801,16 +801,7 @@ void BaseUISurface::SetCursor( vgui2::HCursor cursor )
 		}
 	}
 
-	bool bUseRawInput;
-
-	if( !m_rawinput.value )
-	{
-		bUseRawInput = false;
-	}
-	else
-	{
-		bUseRawInput = BUsesSDLInput();
-	}
+	const bool bUseRawInput = m_rawinput.value && BUsesSDLInput();
 
 	if( s_bUsedRawInputLast != bUseRawInput )
 	{

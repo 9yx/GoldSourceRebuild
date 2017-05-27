@@ -19,10 +19,10 @@ int EngineSurface::createNewTextureID()
 	return static_cast<int>( GL_GenTexture() );
 }
 
-void EngineSurface::drawGetTextPos( int* x, int* y )
+void EngineSurface::drawGetTextPos( int& x, int& y )
 {
-	*x = _drawTextPos[ 0 ];
-	*y = _drawTextPos[ 1 ];
+	x = _drawTextPos[ 0 ];
+	y = _drawTextPos[ 1 ];
 }
 
 void EngineSurface::drawSetColor( int r, int g, int b, int a )

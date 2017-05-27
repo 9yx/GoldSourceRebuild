@@ -26,12 +26,12 @@ public:
 
 	virtual void drawSetTextColor( int r, int g, int b, int a ) = 0;
 	virtual void drawSetTextPos( int x, int y ) = 0;
-	virtual void drawGetTextPos( int* x, int* y ) = 0;
+	virtual void drawGetTextPos( int& x, int& y ) = 0;
 	virtual void drawPrintChar( int x, int y, int wide, int tall, float s0, float t0, float s1, float t1 ) = 0;
 	virtual void drawPrintCharAdd( int x, int y, int wide, int tall, float s0, float t0, float s1, float t1 ) = 0;
 
 	virtual void drawSetTextureFile( int id, const char* filename, int hardwareFilter, bool forceReload ) = 0;
-	virtual void drawGetTextureSize( int id, int* wide, int* tall ) = 0;
+	virtual void drawGetTextureSize( int id, int& wide, int& tall ) = 0;
 	virtual int isTextureIdValid( int id ) = 0;
 
 	virtual void drawSetSubTextureRGBA( int textureID, int drawX, int drawY, const byte* rgba, int subTextureWide, int subTextureTall ) = 0;
