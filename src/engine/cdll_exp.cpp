@@ -1,9 +1,18 @@
 #include <cstdarg>
 
+#include "winheaders.h"
+
 #include "quakedef.h"
+#include "cl_main.h"
+#include "cl_parse.h"
 #include "client.h"
 #include "cdll_exp.h"
+#include "const.h"
+#include "gl_draw.h"
+#include "gl_rmain.h"
 #include "gl_screen.h"
+#include "r_studio.h"
+#include "sound.h"
 #include "vgui_int.h"
 #include "vid.h"
 #include "vgui2/text_draw.h"
@@ -83,7 +92,8 @@ int hudAddCommand( char* cmd_name, void( *function )( ) )
 int hudHookUserMsg( char* szMsgName, pfnUserMsgHook pfn )
 {
 	//TODO: implement - Solokiller
-	return 0;
+	//g_engdstAddrs.pfnHookUserMsg();
+	return HookServerMsg( szMsgName, pfn ) != nullptr;
 }
 
 int hudServerCmd( char* pszCmdString )
@@ -118,21 +128,74 @@ int hudClientCmd( char* pszCmdString )
 void hudGetPlayerInfo( int ent_num, hud_player_info_t* pinfo )
 {
 	//TODO: implement - Solokiller
+	//g_engdstAddrs.pfnGetPlayerInfo();
+
+	if( cl.maxclients >= ent_num && ent_num > 0 && 
+		cl.players[ ent_num - 1 ].name[ 0 ] )
+	{
+		//Adjust to 0 based
+		--ent_num;
+
+		pinfo->name = cl.players[ ent_num ].name;
+		pinfo->ping = cl.players[ ent_num ].ping;
+		pinfo->spectator = cl.players[ ent_num ].spectator;
+		pinfo->packetloss = cl.players[ ent_num ].packet_loss;
+		pinfo->thisplayer = ent_num == cl.playernum;
+		pinfo->topcolor = cl.players[ ent_num ].topcolor;
+		pinfo->model = cl.players[ ent_num ].model;
+		pinfo->bottomcolor = cl.players[ ent_num ].bottomcolor;
+
+		if( g_bIsCStrike || g_bIsCZero )
+		{
+			pinfo->m_nSteamID = cl.players[ ent_num ].m_nSteamID;
+		}
+	}
+	else
+	{
+		pinfo->name = nullptr;
+		pinfo->thisplayer = false;
+	}
 }
 
 void hudPlaySoundByName( char* szSound, float volume )
 {
 	//TODO: implement - Solokiller
+	//g_engdstAddrs.pfnPlaySoundByName();
+
+	volume = clamp( volume, 0.0f, 1.0f );
+
+	auto pSound = S_PrecacheSound( szSound );
+
+	if( pSound )
+		S_StartDynamicSound( cl.viewentity, CHAN_ITEM, pSound, r_origin, volume, 1.0, 0, PITCH_NORM );
+	else
+		Con_DPrintf( "invalid sound %s\n", szSound );
 }
 
 void hudPlaySoundByIndex( int iSound, float volume )
 {
 	//TODO: implement - Solokiller
+	//g_engdstAddrs.pfnPlaySoundByIndex();
+
+	volume = clamp( volume, 0.0f, 1.0f );
+
+	//TODO: shouldn't be <= MAX_SOUNDS, since there are only MAX_SOUNDS sounds - Solokiller
+	if( 0 <= iSound && iSound <= MAX_SOUNDS )
+	{
+		S_StartDynamicSound( cl.viewentity, CHAN_ITEM, cl.sound_precache[ iSound ], r_origin, volume, 1.0, 0, PITCH_NORM );
+	}
+	else
+	{
+		Con_DPrintf( "invalid sound %i\n", iSound );
+	}
 }
 
 void hudDrawConsoleStringLen( const char* string, int* width, int* height )
 {
 	//TODO: implement - Solokiller
+	//g_engdstAddrs.pfnDrawConsoleStringLen();
+	*width = Draw_StringLen( string, VGUI2_GetConsoleFont() );
+	*height = VGUI2_GetFontTall( VGUI2_GetConsoleFont() );
 }
 
 void hudConsolePrint( const char* string )
@@ -188,12 +251,32 @@ void hudCon_DPrintf( char* fmt, ... )
 
 void hudCon_NPrintf( int idx, char* fmt, ... )
 {
-	//TODO: implement - Solokiller
+	//TODO: new function to deal with const correctness issue,
+	//see if we can get away with a function pointer cast - Solokiller
+	char szBuf[ CON_MAX_NOTIFY_STRING ];
+
+	va_list va;
+
+	va_start( va, fmt );
+	vsnprintf( szBuf, ARRAYSIZE( szBuf ), fmt, va );
+	va_end( va );
+
+	Con_NPrintf( idx, "%s", szBuf );
 }
 
 void hudCon_NXPrintf( con_nprint_t* info, char* fmt, ... )
 {
-	//TODO: implement - Solokiller
+	//TODO: new function to deal with const correctness issue,
+	//see if we can get away with a function pointer cast - Solokiller
+	char szBuf[ CON_MAX_NOTIFY_STRING ];
+
+	va_list va;
+
+	va_start( va, fmt );
+	vsnprintf( szBuf, ARRAYSIZE( szBuf ), fmt, va );
+	va_end( va );
+
+	Con_NXPrintf( info, "%s", szBuf );
 }
 
 void hudKey_Event( int key, int down )
@@ -204,6 +287,13 @@ void hudKey_Event( int key, int down )
 void hudPlaySoundByNameAtLocation( char* szSound, float volume, float* origin )
 {
 	//TODO: implement - Solokiller
+	//g_engdstAddrs.pfnPlaySoundByNameAtLocation();
+	volume = clamp( volume, 0.0f, 1.0f );
+
+	auto pSound = CL_LookupSound( szSound );
+
+	if( pSound )
+		S_StartDynamicSound( cl.viewentity, CHAN_AUTO, pSound, origin, volume, 1.0, 0, PITCH_NORM );
 }
 
 void* hudVGuiWrap_GetPanel()
@@ -247,14 +337,64 @@ int hudVGuiWrap2_IsInCareerMatch()
 void hudPlaySoundVoiceByName( char* szSound, float volume, int pitch )
 {
 	//TODO: implement - Solokiller
+	//g_engdstAddrs.pfnPlaySoundVoiceByName();
+
+	volume = clamp( volume, 0.0f, 1.0f );
+
+	auto pSound = S_PrecacheSound( szSound );
+
+	if( pSound )
+	{
+		pitch = max( 0, pitch );
+
+		S_StartDynamicSound( cl.viewentity, CHAN_BOT, pSound, r_origin, volume, 1.0, 0, pitch );
+	}
+	else
+	{
+		Con_DPrintf( "invalid sound %s\n", szSound );
+	}
 }
 
 void hudPlaySoundByNameAtPitch( char* szSound, float volume, int pitch )
 {
 	//TODO: implement - Solokiller
+	//g_engdstAddrs.pfnPlaySoundByName();
+
+	volume = clamp( volume, 0.0f, 1.0f );
+
+	auto pSound = S_PrecacheSound( szSound );
+
+	if( pSound )
+	{
+		pitch = max( 0, pitch );
+
+		S_StartDynamicSound( cl.viewentity, CHAN_ITEM, pSound, r_origin, volume, 1.0, 0, pitch );
+	}
+	else
+	{
+		Con_DPrintf( "invalid sound %s\n", szSound );
+	}
 }
 
 int hudGetGameAppID()
 {
 	return GetGameAppID();
+}
+
+void hudGetClientOrigin( vec3_t origin )
+{
+	cl_entity_t* pViewEnt = &cl_entities[ cl.viewentity ];
+
+	if( pViewEnt->index - 1 == cl.playernum )
+	{
+		origin[ 0 ] = cl.simorg[ 0 ];
+		origin[ 1 ] = cl.simorg[ 1 ];
+		origin[ 2 ] = cl.simorg[ 2 ];
+	}
+	else
+	{
+		origin[ 0 ] = pViewEnt->origin[ 0 ];
+		origin[ 1 ] = pViewEnt->origin[ 1 ];
+		origin[ 2 ] = pViewEnt->origin[ 2 ];
+	}
 }

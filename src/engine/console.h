@@ -3,6 +3,8 @@
 
 #include "con_nprint.h"
 
+#define CON_MAX_NOTIFY_STRING 80
+
 enum redirect_t
 {
 	RD_NONE = 0,

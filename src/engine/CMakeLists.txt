@@ -109,6 +109,8 @@ add_sources(
 	cl_ents.h
 	cl_main.cpp
 	cl_main.h
+	cl_parse.cpp
+	cl_parse.h
 	cl_parsefn.cpp
 	cl_parsefn.h
 	cl_pmove.cpp
@@ -204,6 +206,8 @@ add_sources(
 	r_efx_int.h
 	r_part.cpp
 	r_part.h
+	r_studio.cpp
+	r_studio.h
 	r_triangle.cpp
 	r_triangle.h
 	render.h

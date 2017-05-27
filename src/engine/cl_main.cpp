@@ -24,6 +24,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 client_static_t cls;
 client_state_t	cl;
 
+cl_entity_t* cl_entities = nullptr;
+
 //TODO: implement API and add here - Solokiller
 playermove_t g_clmove;
 

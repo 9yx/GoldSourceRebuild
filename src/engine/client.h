@@ -23,6 +23,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "pm_defs.h"
 #include "cdll_int.h"
 #include "APIProxy.h"
+#include "screenfade.h"
+#include "sound.h"
 
 class CSysModule;
 
@@ -138,8 +140,7 @@ struct client_static_t
 
 struct client_state_t
 {
-	//TODO: implement - Solokiller
-	/*
+	//TODO: verify contents - Solokiller
 	int max_edicts;
 
 	resource_t resourcesonhand;
@@ -178,12 +179,9 @@ struct client_state_t
 	vec3_t viewheight;
 
 	screenfade_t sf;
-	*/
 
 	bool paused;
 
-	//TODO: implement - Solokiller
-	/*
 	int onground;
 	int moving;
 	int waterlevel;
@@ -193,17 +191,12 @@ struct client_state_t
 
 	int pushmsec;
 	int light_level;
-	*/
 	int intermission;
 
-	//TODO: implement - Solokiller
-	/*
 	double mtime[ 2 ];
-	*/
 	double time;
 	double oldtime;
 
-	//TODO: implement - Solokiller
 	/*
 	frame_t frames[ 64 ];
 
@@ -211,29 +204,28 @@ struct client_state_t
 
 	local_state_t predicted_frames[ 64 ];
 	int delta_sequence;
-
+	*/
 	int playernum;
-
+	/*
 	event_s event_precache[ 256 ];
 
-	model_s *model_precache[ 512 ];
+	model_s *model_precache[ MAX_MODELS ];
 	int model_precache_count;
+	*/
+	sfx_s *sound_precache[ MAX_SOUNDS ];
 
-	sfx_s *sound_precache[ 512 ];
-
+	/*
 	consistency_t consistency_list[ 512 ];
 	int num_consistency;
+	*/
 
 	int highentity;
-	*/
+
 	char levelname[ 40 ];
 
 	int maxclients;
 
-	//TODO: implement - Solokiller
-	/*
 	int gametype;
-
 	int viewentity;
 
 	model_t* worldmodel;
@@ -258,7 +250,6 @@ struct client_state_t
 	int fPrecaching;
 
 	dlight_t* pLight;
-
 	player_info_t players[ 32 ];
 
 	entity_state_t instanced_baseline[ 64 ];
@@ -270,7 +261,6 @@ struct client_state_t
 	event_state_t events;
 
 	char downloadUrl[ 128 ];
-	*/
 };
 
 

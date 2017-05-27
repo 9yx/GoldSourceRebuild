@@ -38,6 +38,17 @@ void S_Shutdown()
 	//TODO: implement - Solokiller
 }
 
+sfx_t* S_PrecacheSound( const char* name )
+{
+	//TODO: implement - Solokiller
+	return nullptr;
+}
+
+void S_StartDynamicSound( int entnum, int entchannel, sfx_t* sfx, vec3_t origin, float fvol, float attenuation, int flags, int pitch )
+{
+	//TODO: implement - Solokiller
+}
+
 void S_StopSound( int entnum, int entchannel )
 {
 	//TODO: implement - Solokiller

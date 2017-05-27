@@ -23,7 +23,7 @@
 
 struct da_notify_t
 {
-	char szNotify[ 80 ];
+	char szNotify[ CON_MAX_NOTIFY_STRING ];
 	float expire;
 	float color[ 3 ];
 };

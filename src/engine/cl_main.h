@@ -1,7 +1,10 @@
 #ifndef ENGINE_CL_MAIN_H
 #define ENGINE_CL_MAIN_H
 
+#include "cl_entity.h"
 #include "dlight.h"
+
+extern cl_entity_t* cl_entities;
 
 extern float g_LastScreenUpdateTime;
 

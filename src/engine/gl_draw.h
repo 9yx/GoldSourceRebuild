@@ -2,6 +2,7 @@
 #define ENGINE_GL_DRAW_H
 
 #include "qgl.h"
+#include "wad.h"
 
 extern cvar_t gl_ansio;
 
