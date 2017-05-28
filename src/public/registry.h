@@ -1,5 +1,5 @@
-#ifndef COMMON_CREGISTRY_H
-#define COMMON_CREGISTRY_H
+#ifndef PUBLIC_REGISTRY_H
+#define PUBLIC_REGISTRY_H
 
 #include "IRegistry.h"
 
@@ -24,4 +24,4 @@ private:
 #endif
 };
 
-#endif //COMMON_CREGISTRY_H
+#endif //PUBLIC_REGISTRY_H

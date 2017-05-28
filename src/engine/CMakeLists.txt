@@ -23,8 +23,6 @@ add_sources(
 	${SRC_DIR}/common/con_nprint.h
 	${SRC_DIR}/common/const.h
 	${SRC_DIR}/common/crc.h
-	${SRC_DIR}/common/CRegistry.cpp
-	${SRC_DIR}/common/CRegistry.h
 	${SRC_DIR}/common/cvardef.h
 	${SRC_DIR}/common/demo_api.h
 	${SRC_DIR}/common/dlight.h
@@ -41,7 +39,6 @@ add_sources(
 	${SRC_DIR}/common/IEngineWrapper.h
 	${SRC_DIR}/common/in_buttons.h
 	${SRC_DIR}/common/IObjectContainer.h
-	${SRC_DIR}/common/IRegistry.h
 	${SRC_DIR}/common/ISystemModule.h
 	${SRC_DIR}/common/ivoicetweak.h
 	${SRC_DIR}/common/net_api.h
@@ -74,7 +71,10 @@ add_sources(
 	${SRC_DIR}/public/igameuifuncs.h
 	${SRC_DIR}/public/interface.cpp
 	${SRC_DIR}/public/interface.h
+	${SRC_DIR}/public/IRegistry.h
 	${SRC_DIR}/public/keydefs.h
+	${SRC_DIR}/public/registry.cpp
+	${SRC_DIR}/public/registry.h
 	${SRC_DIR}/vgui2/vgui_surfacelib/FontAmalgam.cpp
 	${SRC_DIR}/vgui2/vgui_surfacelib/FontAmalgam.h
 	${SRC_DIR}/vgui2/vgui_surfacelib/FontManager.cpp

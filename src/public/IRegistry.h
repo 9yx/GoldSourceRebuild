@@ -1,5 +1,5 @@
-#ifndef COMMON_IREGISTRY_H
-#define COMMON_IREGISTRY_H
+#ifndef PUBLIC_IREGISTRY_H
+#define PUBLIC_IREGISTRY_H
 
 /**
 *	Provides access to the registry.
@@ -29,4 +29,4 @@ public:
 */
 extern IRegistry* registry;
 
-#endif //COMMON_IREGISTRY_H
+#endif //PUBLIC_IREGISTRY_H
