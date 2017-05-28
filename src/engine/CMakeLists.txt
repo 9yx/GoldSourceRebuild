@@ -172,6 +172,8 @@ add_sources(
 	host.h
 	host_cmd.cpp
 	host_cmd.h
+	HUD.cpp
+	HUD.h
 	IEngine.h
 	IGame.h
 	info.cpp

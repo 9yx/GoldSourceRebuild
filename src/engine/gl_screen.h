@@ -14,6 +14,8 @@ extern int gly;
 extern int glwidth;
 extern int glheight;
 
+extern cvar_t scr_viewsize;
+
 void SCR_Init();
 
 void SCR_DrawConsole();

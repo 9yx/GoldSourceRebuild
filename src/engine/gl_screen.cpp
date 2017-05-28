@@ -6,6 +6,7 @@
 #include "gl_vidnt.h"
 #include "glHud.h"
 #include "host.h"
+#include "HUD.h"
 #include "net_chan.h"
 #include "qgl.h"
 #include "sound.h"
@@ -47,25 +48,36 @@ qpic_t* scr_paused = nullptr;
 
 vrect_t scr_vrect = {};
 
-cvar_t scr_showpause = { "scr_showpause", "1" };
+cvar_t scr_viewsize = { "viewsize", "120", FCVAR_ARCHIVE };
+cvar_t scr_showpause = { "showpause", "1" };
 
 cvar_t scr_centertime = { "scr_centertime", "2" };
 cvar_t scr_printspeed = { "scr_printspeed", "8" };
+cvar_t scr_graphheight = { "graphheight", "64.0" };
 
 cvar_t scr_connectmsg = { "scr_connectmsg", "0" };
 cvar_t scr_connectmsg1 = { "scr_connectmsg1", "0" };
 cvar_t scr_connectmsg2 = { "scr_connectmsg2", "0" };
 
+void SCR_SizeUp_f();
+void SCR_SizeDown_f();
+
 void SCR_Init()
 {
-	//TODO: implement - Solokiller
+	Cvar_RegisterVariable( &scr_viewsize );
 	Cvar_RegisterVariable( &scr_showpause );
+
 	Cvar_RegisterVariable( &scr_centertime );
 	Cvar_RegisterVariable( &scr_printspeed );
-	//TODO: implement - Solokiller
+	Cvar_RegisterVariable( &scr_graphheight );
+
 	Cvar_RegisterVariable( &scr_connectmsg );
 	Cvar_RegisterVariable( &scr_connectmsg1 );
 	Cvar_RegisterVariable( &scr_connectmsg2 );
+
+	//TODO: implement - Solokiller
+	Cmd_AddCommand( "sizeup", SCR_SizeUp_f );
+	Cmd_AddCommand( "sizedown", SCR_SizeDown_f );
 	//TODO: implement - Solokiller
 	scr_initialized = true;
 }
@@ -474,4 +486,16 @@ void SCR_EndLoadingPlaque()
 	scr_drawloading = false;
 	Con_ClearNotify();
 	VGuiWrap2_LoadingFinished( "transition", "" );
+}
+
+void SCR_SizeUp_f()
+{
+	HudSizeUp();
+	vid.recalc_refdef = true;
+}
+
+void SCR_SizeDown_f()
+{
+	HudSizeDown();
+	vid.recalc_refdef = true;
 }
