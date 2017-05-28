@@ -1,3 +1,5 @@
+#include <cctype>
+
 #include <SDL2/SDL.h>
 
 #include <VGUI_App.h>
@@ -21,13 +23,16 @@
 #include "vgui2/BaseUI_Interface.h"
 #include "vgui2/src/vgui_key_translation.h"
 
+#define FONT_MAX_PAGES 8
+#define FONT_PAGE_SIZE 512
+
 struct FontInfoVGUI
 {
 	int id;
 	int pageCount;
 	int pageForChar[ 256 ];
-	int bindIndex[ 8 ];
-	float texCoord[ 256 ][ 8 ];
+	int bindIndex[ FONT_MAX_PAGES ];
+	float texCoord[ 256 ][ FONT_MAX_PAGES ];
 	int contextCount;
 };
 
@@ -37,6 +42,8 @@ static FontInfoVGUI* staticFontInfoVGUI = nullptr;
 static vgui::Dar<FontInfoVGUI*> staticFontInfoVGUIDar;
 
 static int staticContextCount = 0;
+
+static byte staticRGBA[ ( FONT_PAGE_SIZE * 2 ) * ( FONT_PAGE_SIZE * 2 ) ];
 
 //vgui::Cursor::DefaultCursor->SDL_SystemCursor mapping
 //TODO: why does this have a size of 20 when only 14 are needed? - Solokiller
@@ -180,7 +187,133 @@ void EngineSurfaceWrap::drawOutlinedRect( int x0, int y0, int x1, int y1 )
 
 void EngineSurfaceWrap::drawSetTextFont( vgui::Font* font )
 {
-	//TODO: implement - Solokiller
+	staticFont = font;
+
+	if( !font )
+		return;
+
+	staticFontInfoVGUI = nullptr;
+
+	bool bMatch = false;
+
+	int i;
+
+	for( i = 0; i < staticFontInfoVGUIDar.getCount(); ++i )
+	{
+		if( font->getId() == staticFontInfoVGUIDar[ i ]->id )
+		{
+			staticFontInfoVGUI = staticFontInfoVGUIDar[ i ];
+
+			if( staticFontInfoVGUI->contextCount == staticContextCount )
+			{
+				bMatch = true;
+				break;
+			}
+		}
+	}
+
+	if( staticFontInfoVGUI )
+	{
+		//if we don't match, the font needs updating
+		//TODO: this leaks GPU texture memory because old ones aren't freed - Solokiller
+		if( bMatch )
+			return;
+	}
+	else
+	{
+		staticFontInfoVGUI = new FontInfoVGUI;
+
+		memset( staticFontInfoVGUI, 0, sizeof( *staticFontInfoVGUI ) );
+
+		staticFontInfoVGUI->contextCount = -1;
+
+		staticFontInfoVGUI->id = font->getId();
+
+		staticFontInfoVGUIDar.addElement( staticFontInfoVGUI );
+	}
+
+	staticFontInfoVGUI->contextCount = staticContextCount;
+
+	memset( staticRGBA, 0, sizeof( staticRGBA ) );
+
+	int abcA, abcB, abcC;
+
+	int iX = 0;
+	int iY = 0;
+
+	int currentPage = 0;
+
+	for( int ch = 0; ch < 256; ++ch )
+	{
+		staticFont->getCharABCwide( ch, abcA, abcB, abcC );
+
+		//On Linux, use the font's width instead
+#ifndef WIN32
+		auto wide = font->getWide();
+#else
+		auto wide = abcB;
+#endif
+
+		if( isprint( ch ) )
+		{
+			auto tall = staticFont->getTall();
+
+			if( iX + wide >= FONT_PAGE_SIZE )
+			{
+				iX = 0;
+				iY += tall + 1;
+			}
+
+			if( iY + tall >= FONT_PAGE_SIZE )
+			{
+				//Out of space in this page, upload and allocate next
+				if( !staticFontInfoVGUI->bindIndex[ currentPage ] )
+				{
+					staticFontInfoVGUI->bindIndex[ currentPage ] = createNewTextureID();
+				}
+
+				drawSetTextureRGBA( staticFontInfoVGUI->bindIndex[ currentPage ], reinterpret_cast<const char*>( staticRGBA ), FONT_PAGE_SIZE, FONT_PAGE_SIZE );
+
+				++currentPage;
+
+				iX = 0;
+				iY = 0;
+
+				memset( staticRGBA, 0, sizeof( staticRGBA ) );
+			}
+			else
+			{
+				tall += iY;
+			}
+
+			if( currentPage == FONT_MAX_PAGES )
+				break;
+
+			staticFont->getCharRGBA( ch, iX, iY, FONT_PAGE_SIZE, FONT_PAGE_SIZE, staticRGBA );
+
+			staticFontInfoVGUI->pageForChar[ ch ] = currentPage;
+
+			staticFontInfoVGUI->texCoord[ ch ][ 0 ] = iX / static_cast<float>( FONT_PAGE_SIZE );
+			staticFontInfoVGUI->texCoord[ ch ][ 1 ] = iY / static_cast<float>( FONT_PAGE_SIZE );
+			staticFontInfoVGUI->texCoord[ ch ][ 2 ] = ( iX + wide ) / static_cast<float>( FONT_PAGE_SIZE );
+			staticFontInfoVGUI->texCoord[ ch ][ 3 ] = tall / static_cast<float>( FONT_PAGE_SIZE );
+
+			iX += wide + 1;
+		}
+	}
+
+	//Make sure the last page is uploaded.
+	if( !staticFontInfoVGUI->bindIndex[ currentPage ] )
+	{
+		staticFontInfoVGUI->bindIndex[ currentPage ] = createNewTextureID();
+	}
+
+	drawSetTextureRGBA( staticFontInfoVGUI->bindIndex[ currentPage ], reinterpret_cast<const char*>( staticRGBA ), FONT_PAGE_SIZE, FONT_PAGE_SIZE );
+
+	//This can be 9 if we've previously filled up 8 pages.
+	++currentPage;
+
+	staticFontInfoVGUI->pageCount = currentPage;
 }
 
 void EngineSurfaceWrap::drawSetTextColor( int r, int g, int b, int a )
@@ -195,7 +328,46 @@ void EngineSurfaceWrap::drawSetTextPos( int x, int y )
 
 void EngineSurfaceWrap::drawPrintText( const char* text, int textLen )
 {
-	//TODO: implement - Solokiller
+	if( text && staticFont && staticFontInfoVGUI )
+	{
+		int iX, iY;
+		drawGetTextPos( iX, iY );
+
+		auto tall = staticFont->getTall();
+
+		int a, b, c;
+
+		for( int i = 0; i < textLen; ++i )
+		{
+			const auto ch = text[ i ];
+
+			staticFont->getCharABCwide( ch, a, b, c );
+
+			iX += a;
+
+			//On Linux, use the font's width instead
+#ifndef WIN32
+			auto wide = font->getWide();
+#else
+			auto wide = b;
+#endif
+
+			drawSetTexture( staticFontInfoVGUI->bindIndex[ staticFontInfoVGUI->pageForChar[ ch ] ] );
+
+			//TODO: not 100% sure this isn't supposed to be *Add - Solokiller
+			drawPrintChar(
+				iX, iY, wide, tall,
+				staticFontInfoVGUI->texCoord[ ch ][ 0 ],
+				staticFontInfoVGUI->texCoord[ ch ][ 1 ],
+				staticFontInfoVGUI->texCoord[ ch ][ 2 ],
+				staticFontInfoVGUI->texCoord[ ch ][ 3 ]
+			);
+
+			iX += wide + c;
+		}
+
+		drawSetTextPos( iX, iY );
+	}
 }
 
 void EngineSurfaceWrap::drawSetTextureRGBA( int id, const char* rgba, int wide, int tall )
@@ -481,7 +653,6 @@ void EngineSurfaceWrap::AppHandler( void* event, void* userData )
 		default: break;
 		}
 	}
-	//TODO: implement - Solokiller
 }
 
 void EngineSurfaceWrap::lockCursor()

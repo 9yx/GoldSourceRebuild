@@ -3,6 +3,7 @@
 
 #include <VGUI_BitmapTGA.h>
 #include <VGUI_SurfaceBase.h>
+#include <vgui/ISurface.h>
 
 class IEngineSurface;
 
