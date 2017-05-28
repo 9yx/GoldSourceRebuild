@@ -180,6 +180,8 @@ add_sources(
 	info.h
 	keys.cpp
 	keys.h
+	LoadBlob.cpp
+	LoadBlob.h
 	mathlib.cpp
 	mathlib.h
 	mem.cpp
