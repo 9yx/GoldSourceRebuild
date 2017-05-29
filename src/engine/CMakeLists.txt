@@ -48,6 +48,7 @@ add_sources(
 	${SRC_DIR}/common/particledef.h
 	${SRC_DIR}/common/pmtrace.h
 	${SRC_DIR}/common/r_efx.h
+	${SRC_DIR}/common/r_studioint.h
 	${SRC_DIR}/common/ref_params.h
 	${SRC_DIR}/common/screenfade.h
 	${SRC_DIR}/common/Sequence.h
@@ -153,6 +154,7 @@ add_sources(
 	gl_draw.cpp
 	gl_draw.h
 	gl_model.cpp
+	gl_model.h
 	gl_rmain.cpp
 	gl_rmain.h
 	gl_rmisc.cpp
@@ -222,11 +224,14 @@ add_sources(
 	snd_dma.cpp
 	snd_mix.cpp
 	snd_sdl.cpp
+	spritegn.h
 	studio.h
 	sv_log.cpp
 	sv_log.h
 	sv_main.cpp
 	sv_main.h
+	sv_phys.cpp
+	sv_phys.h
 	sv_steam3.cpp
 	sv_steam3.h
 	sys.h

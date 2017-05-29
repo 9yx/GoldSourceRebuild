@@ -33,6 +33,7 @@ float scr_centertime_start = 0;
 char scr_centerstring[ 1024 ] = {};
 
 float scr_con_current = 0;
+float scr_fov_value = 90;
 
 bool scr_copytop = false;
 bool scr_copyeverything = false;

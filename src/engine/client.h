@@ -138,6 +138,33 @@ struct client_static_t
 	int build_num;
 };
 
+struct frame_t
+{
+	double receivedtime;
+	double latency;
+
+	qboolean invalid;
+	qboolean choked;
+
+	entity_state_t playerstate[ MAX_CLIENTS ];
+
+	double time;
+	clientdata_t clientdata;
+	weapon_data_t weapondata[ 64 ];
+	packet_entities_t packet_entities;
+
+	unsigned short clientbytes;
+	unsigned short playerinfobytes;
+	unsigned short packetentitybytes;
+	unsigned short tentitybytes;
+	unsigned short soundbytes;
+	unsigned short eventbytes;
+	unsigned short usrbytes;
+	unsigned short voicebytes;
+	unsigned short msgbytes;
+};
+
+
 struct client_state_t
 {
 	//TODO: verify contents - Solokiller
@@ -197,9 +224,8 @@ struct client_state_t
 	double time;
 	double oldtime;
 
-	/*
 	frame_t frames[ 64 ];
-
+	/*
 	cmd_t commands[ 64 ];
 
 	local_state_t predicted_frames[ 64 ];

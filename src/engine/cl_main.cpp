@@ -35,6 +35,7 @@ cvar_t cl_mousegrab = { "cl_mousegrab", "1", FCVAR_ARCHIVE };
 cvar_t m_rawinput = { "m_rawinput", "1", FCVAR_ARCHIVE };
 cvar_t rate = { "rate", "30000", FCVAR_USERINFO };
 cvar_t fs_perf_warnings = { "fs_perf_warnings", "0" };
+cvar_t cl_lw = { "cl_lw", "1", FCVAR_ARCHIVE | FCVAR_USERINFO };
 
 void CL_ShutDownClientStatic()
 {
@@ -50,6 +51,7 @@ void CL_Init()
 {
 	//TODO: implement - Solokiller
 	Cvar_RegisterVariable( &rate );
+	Cvar_RegisterVariable( &cl_lw );
 	Cvar_RegisterVariable( &cl_mousegrab );
 	Cvar_RegisterVariable( &m_rawinput );
 }

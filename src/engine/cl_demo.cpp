@@ -31,3 +31,13 @@ void CL_WriteClientDLLMessage( int size, byte* buf )
 {
 	//TODO: implement - Solokiller
 }
+
+void CL_WriteDLLUpdate( client_data_t* cdat )
+{
+	//TODO: implement - Solokiller
+}
+
+void CL_DemoAnim( int anim, int body )
+{
+	//TODO: implement - Solokiller
+}

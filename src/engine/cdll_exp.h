@@ -169,4 +169,6 @@ const char* LocalPlayerInfo_ValueForKey( const char* key );
 
 cmdalias_t* GetAliasesList();
 
+void ClientDLL_DemoUpdateClientData( client_data_t* cdat );
+
 #endif //ENGINE_CDLL_EXP_H

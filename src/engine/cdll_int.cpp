@@ -7,6 +7,7 @@
 #include "client.h"
 #include "cl_demo.h"
 #include "cl_draw.h"
+#include "cl_main.h"
 #include "cl_parsefn.h"
 #include "cl_spectator.h"
 #include "cdll_int.h"
@@ -14,6 +15,7 @@
 #include "eiface.h"
 #include "eventapi.h"
 #include "gl_draw.h"
+#include "gl_screen.h"
 #include "gl_vidnt.h"
 #include "kbutton.h"
 #include "net_api_int.h"
@@ -21,9 +23,12 @@
 #include "pr_cmds.h"
 #include "qgl.h"
 #include "r_efx.h"
+#include "r_studio.h"
 #include "r_triangle.h"
 #include "Sequence.h"
 #include "sound.h"
+#include "sv_phys.h"
+#include "sys_getmodes.h"
 #include "tmessage.h"
 #include "vgui_int.h"
 #include "view.h"
@@ -187,6 +192,142 @@ void ClientDLL_Shutdown()
 	//TODO: implement - Solokiller
 }
 
+//Obsolete function used to call blob dummy functions
+int NCallDummy( int ijump, int cnArg, ... )
+{
+	return 0;
+}
+
+void ClientDLL_CheckStudioInterface( CSysModule* hClientDLL )
+{
+	R_ResetStudio();
+
+	if( fClientLoaded )
+	{
+		//TODO: doesn't seem to actually be used - Solokiller
+		Sys_GetProcAddress( hClientDLL, "HUD_GetStudioModelInterface" );
+
+		if( cl_funcs.pStudioInterface )
+		{
+			if( !cl_funcs.pStudioInterface( STUDIO_INTERFACE_VERSION, &pStudioAPI, &engine_studio_api ) )
+			{
+				Con_DPrintf( "Couldn't get client .dll studio model rendering interface.  Version mismatch?\n" );
+				R_ResetStudio();
+			}
+		}
+	}
+}
+
+void ClientDLL_HudInit()
+{
+	if( !cl_funcs.pHudInitFunc )
+		Sys_Error( "../engine/cdll_int.c, line %d: could not link client DLL for HUD initialization", __LINE__ );
+	
+	cl_funcs.pHudInitFunc();
+
+	ClientDLL_CheckStudioInterface( hClientDLL );
+
+	cl_righthand = Cvar_FindVar( "cl_righthand" );
+}
+
+void ClientDLL_HudVidInit()
+{
+	if( !cl_funcs.pHudVidInitFunc )
+		Sys_Error( "../engine/cdll_int.c, line %d: could not link client DLL for HUD Vid initialization", __LINE__ );
+	
+	SPR_Init();
+
+	cl_funcs.pHudVidInitFunc();
+}
+
+void ClientDLL_UpdateClientData()
+{
+	if( cls.state == ca_active && !cls.demoplayback )
+	{
+		client_data_t cdat;
+		Q_memset( &cdat, 0, sizeof( cdat ) );
+
+		cdat.viewangles[ 0 ] = cl.viewangles[ 0 ];
+		cdat.viewangles[ 1 ] = cl.viewangles[ 1 ];
+		cdat.viewangles[ 2 ] = cl.viewangles[ 2 ];
+
+		auto pViewEnt = &cl_entities[ cl.viewentity ];
+
+		cdat.origin[ 0 ] = pViewEnt->origin[ 0 ];
+		cdat.origin[ 1 ] = pViewEnt->origin[ 1 ];
+		cdat.origin[ 2 ] = pViewEnt->origin[ 2 ];
+
+		cdat.fov = scr_fov_value;
+		cdat.iWeaponBits = cl.weapons;
+
+		client_data_t oldcdat;
+
+		if( cls.demorecording )
+		{
+			memcpy( &oldcdat, &cdat, sizeof( oldcdat ) );
+		}
+
+		if( cl_funcs.pHudUpdateClientDataFunc )
+		{
+			if( cl_funcs.pHudUpdateClientDataFunc( &cdat, cl.time ) )
+			{
+				cl.viewangles[ 0 ] = cdat.viewangles[ 0 ];
+				cl.viewangles[ 1 ] = cdat.viewangles[ 1 ];
+				cl.viewangles[ 2 ] = cdat.viewangles[ 2 ];
+				scr_fov_value = cdat.fov;
+			}
+		}
+
+		if( cls.demorecording )
+			CL_WriteDLLUpdate( &oldcdat );
+	}
+}
+
+void ClientDLL_Frame( double time )
+{
+	if( fClientLoaded )
+	{
+		if( cl_funcs.pHudFrame )
+			cl_funcs.pHudFrame( time );
+	}
+}
+
+void ClientDLL_HudRedraw( int intermission )
+{
+	if( !VGuiWrap2_IsGameUIVisible() )
+	{
+		if( cl_funcs.pHudRedrawFunc )
+		{
+			cl_funcs.pHudRedrawFunc( cl.time, intermission );
+		}
+	}
+}
+
+void ClientDLL_MoveClient( playermove_t* ppmove )
+{
+	if( cl_funcs.pClientMove )
+		cl_funcs.pClientMove( ppmove, false );
+}
+
+void ClientDLL_ClientMoveInit( playermove_t* ppmove )
+{
+	if( cl_funcs.pClientMoveInit )
+		cl_funcs.pClientMoveInit( ppmove );
+}
+
+char ClientDLL_ClientTextureType( char* name )
+{
+	if( cl_funcs.pClientTextureType )
+		return cl_funcs.pClientTextureType( name );
+
+	return 0;
+}
+
+void ClientDLL_CreateMove( float frametime, usercmd_t* cmd, int active )
+{
+	if( cl_funcs.pCL_CreateMove )
+		cl_funcs.pCL_CreateMove( frametime, cmd, active );
+}
 
 void ClientDLL_ActivateMouse()
 {
@@ -224,6 +365,132 @@ void ClientDLL_ClearStates()
 	}
 }
 
+int ClientDLL_IsThirdPerson()
+{
+	if( cl_funcs.pCL_IsThirdPerson )
+		return cl_funcs.pCL_IsThirdPerson();
+	
+	return 0;
+}
+
+void ClientDLL_GetCameraOffsets( float* ofs )
+{
+	if( cl_funcs.pCL_GetCameraOffsets )
+		cl_funcs.pCL_GetCameraOffsets( ofs );
+}
+
+kbutton_t* ClientDLL_FindKey( const char* name )
+{
+	if( !cl_funcs.pFindKey )
+		return nullptr;
+
+	return cl_funcs.pFindKey( name );
+}
+
+void ClientDLL_CAM_Think()
+{
+	if( cls.state < 0 || cls.state > ca_disconnected )
+	{
+		if( cl_funcs.pCamThink )
+			cl_funcs.pCamThink();
+	}
+}
+
+void ClientDLL_IN_Accumulate()
+{
+	if( fClientLoaded )
+	{
+		if( cl_funcs.pIN_Accumulate )
+			cl_funcs.pIN_Accumulate();
+	}
+}
+
+void ClientDLL_CalcRefdef( ref_params_t* pparams )
+{
+	if( cl_funcs.pCalcRefdef )
+		cl_funcs.pCalcRefdef( pparams );
+}
+
+void ClientDLL_CreateEntities()
+{
+	if( cl_funcs.pCreateEntities )
+		cl_funcs.pCreateEntities();
+}
+
+void ClientDLL_DrawNormalTriangles()
+{
+	if( cl_funcs.pDrawNormalTriangles )
+		cl_funcs.pDrawNormalTriangles();
+
+	tri.RenderMode( kRenderNormal );
+}
+
+void ClientDLL_DrawTransparentTriangles()
+{
+	if( cl_funcs.pDrawTransparentTriangles )
+		cl_funcs.pDrawTransparentTriangles();
+
+	tri.RenderMode( kRenderNormal );
+}
+
+void ClientDLL_StudioEvent( const mstudioevent_t* event, const cl_entity_t* entity )
+{
+	if( cl_funcs.pStudioEvent )
+		cl_funcs.pStudioEvent( event, entity );
+}
+
+void ClientDLL_PostRunCmd( local_state_t* from, local_state_t* to, usercmd_t* cmd, int runfuncs, double time, unsigned int random_seed )
+{
+	if( cl_funcs.pPostRunCmd )
+	{
+		cl_funcs.pPostRunCmd( from, to, cmd, runfuncs, time, random_seed );
+	}
+	else if( cl_lw.value )
+	{
+		Cvar_SetValue( "cl_lw", 0.0 );
+	}
+}
+
+void ClientDLL_TxferLocalOverrides( entity_state_t* state, const clientdata_t* client )
+{
+	if( cl_funcs.pTxferLocalOverrides )
+		cl_funcs.pTxferLocalOverrides( state, client );
+}
+
+void ClientDLL_ProcessPlayerState( entity_state_t* dst, const entity_state_t* src )
+{
+	if( cl_funcs.pProcessPlayerState )
+		cl_funcs.pProcessPlayerState( dst, src );
+}
+
+void ClientDLL_TxferPredictionData( entity_state_t* ps, const entity_state_t* pps, clientdata_t* pcd, const clientdata_t* ppcd, weapon_data_t* wd, const weapon_data_t* pwd )
+{
+	if( cl_funcs.pTxferPredictionData )
+		cl_funcs.pTxferPredictionData( ps, pps, pcd, ppcd, wd, pwd );
+}
+
+void ClientDLL_ReadDemoBuffer( int size, unsigned char* buffer )
+{
+	if( cl_funcs.pReadDemoBuffer )
+		cl_funcs.pReadDemoBuffer( size, buffer );
+}
+
+int ClientDLL_ConnectionlessPacket( const netadr_t* net_from, const char* args, char* response_buffer, int* response_buffer_size )
+{
+	if( cl_funcs.pConnectionlessPacket )
+		return cl_funcs.pConnectionlessPacket( net_from, args, response_buffer, response_buffer_size );
+
+	return 0;
+}
+
+int ClientDLL_GetHullBounds( int hullnumber, float* mins, float* maxs )
+{
+	if( cl_funcs.pGetHullBounds )
+		return cl_funcs.pGetHullBounds( hullnumber, mins, maxs );
+
+	return 0;
+}
+
 int ClientDLL_Key_Event( int down, int keynum, const char* pszCurrentBinding )
 {
 	if( !VGui_Key_Event( down, keynum, pszCurrentBinding ) )
@@ -235,12 +502,30 @@ int ClientDLL_Key_Event( int down, int keynum, const char* pszCurrentBinding )
 	return cl_funcs.pKeyEvent( down, keynum, pszCurrentBinding ) != 0;
 }
 
-kbutton_t* ClientDLL_FindKey( const char* name )
+void ClientDLL_TempEntUpdate( double ft, double ct, double grav, TEMPENTITY** ppFreeTE, TEMPENTITY** ppActiveTE, int( *addTEntity )( cl_entity_t* pEntity ), void( *playTESound )( TEMPENTITY* pTemp, float damp ) )
 {
-	if( !cl_funcs.pFindKey )
-		return nullptr;
+	if( cl_funcs.pTempEntUpdate )
+		cl_funcs.pTempEntUpdate( ft, ct, grav, ppFreeTE, ppActiveTE, addTEntity, playTESound );
+}
 
-	return cl_funcs.pFindKey( name );
+cl_entity_t* ClientDLL_GetUserEntity( int index )
+{
+	if( cl_funcs.pGetUserEntity )
+		return cl_funcs.pGetUserEntity( index );
+
+	return nullptr;
+}
+
+void ClientDLL_VoiceStatus( int entindex, qboolean bTalking )
+{
+	if( cl_funcs.pVoiceStatus )
+		cl_funcs.pVoiceStatus( entindex, bTalking );
+}
+
+void ClientDLL_DirectorMessage( int iSize, void* pbuf )
+{
+	if( cl_funcs.pDirectorMessage )
+		cl_funcs.pDirectorMessage( iSize, pbuf );
 }
 
 void ClientDLL_ChatInputPosition( int* x, int* y )
@@ -266,70 +551,119 @@ int hudCenterY()
 void hudGetViewAngles( float* va )
 {
 	//TODO: implement - Solokiller
+	//g_engdstAddrs.GetViewAngles();
+
+	va[ 0 ] = cl.viewangles[ 0 ];
+	va[ 1 ] = cl.viewangles[ 1 ];
+	va[ 2 ] = cl.viewangles[ 2 ];
 }
 
 void hudSetViewAngles( float* va )
 {
 	//TODO: implement - Solokiller
+	//g_engdstAddrs.SetViewAngles();
+
+	cl.viewangles[ 0 ] = va[ 0 ];
+	cl.viewangles[ 1 ] = va[ 1 ];
+	cl.viewangles[ 2 ] = va[ 2 ];
 }
 
 int hudGetMaxClients()
 {
 	//TODO: implement - Solokiller
-	return 0;
+	g_engdstAddrs.GetMaxClients();
+
+	return cl.maxclients;
 }
 
 const char* hudPhysInfo_ValueForKey( const char* key )
 {
 	//TODO: implement - Solokiller
-	return "";
+	//g_engdstAddrs.PhysInfo_ValueForKey();
+
+	return Info_ValueForKey( cls.physinfo, key );
 }
 
 const char* hudServerInfo_ValueForKey( const char* key )
 {
 	//TODO: implement - Solokiller
-	return "";
+	//g_engdstAddrs.PhysInfo_ValueForKey();
+	return Info_ValueForKey( cls.physinfo, key );
 }
 
 float hudGetClientMaxspeed()
 {
 	//TODO: implement - Solokiller
-	return 0;
+	//g_engdstAddrs.GetClientMaxspeed();
+
+	return cl.maxspeed;
 }
 
 void hudGetMousePosition( int* mx, int* my )
 {
 	//TODO: implement - Solokiller
+	//g_engdstAddrs.GetMousePosition();
+
+	SDL_GetMouseState( mx, my );
+
+	if( !VideoMode_IsWindowed() )
+	{
+		int wW, wT;
+		SDL_GetWindowSize( pmainwindow, &wW, &wT );
+
+		int vW, vT;
+		VideoMode_GetCurrentVideoMode( &vW, &vT, nullptr );
+
+		*mx = static_cast<int>( *mx * ( static_cast<double>( vW ) / wW ) );
+		*my = static_cast<int>( *my * ( static_cast<double>( vT ) / wT ) );
+
+		*mx = static_cast<int>( *mx + static_cast<double>( *mx - vW / 2 ) * ( GetXMouseAspectRatioAdjustment() - 1.0 ) );
+		*my = static_cast<int>( *my + static_cast<double>( *my - vT / 2 ) * ( GetYMouseAspectRatioAdjustment() - 1.0 ) );
+	}
 }
 
 int hudIsNoClipping()
 {
 	//TODO: implement - Solokiller
-	return false;
+	//g_engdstAddrs.IsNoClipping();
+
+	return cl.frames[ cl.parsecountmod ].playerstate[ cl.playernum ].movetype == MOVETYPE_NOCLIP;
 }
 
 cl_entity_t* hudGetLocalPlayer()
 {
 	//TODO: implement - Solokiller
-	return nullptr;
+	//g_engdstAddrs.GetLocalPlayer();
+
+	//TODO: if cl_entities is null this returns garbage - Solokiller
+	return &cl_entities[ cl.playernum + 1 ];
 }
 
 cl_entity_t* hudGetViewModel()
 {
 	//TODO: implement - Solokiller
-	return nullptr;
+	//g_engdstAddrs.GetViewModel();
+
+	return &cl.viewent;
 }
 
 cl_entity_t* hudGetEntityByIndex( int idx )
 {
 	//TODO: implement - Solokiller
+	//g_engdstAddrs.GetEntityByIndex();
+
+	if( idx >= 0 && idx < cl.max_edicts )
+		return &cl_entities[ idx ];
+
 	return nullptr;
 }
 
 float hudGetClientTime()
 {
 	//TODO: implement - Solokiller
-	return 0;
+	//g_engdstAddrs.GetClientTime();
+
+	return cl.time;
 }
 
 model_t* CL_LoadModel( const char* modelname, int* index )
@@ -368,6 +702,14 @@ void hudPlaybackEvent( int flags, const edict_t* pInvoker, unsigned short eventi
 void hudWeaponAnim( int iAnim, int body )
 {
 	//TODO: implement - Solokiller
+	//g_engdstAddrs.pfnWeaponAnim();
+
+	cl.weaponstarttime = 0;
+	cl.weaponsequence = iAnim;
+	cl.viewent.curstate.body = body;
+
+	if( cls.demorecording )
+		CL_DemoAnim( iAnim, body );
 }
 
 const char* hudGetGameDir()
@@ -377,7 +719,7 @@ const char* hudGetGameDir()
 	return com_gamedir;
 }
 
-const char *hudGetLevelName()
+const char* hudGetLevelName()
 {
 	//TODO: implement - Solokiller
 	//g_engdstAddrs.pfnGetLevelName();
@@ -385,19 +727,23 @@ const char *hudGetLevelName()
 	if( cls.state < ca_connected )
 		return "";
 
-	//TODO: implement - Solokiller
-	return "";
-	//return cl.levelname;
+	return cl.levelname;
 }
 
 void hudGetScreenFade( screenfade_t* fade )
 {
 	//TODO: implement - Solokiller
+	//g_engdstAddrs.pfnGetScreenFade();
+
+	*fade = cl.sf;
 }
 
 void hudSetScreenFade( screenfade_t* fade )
 {
 	//TODO: implement - Solokiller
+	//g_engdstAddrs.pfnSetScreenFade();
+
+	cl.sf = *fade;
 }
 
 char* COM_ParseFile( char* data, char* token )
@@ -419,23 +765,70 @@ void COM_AddAppDirectoryToSearchPath( const char* pszBaseDir, const char* appNam
 int ClientDLL_ExpandFileName( const char* fileName, char* nameOutBuffer, int nameOutBufferSize )
 {
 	//TODO: implement - Solokiller
+	//g_engdstAddrs.COM_ExpandFilename();
+
+	char buf[ 512 ];
+	Q_strncpy( buf, fileName, ARRAYSIZE( buf ) );
+
+	if( COM_ExpandFilename( buf ) )
+	{
+		COM_FixSlashes( buf );
+		Q_strncpy( nameOutBuffer, buf, nameOutBufferSize );
+		nameOutBuffer[ nameOutBufferSize - 1 ] = '\0';
+		return true;
+	}
+
 	return false;
 }
 
 const char* PlayerInfo_ValueForKey( int playerNum, const char* key )
 {
 	//TODO: implement - Solokiller
-	return "";
+	//g_engdstAddrs.PlayerInfo_ValueForKey();
+
+	if( cl.maxclients >= playerNum && playerNum > 0 )
+	{
+		if( cl.players[ playerNum - 1 ].name[ 0 ] )
+			return Info_ValueForKey( cl.players[ playerNum - 1 ].userinfo, key );
+	}
+
+	return nullptr;
 }
 
 void PlayerInfo_SetValueForKey( const char* key, const char* value )
 {
-	//TODO: implement - Solokiller
+	if( strcmp( Info_ValueForKey( cls.userinfo, key ), value ) )
+	{
+		//TODO: implement - Solokiller
+		//g_engdstAddrs.PlayerInfo_SetValueForKey();
+
+		Info_SetValueForStarKey( cls.userinfo, key, value, MAX_INFO_STRING );
+
+		if( cls.state > ca_connecting )
+		{
+			//TODO: implement - Solokiller
+			/*
+			MSG_WriteByte( &cls.netchan.message, 3 );
+			SZ_Print( &cls.netchan.message, va( "setinfo \"%s\" \"%s\"\n", key, value ) );
+			*/
+		}
+	}
 }
 
 qboolean GetPlayerUniqueID( int iPlayer, char* playerID )
 {
 	//TODO: implement - Solokiller
+	//g_engdstAddrs.GetPlayerUniqueID();
+
+	if( iPlayer >= 0 && iPlayer < cl.maxclients )
+	{
+		if( cl.players[ iPlayer ].userinfo[ 0 ] && cl.players[ iPlayer ].name[ 0 ] )
+		{
+			strncpy( playerID, cl.players[ iPlayer ].hashedcdkey, 16 );
+			return true;
+		}
+	}
+
 	return false;
 }
 
@@ -455,11 +848,36 @@ int GetPlayerForTrackerID( int trackerID )
 void SDL_GetMousePos( POINT* ppt )
 {
 	//TODO: implement - Solokiller
+	//g_engdstAddrs.pfnGetMousePos();
+
+	//TODO: this code is all over the place, consider refactoring - Solokiller
+
+	int x, y;
+
+	SDL_GetMouseState( &x, &y );
+
+	if( !VideoMode_IsWindowed() )
+	{
+		int wW, wT;
+		SDL_GetWindowSize( pmainwindow, &wW, &wT );
+
+		int vW, vT;
+		VideoMode_GetCurrentVideoMode( &vW, &vT, nullptr );
+
+		x = static_cast<int>( x * ( static_cast<double>( vW ) / wW ) );
+		y = static_cast<int>( y * ( static_cast<double>( vT ) / wT ) );
+
+		x = static_cast<int>( x + static_cast<double>( x - vW / 2 ) * ( GetXMouseAspectRatioAdjustment() - 1.0 ) );
+		y = static_cast<int>( y + static_cast<double>( y - vT / 2 ) * ( GetYMouseAspectRatioAdjustment() - 1.0 ) );
+	}
+
+	ppt->x = x;
+	ppt->y = y;
 }
 
 void SDL_SetMousePos( int x, int y )
 {
-	//TODO: implement - Solokiller
+	SDL_WarpMouseInWindow( pmainwindow, x, y );
 }
 
 cvar_t* GetFirstCVarPtr()
@@ -484,14 +902,12 @@ const char* GetCmdFunctionName( unsigned int cmdhandle )
 
 float hudGetClientOldTime()
 {
-	//TODO: implement - Solokiller
-	return 0;
+	return cl.oldtime;
 }
 
 float hudGetServerGravityValue()
 {
-	//TODO: implement - Solokiller
-	return 0;
+	return sv_gravity.value;
 }
 
 model_t* hudGetModelByIndex( const int index )
@@ -503,10 +919,30 @@ model_t* hudGetModelByIndex( const int index )
 const char* LocalPlayerInfo_ValueForKey( const char* key )
 {
 	//TODO: implement - Solokiller
-	return "";
+	//g_engdstAddrs.LocalPlayerInfo_ValueForKey();
+
+	return Info_ValueForKey( cls.userinfo, key );
 }
 
 cmdalias_t* GetAliasesList()
 {
 	return Cmd_GetAliasesList();
+}
+
+void ClientDLL_DemoUpdateClientData( client_data_t* cdat )
+{
+	if( cl_funcs.pHudUpdateClientDataFunc )
+	{
+		if( cl_funcs.pHudUpdateClientDataFunc( cdat, cl.time ) )
+		{
+			if( !cls.spectator )
+			{
+				cl.viewangles[ 0 ] = cdat->viewangles[ 0 ];
+				cl.viewangles[ 1 ] = cdat->viewangles[ 1 ];
+				cl.viewangles[ 2 ] = cdat->viewangles[ 2 ];
+
+				scr_fov_value = cdat->fov;
+			}
+		}
+	}
 }

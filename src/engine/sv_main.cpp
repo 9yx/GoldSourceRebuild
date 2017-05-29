@@ -3,6 +3,7 @@
 #include "client.h"
 #include "modinfo.h"
 #include "sv_main.h"
+#include "sv_phys.h"
 #include "server.h"
 
 server_static_t svs;
@@ -240,6 +241,8 @@ void SV_ServerShutdown()
 
 void SV_Init()
 {
+	//TODO: implement - Solokiller
+	Cvar_RegisterVariable( &sv_gravity );
 	//TODO: implement - Solokiller
 	Cvar_RegisterVariable( &mapcyclefile );
 	//TODO: implement - Solokiller

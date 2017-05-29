@@ -8,6 +8,7 @@ extern cl_entity_t* cl_entities;
 
 extern float g_LastScreenUpdateTime;
 
+extern cvar_t cl_lw;
 extern cvar_t fs_perf_warnings;
 
 dlight_t* CL_AllocDlight( int key );

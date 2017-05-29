@@ -1,6 +1,15 @@
 #ifndef ENGINE_CL_DRAW_H
 #define ENGINE_CL_DRAW_H
 
+struct SPRITELIST
+{
+	model_t* pSprite;
+	char* pName;
+	int frameCount;
+};
+
+void SPR_Init();
+
 HSPRITE SPR_Load( const char* pTextureName );
 
 int SPR_Frames( HSPRITE hSprite );

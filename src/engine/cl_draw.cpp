@@ -1,6 +1,26 @@
 #include "quakedef.h"
 #include "client.h"
 #include "cl_draw.h"
+#include "gl_model.h"
+
+#define SPR_MAX_SPRITES 256
+
+HSPRITE ghCrosshair = 0;
+static msprite_t* gpSprite = nullptr;
+
+static int gSpriteCount = 0;
+static SPRITELIST* gSpriteList = nullptr;
+
+void SPR_Init()
+{
+	if( !gSpriteList )
+	{
+		ghCrosshair = 0;
+		gSpriteCount = SPR_MAX_SPRITES;
+		gSpriteList = reinterpret_cast<SPRITELIST*>( Mem_ZeroMalloc( SPR_MAX_SPRITES * sizeof( SPRITELIST ) ) );
+		gpSprite = nullptr;
+	}
+}
 
 HSPRITE SPR_Load( const char* pTextureName )
 {

@@ -6,6 +6,7 @@
 extern int clearnotify;
 
 extern float scr_con_current;
+extern float scr_fov_value;
 
 extern bool scr_copytop;
 
