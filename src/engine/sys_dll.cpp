@@ -20,6 +20,7 @@
 #include "winheaders.h"
 #else
 #error
+#include <dlfcn.h>
 #include <unistd.h>
 #endif
 
@@ -203,6 +204,36 @@ FIELDIOFUNCTION GetIOFunction( const char* pName )
 	for( int i = 0; i < g_iextdllMac; ++i )
 	{
 		result = reinterpret_cast<FIELDIOFUNCTION>( Sys_GetProcAddress( g_rgextdll[ i ].pDLLHandle, pName ) );
+
+		if( result )
+			break;
+	}
+
+	return result;
+}
+
+DISPATCHFUNCTION GetDispatch( const char* pname )
+{
+	DISPATCHFUNCTION result = nullptr;
+
+	for( int i = 0; i < g_iextdllMac; ++i )
+	{
+		result = reinterpret_cast<DISPATCHFUNCTION>( Sys_GetProcAddress( g_rgextdll[ i ].pDLLHandle, pname ) );
+
+		if( result )
+			break;
+	}
+
+	return result;
+}
+
+ENTITYINIT GetEntityInit( const char* pClassName )
+{
+	ENTITYINIT result = nullptr;
+
+	for( int i = 0; i < g_iextdllMac; ++i )
+	{
+		result = reinterpret_cast<ENTITYINIT>( Sys_GetProcAddress( g_rgextdll[ i ].pDLLHandle, pClassName ) );
 
 		if( result )
 			break;
@@ -958,4 +989,216 @@ void AlertMessage( ALERT_TYPE atype, const char* szFmt, ... )
 void EngineFprintf()
 {
 	AlertMessage( at_console, "EngineFprintf:  Obsolete API\n" );
+}
+
+//Used to fix up function names for saved games saved on another platform
+const char* ConvertNameToLocalPlatform( const char* pchInName )
+{
+	static char s_szNewName[ 512 ];
+
+	char szTempName[ 512 ];
+
+#ifdef WIN32
+	if( strstr( pchInName, "@" ) )
+		return pchInName;
+
+	if( *pchInName != '_' || pchInName[ 1 ] != 'Z' )
+	{
+		return "unknown";
+	}
+
+	strncpy( szTempName, pchInName + 3, ARRAYSIZE( szTempName ) );
+	szTempName[ ARRAYSIZE( szTempName ) - 1 ] = '\0';
+
+	const char* pszEnd = &szTempName[ strlen( szTempName ) ];
+
+	const auto iParamBytes = atoi( szTempName );
+
+	auto pszParams = szTempName;
+
+	while( pszParams < pszEnd && isdigit( *pszParams ) )
+	{
+		++pszParams;
+	}
+
+	auto pszParamEnd = &pszParams[ iParamBytes ];
+
+	const auto iNameBytes = atoi( pszParamEnd );
+
+	*pszParamEnd = '\0';
+
+	auto pszName = pszParamEnd;
+
+	while( pszName < pszEnd && isdigit( *pszName ) )
+	{
+		++pszName;
+	}
+
+	snprintf( s_szNewName, ARRAYSIZE( s_szNewName ), "%s@%s", pszName, pszParams );
+
+	return s_szNewName;
+#else
+	if( *pchInName == '_' && pchInName[ 1 ] == 'Z' )
+		return pchInName;
+
+	if( strchr( pchInName, '@' ) )
+	{
+		strncpy( szTempName, pchInName, ARRAYSIZE( szTempName ) );
+		szTempName[ ARRAYSIZE( szTempName ) - 1 ] = '\0';
+
+		auto pszAt = strchr( szTempName, '@' );
+		auto pszParams = pszAt + 1;
+		*pszAt = '0';
+
+		//Think functions
+		snprintf( s_szNewName, ARRAYSIZE( s_szNewName ), "_ZN%d%s%d%sEv", strlen( pszParams ), pszParams, strlen( szTempName ), szTempName );
+		if( Sys_GetProcAddress( g_rgextdll[ 0 ].pDLLHandle, s_szNewName ) )
+			return s_szNewName;
+
+		//Touch/Blocked functions
+		snprintf( s_szNewName, ARRAYSIZE( s_szNewName ), "_ZN%d%s%d%sEP11CBaseEntity", strlen( pszParams ), pszParams, strlen( szTempName ), szTempName );
+		if( Sys_GetProcAddress( g_rgextdll[ 0 ].pDLLHandle, s_szNewName ) )
+			return s_szNewName;
+
+		//Use functions
+		snprintf( s_szNewName, ARRAYSIZE( s_szNewName ), "_ZN%d%s%d%sEP11CBaseEntityS1_8USE_TYPEf", strlen( pszParams ), pszParams, strlen( szTempName ), szTempName );
+		if( Sys_GetProcAddress( g_rgextdll[ 0 ].pDLLHandle, s_szNewName ) )
+			return s_szNewName;
+	}
+
+	return "unknown";
+#endif
+}
+
+const char* FindAddressInTable( extensiondll_t* pDll, uint32 function )
+{
+#ifdef WIN32
+	for( int i = 0; i < pDll->functionCount; ++i )
+	{
+		if( pDll->functionTable[ i ].pFunction == function )
+			return pDll->functionTable[ i ].pFunctionName;
+	}
+#else
+	Dl_info addrInfo;
+
+	if( dladdr( function, &addrInfo ) )
+		return addrInfo.dli_sname;
+#endif
+
+	return nullptr;
+}
+
+uint32 FindNameInTable( extensiondll_t* pDll, const char* pName )
+{
+#ifdef WIN32
+	for( int i = 0; i < pDll->functionCount; ++i )
+	{
+		if( !Q_strcmp( pName, pDll->functionTable[ i ].pFunctionName ) )
+			return pDll->functionTable[ i ].pFunction;
+	}
+
+	return 0;
+#else
+	return reinterpret_cast<uint32>( dlsym( pDll->pDLLHandle, pName ) );
+#endif
+}
+
+const char* NameForFunction( uint32 function )
+{
+	const char* pszName = nullptr;
+
+	for( int i = 0; i < g_iextdllMac; ++i )
+	{
+		pszName = FindAddressInTable( &g_rgextdll[ i ], function );
+
+		if( pszName )
+			return pszName;
+	}
+
+	Con_Printf( "Can't find address: %08lx\n", function );
+
+	return nullptr;
+}
+
+uint32 FunctionFromName( const char* pName )
+{
+	const char* pszName = ConvertNameToLocalPlatform( pName );
+
+	uint32 function = 0;
+
+	for( int i = 0; i < g_iextdllMac; ++i )
+	{
+		function = FindNameInTable( &g_rgextdll[ i ], pszName );
+
+		if( function )
+			return function;
+	}
+
+	Con_Printf( "Can't find proc: %s\n", pszName );
+
+	return 0;
+}
+
+//TODO: check if any of these need to be called somewhere - Solokiller
+void IN_ActivateMouse()
+{
+	ClientDLL_ActivateMouse();
+}
+
+void IN_DeactivateMouse()
+{
+	ClientDLL_DeactivateMouse();
+}
+
+void IN_ClearStates()
+{
+	ClientDLL_ClearStates();
+}
+
+void IN_MouseEvent( int mstate )
+{
+	ClientDLL_MouseEvent( mstate );
+}
+
+qboolean Voice_GetClientListening( int iReceiver, int iSender )
+{
+	const int iSenderIdx = iSender - 1;
+	const int iReceiverIdx = iReceiver - 1;
+
+	if( 0 <= iReceiverIdx && iReceiverIdx < svs.maxclients &&
+		0 <= iSenderIdx && iSenderIdx < svs.maxclients )
+	{
+		return ( ( 1 << iReceiverIdx ) & ( svs.clients[ iSenderIdx ].m_VoiceStreams[ iReceiverIdx / MAX_CLIENTS ] ) ) != 0;
+	}
+
+	return false;
+}
+
+qboolean Voice_SetClientListening( int iReceiver, int iSender, qboolean bListen )
+{
+	const int iSenderIdx = iSender - 1;
+	const int iReceiverIdx = iReceiver - 1;
+
+	if( 0 <= iReceiverIdx && iReceiverIdx < svs.maxclients &&
+		0 <= iSenderIdx && iSenderIdx < svs.maxclients )
+	{
+		auto pStreams = svs.clients[ iSenderIdx ].m_VoiceStreams;
+
+		const auto stream = iReceiverIdx / MAX_CLIENTS;
+
+		const auto bit = 1 << iReceiverIdx;
+
+		if( bListen )
+		{
+			pStreams[ stream ] |= bit;
+		}
+		else
+		{
+			pStreams[ stream ] &= ~bit;
+		}
+
+		return true;
+	}
+
+	return false;
 }
