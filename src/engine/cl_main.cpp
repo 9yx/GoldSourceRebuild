@@ -20,6 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "quakedef.h"
 #include "client.h"
 #include "cl_main.h"
+#include "tmessage.h"
 
 client_static_t cls;
 client_state_t	cl;
@@ -45,15 +46,20 @@ void CL_ShutDownClientStatic()
 void CL_Shutdown()
 {
 	//TODO: implement - Solokiller
+	TextMessageShutdown();
+	//TODO: implement - Solokiller
 }
 
 void CL_Init()
 {
 	//TODO: implement - Solokiller
+	TextMessageInit();
+	//TODO: implement - Solokiller
 	Cvar_RegisterVariable( &rate );
 	Cvar_RegisterVariable( &cl_lw );
 	Cvar_RegisterVariable( &cl_mousegrab );
 	Cvar_RegisterVariable( &m_rawinput );
+	//TODO: implement - Solokiller
 }
 
 dlight_t* CL_AllocDlight( int key )

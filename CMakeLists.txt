@@ -81,6 +81,7 @@ if( COPY_RESOURCES )
 		${GAME_NAME}/language.cfg
 		${GAME_NAME}/liblist.gam
 		${GAME_NAME}/settings.scr
+		${GAME_NAME}/titles.txt
 		${GAME_NAME}/user.scr
 		${GAME_NAME}/valve.rc
 		${GAME_NAME}/cl_dlls/client.dll

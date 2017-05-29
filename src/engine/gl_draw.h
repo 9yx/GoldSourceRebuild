@@ -14,6 +14,8 @@ void Draw_FillRGBA( int x, int y, int w, int h, int r, int g, int b, int a );
 
 int Draw_Character( int x, int y, int num, unsigned int font );
 
+int Draw_MessageCharacterAdd( int x, int y, int num, int rr, int gg, int bb, unsigned int font );
+
 int Draw_String( int x, int y, char* str );
 
 int Draw_StringLen( const char* psz, unsigned int font );

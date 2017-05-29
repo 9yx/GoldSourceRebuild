@@ -1,6 +1,20 @@
 #include "quakedef.h"
 #include "cl_demo.h"
 
+char gDemoMessageBuffer[ 512 ] = {};
+
+client_textmessage_t tm_demomessage =
+{
+	0,
+	255, 255, 255, 255,
+	255, 255, 255, 255,
+	-1, -1,
+	0, 0,
+	0, 0,
+	"__DEMOMESSAGE__",
+	gDemoMessageBuffer
+};
+
 demo_api_t demoapi = 
 {
 	&CL_DemoAPIRecording,

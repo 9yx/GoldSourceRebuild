@@ -40,6 +40,11 @@ int Draw_Character( int x, int y, int num, unsigned int font )
 	return VGUI2_Draw_Character( x, y, num, font );
 }
 
+int Draw_MessageCharacterAdd( int x, int y, int num, int rr, int gg, int bb, unsigned int font )
+{
+	return VGUI2_Draw_CharacterAdd( x, y, num, rr, gg, bb, font );
+}
+
 int Draw_String( int x, int y, char* str )
 {
 	const auto iWidth = VGUI2_DrawString( x, y, str, VGUI2_GetConsoleFont() );

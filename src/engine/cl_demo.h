@@ -4,6 +4,8 @@
 #include "cdll_int.h"
 #include "demo_api.h"
 
+extern client_textmessage_t tm_demomessage;
+
 int CL_DemoAPIRecording();
 
 int CL_DemoAPIPlayback();
