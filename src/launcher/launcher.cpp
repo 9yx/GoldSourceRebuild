@@ -20,6 +20,8 @@
 #include "interface.h"
 #include "IRegistry.h"
 
+//TODO: Linux version doesn't use registry so don't include it - Solokiller
+
 char com_gamedir[ MAX_PATH ] = {};
 
 IFileSystem* g_pFileSystem = nullptr;
