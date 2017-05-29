@@ -237,6 +237,8 @@ add_sources(
 	sv_main.h
 	sv_phys.cpp
 	sv_phys.h
+	sv_secure.cpp
+	sv_secure.h
 	sv_steam3.cpp
 	sv_steam3.h
 	sys.h
