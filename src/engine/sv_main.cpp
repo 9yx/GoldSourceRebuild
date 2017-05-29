@@ -15,6 +15,9 @@ globalvars_t gGlobalVariables = {};
 
 cvar_t mapcyclefile = { "mapcyclefile", "mapcycle.txt" };
 cvar_t servercfgfile = { "servercfgfile", "server.cfg" };
+cvar_t max_queries_sec = { "max_queries_sec", "3.0", FCVAR_PROTECTED | FCVAR_SERVER };
+cvar_t max_queries_sec_global = { "max_queries_sec_global", "30", FCVAR_PROTECTED | FCVAR_SERVER };
+cvar_t max_queries_window = { "max_queries_window", "60", FCVAR_PROTECTED | FCVAR_SERVER };
 
 int SV_UPDATE_BACKUP = 1 << 3;
 int SV_UPDATE_MASK = SV_UPDATE_BACKUP - 1;
@@ -247,6 +250,10 @@ void SV_Init()
 	Cvar_RegisterVariable( &mapcyclefile );
 	//TODO: implement - Solokiller
 	Cvar_RegisterVariable( &servercfgfile );
+	//TODO: implement - Solokiller
+	Cvar_RegisterVariable( &max_queries_sec );
+	Cvar_RegisterVariable( &max_queries_sec_global );
+	Cvar_RegisterVariable( &max_queries_window );
 	//TODO: implement - Solokiller
 }
 

@@ -8,6 +8,10 @@ struct client_frame_t;
 extern cvar_t mapcyclefile;
 extern cvar_t servercfgfile;
 
+extern cvar_t max_queries_sec;
+extern cvar_t max_queries_sec_global;
+extern cvar_t max_queries_window;
+
 AppId_t GetGameAppID();
 
 bool IsGameSubscribed( const char *game );

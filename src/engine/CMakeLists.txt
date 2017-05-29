@@ -180,6 +180,10 @@ add_sources(
 	IGame.h
 	info.cpp
 	info.h
+	ipratelimit.cpp
+	ipratelimit.h
+	ipratelimitWrapper.cpp
+	ipratelimitWrapper.h
 	keys.cpp
 	keys.h
 	LoadBlob.cpp
