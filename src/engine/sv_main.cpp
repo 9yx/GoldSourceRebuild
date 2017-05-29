@@ -335,3 +335,8 @@ void SV_CountPlayers( int* clients )
 		}
 	}
 }
+
+void SV_KickPlayer( int nPlayerSlot, int nReason )
+{
+	//TODO: implement - Solokiller
+}

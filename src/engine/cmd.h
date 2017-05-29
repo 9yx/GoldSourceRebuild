@@ -87,13 +87,13 @@ not apropriate.
 
 typedef void ( *xcommand_t )();
 
-struct cmd_function_t
+typedef struct cmd_function_s
 {
-	cmd_function_t* next;
+	cmd_function_s* next;
 	const char* name;
 	xcommand_t function;
 	int flags;
-};
+} cmd_function_t;
 
 enum cmd_source_t
 {
@@ -130,6 +130,8 @@ typedef struct cmdalias_s cmdalias_t;
 cmdalias_t* Cmd_GetAliasesList();
 
 cmd_function_t* Cmd_GetFirstCmd();
+
+cmd_function_t** Cmd_GetFunctions();
 
 cmd_function_t* Cmd_FindCmd( const char* cmd_name );
 cmd_function_t* Cmd_FindCmdPrev( const char* cmd_name );

@@ -114,7 +114,7 @@ struct client_frame_t
 	packet_entities_t entities;
 };
 
-struct client_t
+typedef struct client_s
 {
 	bool active;						// false = client is free
 	bool spawned;						// false = don't send datagrams
@@ -206,7 +206,7 @@ struct client_t
 	double m_lastvoicetime;				// Last time client voice data was processed on server
 
 	int m_sendrescount;					// Count of times resources sent to client
-};
+} client_t;
 
 /**
 *	log messages are used so that fraglog processes can get stats
@@ -307,7 +307,7 @@ struct server_stats_t
 	float average_latency;
 };
 
-struct server_static_t
+typedef struct server_static_s
 {
 	/**
 	*	Whether the server dll has been loaded and initialized
@@ -363,7 +363,7 @@ struct server_static_t
 	*	TODO: unused? - Solokiller
 	*/
 	bool isSecure;
-};
+} server_static_t;
 
 //============================================================================
 

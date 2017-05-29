@@ -662,3 +662,8 @@ void Host_GetHostInfo( float* fps, int* nActive, int* unused, int* nMaxPlayers, 
 
 	*nMaxPlayers = svs.maxclients;
 }
+
+void SV_DropClient( client_t* cl, qboolean crash, const char* fmt, ... )
+{
+	//TODO: implement - Solokiller
+}

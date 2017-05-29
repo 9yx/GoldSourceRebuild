@@ -545,6 +545,11 @@ cmd_function_t* Cmd_GetFirstCmd()
 	return cmd_functions;
 }
 
+cmd_function_t** Cmd_GetFunctions()
+{
+	return &cmd_functions;
+}
+
 void Cmd_Exec_f();
 
 /*

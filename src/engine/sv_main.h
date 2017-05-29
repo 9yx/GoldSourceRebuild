@@ -37,4 +37,6 @@ void SV_SetMaxclients();
 
 void SV_CountPlayers( int* clients );
 
+void SV_KickPlayer( int nPlayerSlot, int nReason );
+
 #endif //ENGINE_SV_MAIN_H

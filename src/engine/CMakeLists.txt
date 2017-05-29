@@ -190,6 +190,7 @@ add_sources(
 	mem.h
 	modinfo.h
 	module.cpp
+	module.h
 	net.h
 	net_api.cpp
 	net_api_int.h

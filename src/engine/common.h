@@ -43,14 +43,14 @@ enum FSB
 	FSB_OVERFLOWED		=	1	<<	1
 };
 
-struct sizebuf_t
+typedef struct sizebuf_s
 {
 	const char* buffername;
 	unsigned short flags;
 	byte* data;
 	int maxsize;
 	int cursize;
-};
+} sizebuf_t;
 
 void SZ_Alloc( const char* name, sizebuf_t* buf, int startsize );
 void SZ_Clear( sizebuf_t* buf );
