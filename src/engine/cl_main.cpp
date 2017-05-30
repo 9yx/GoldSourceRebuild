@@ -40,6 +40,39 @@ cvar_t rate = { "rate", "30000", FCVAR_USERINFO };
 cvar_t fs_perf_warnings = { "fs_perf_warnings", "0" };
 cvar_t cl_lw = { "cl_lw", "1", FCVAR_ARCHIVE | FCVAR_USERINFO };
 
+static int g_iCurrentTiming = 0;
+
+startup_timing_t g_StartupTimings[ MAX_STARTUP_TIMINGS ] = {};
+
+void SetupStartupTimings()
+{
+	g_iCurrentTiming = 0;
+	g_StartupTimings[ g_iCurrentTiming ].name = "Startup";
+	g_StartupTimings[ g_iCurrentTiming ].time = Sys_FloatTime();
+}
+
+void AddStartupTiming( const char* name )
+{
+	++g_iCurrentTiming;
+	g_StartupTimings[ g_iCurrentTiming ].name = name;
+	g_StartupTimings[ g_iCurrentTiming ].time = Sys_FloatTime();
+}
+
+void PrintStartupTimings()
+{
+	Con_Printf( "Startup timings (%.2f total)\n", g_StartupTimings[ g_iCurrentTiming ].time - g_StartupTimings[ 0 ].time );
+	Con_Printf( "    0.00    Startup\n" );
+
+	//Print the relative time between each system startup
+	for( int i = 1; i < g_iCurrentTiming; ++i )
+	{
+		Con_Printf( "    %.2f    %s\n",
+					g_StartupTimings[ i ].time - g_StartupTimings[ i - 1 ].time,
+					g_StartupTimings[ i ].name
+		);
+	}
+}
+
 void CL_ShutDownClientStatic()
 {
 	//TODO: implement - Solokiller
