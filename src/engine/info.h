@@ -12,14 +12,24 @@
 
 extern char serverinfo[ MAX_INFO_STRING ];
 
-bool Info_IsKeyImportant( const char *key );
+bool Info_IsKeyImportant( const char* key );
 
-void Info_SetValueForStarKey( char *s, const char *key, const char *value, int maxsize );
+void Info_SetValueForStarKey( char* s, const char* key, const char* value, int maxsize );
 
 void Info_SetValueForKey( char* s, const char* key, const char* value, int maxsize );
 
-void Info_RemoveKey( char *s, const char *key );
+void Info_RemoveKey( char* s, const char* key );
 
+void Info_RemovePrefixedKeys( char* start, char prefix );
+
+/**
+*	Searches the string for the given
+*	key and returns the associated value, or an empty string.
+*/
 const char* Info_ValueForKey( const char* s, const char* key );
+
+void Info_Print( const char* s );
+
+bool Info_IsValid( const char* s );
 
 #endif //ENGINE_INFO_H
