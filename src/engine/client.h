@@ -22,6 +22,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "pm_defs.h"
 #include "cdll_int.h"
+#include "com_model.h"
+#include "eventapi.h"
 #include "APIProxy.h"
 #include "screenfade.h"
 #include "sound.h"
@@ -232,13 +234,12 @@ struct client_state_t
 	int delta_sequence;
 	*/
 	int playernum;
-	/*
-	event_s event_precache[ 256 ];
+	event_t event_precache[ 256 ];
 
-	model_s *model_precache[ MAX_MODELS ];
+	model_t* model_precache[ MAX_MODELS ];
 	int model_precache_count;
-	*/
-	sfx_s *sound_precache[ MAX_SOUNDS ];
+
+	sfx_t* sound_precache[ MAX_SOUNDS ];
 
 	/*
 	consistency_t consistency_list[ 512 ];

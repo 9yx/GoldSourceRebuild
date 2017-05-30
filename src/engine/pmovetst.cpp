@@ -18,3 +18,9 @@ pmtrace_t* PM_TraceLine( float* start, float* end, int flags, int usehull, int i
 	//TODO: implement - Solokiller
 	return nullptr;
 }
+
+pmtrace_t PM_PlayerTrace( vec_t* start, vec_t* end, int traceFlags, int ignore_pe )
+{
+	//TODO: implement - Solokiller
+	return {};
+}

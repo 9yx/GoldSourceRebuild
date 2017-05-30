@@ -5,6 +5,14 @@
 #include "pm_defs.h"
 #include "pmtrace.h"
 
+struct event_t
+{
+	unsigned short index;
+	const char* filename;
+	int filesize;
+	const char* pszScript;
+};
+
 void EV_PlaySound( int ent, float* origin, int channel, const char* sample,
 				   float volume, float attenuation, int fFlags, int pitch );
 

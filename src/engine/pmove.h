@@ -25,6 +25,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 extern vec3_t player_mins[ 4 ];
 extern vec3_t player_maxs[ 4 ];
 
+extern playermove_t* pmove;
+
 void PM_Init( playermove_t* ppm );
 
 #endif //ENGINE_PMOVE_H
