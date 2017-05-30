@@ -24,6 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "quakedef.h"
+#include "cdll_int.h"
 
 cvar_t* cvar_vars = nullptr;
 const char* cvar_null_string = "";
@@ -39,7 +40,7 @@ void Cvar_Shutdown()
 
 cvar_t* Cvar_FindVar( const char* var_name )
 {
-	//g_engdstAddrs.pfnGetCvarPointer();
+	g_engdstAddrs.pfnGetCvarPointer( &var_name );
 
 	for( cvar_t* var = cvar_vars; var; var = var->next )
 	{

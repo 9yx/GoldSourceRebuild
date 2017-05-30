@@ -95,8 +95,8 @@ bool VGuiWrap_CallEngineSurfaceAppHandler( void* event, void* userData )
 
 vgui::Panel* VGuiWrap_GetPanel()
 {
-	//TODO: implement - Solokiller
-	//g_engdstAddrs.VGui_GetPanel();
+	g_engdstAddrs.VGui_GetPanel();
+
 	return staticPanel;
 }
 

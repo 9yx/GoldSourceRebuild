@@ -491,8 +491,7 @@ void SetDemoMessage( const char* pszMessage, float fFadeInTime, float fFadeOutTi
 
 client_textmessage_t* TextMessageGet( const char* pName )
 {
-	//TODO: implement - Solokiller
-	//g_engdstAddrs.pfnTextMessageGet();
+	g_engdstAddrs.pfnTextMessageGet( &pName );
 
 	if( !Q_stricmp( pName, "__DEMOMESSAGE__" ) )
 		return &tm_demomessage;
@@ -517,8 +516,7 @@ client_textmessage_t* TextMessageGet( const char* pName )
 
 int TextMessageDrawCharacter( int x, int y, int number, int r, int g, int b )
 {
-	//TODO: implement - Solokiller
-	//g_engdstAddrs.pfnDrawCharacter();
+	g_engdstAddrs.pfnDrawCharacter( &x, &y, &number, &r, &g, &b );
 
 	if( r || g || b )
 	{

@@ -1,4 +1,5 @@
 #include "quakedef.h"
+#include "cdll_int.h"
 #include "decals.h"
 #include "gl_draw.h"
 #include "gl_rmain.h"
@@ -61,8 +62,7 @@ int Draw_StringLen( const char* psz, unsigned int font )
 
 void Draw_SetTextColor( float r, float g, float b )
 {
-	//TODO: implement - Solokiller
-	//g_engdstAddrs.pfnDrawSetTextColor();
+	g_engdstAddrs.pfnDrawSetTextColor( &r, &g, &b );
 
 	VGUI2_Draw_SetTextColor(
 		static_cast<int>( r * 255.0 ),

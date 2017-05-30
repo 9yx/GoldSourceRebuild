@@ -4,7 +4,7 @@
 
 int CL_IsSpectateOnly()
 {
-	//TODO: implement - Solokiller
-	//g_engdstAddrs.IsSpectateOnly();
+	g_engdstAddrs.IsSpectateOnly();
+
 	return cls.spectator;
 }

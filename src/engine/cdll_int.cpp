@@ -35,7 +35,6 @@
 #include "voice.h"
 #include "vgui2/text_draw.h"
 
-//TODo: implement functions and add here - Solokiller
 cl_enginefunc_t cl_enginefuncs = 
 {
 	&SPR_Load,
@@ -536,22 +535,21 @@ void ClientDLL_ChatInputPosition( int* x, int* y )
 
 int hudCenterX()
 {
-	//TODO: implement - Solokiller
-	//g_engdstAddrs.GetWindowCenterX();
+	g_engdstAddrs.GetWindowCenterX();
+
 	return window_center_x;
 }
 
 int hudCenterY()
 {
-	//TODO: implement - Solokiller
-	//g_engdstAddrs.GetWindowCenterY();
+	g_engdstAddrs.GetWindowCenterY();
+
 	return window_center_y;
 }
 
 void hudGetViewAngles( float* va )
 {
-	//TODO: implement - Solokiller
-	//g_engdstAddrs.GetViewAngles();
+	g_engdstAddrs.GetViewAngles( &va );
 
 	va[ 0 ] = cl.viewangles[ 0 ];
 	va[ 1 ] = cl.viewangles[ 1 ];
@@ -560,8 +558,7 @@ void hudGetViewAngles( float* va )
 
 void hudSetViewAngles( float* va )
 {
-	//TODO: implement - Solokiller
-	//g_engdstAddrs.SetViewAngles();
+	g_engdstAddrs.SetViewAngles( &va );
 
 	cl.viewangles[ 0 ] = va[ 0 ];
 	cl.viewangles[ 1 ] = va[ 1 ];
@@ -570,7 +567,6 @@ void hudSetViewAngles( float* va )
 
 int hudGetMaxClients()
 {
-	//TODO: implement - Solokiller
 	g_engdstAddrs.GetMaxClients();
 
 	return cl.maxclients;
@@ -578,31 +574,28 @@ int hudGetMaxClients()
 
 const char* hudPhysInfo_ValueForKey( const char* key )
 {
-	//TODO: implement - Solokiller
-	//g_engdstAddrs.PhysInfo_ValueForKey();
+	g_engdstAddrs.PhysInfo_ValueForKey( &key );
 
 	return Info_ValueForKey( cls.physinfo, key );
 }
 
 const char* hudServerInfo_ValueForKey( const char* key )
 {
-	//TODO: implement - Solokiller
-	//g_engdstAddrs.PhysInfo_ValueForKey();
+	g_engdstAddrs.PhysInfo_ValueForKey( &key );
+
 	return Info_ValueForKey( cls.physinfo, key );
 }
 
 float hudGetClientMaxspeed()
 {
-	//TODO: implement - Solokiller
-	//g_engdstAddrs.GetClientMaxspeed();
+	g_engdstAddrs.GetClientMaxspeed();
 
 	return cl.maxspeed;
 }
 
 void hudGetMousePosition( int* mx, int* my )
 {
-	//TODO: implement - Solokiller
-	//g_engdstAddrs.GetMousePosition();
+	g_engdstAddrs.GetMousePosition( &mx, &my );
 
 	SDL_GetMouseState( mx, my );
 
@@ -624,16 +617,14 @@ void hudGetMousePosition( int* mx, int* my )
 
 int hudIsNoClipping()
 {
-	//TODO: implement - Solokiller
-	//g_engdstAddrs.IsNoClipping();
+	g_engdstAddrs.IsNoClipping();
 
 	return cl.frames[ cl.parsecountmod ].playerstate[ cl.playernum ].movetype == MOVETYPE_NOCLIP;
 }
 
 cl_entity_t* hudGetLocalPlayer()
 {
-	//TODO: implement - Solokiller
-	//g_engdstAddrs.GetLocalPlayer();
+	g_engdstAddrs.GetLocalPlayer();
 
 	//TODO: if cl_entities is null this returns garbage - Solokiller
 	return &cl_entities[ cl.playernum + 1 ];
@@ -641,16 +632,14 @@ cl_entity_t* hudGetLocalPlayer()
 
 cl_entity_t* hudGetViewModel()
 {
-	//TODO: implement - Solokiller
-	//g_engdstAddrs.GetViewModel();
+	g_engdstAddrs.GetViewModel();
 
 	return &cl.viewent;
 }
 
 cl_entity_t* hudGetEntityByIndex( int idx )
 {
-	//TODO: implement - Solokiller
-	//g_engdstAddrs.GetEntityByIndex();
+	g_engdstAddrs.GetEntityByIndex( &idx );
 
 	if( idx >= 0 && idx < cl.max_edicts )
 		return &cl_entities[ idx ];
@@ -660,8 +649,7 @@ cl_entity_t* hudGetEntityByIndex( int idx )
 
 float hudGetClientTime()
 {
-	//TODO: implement - Solokiller
-	//g_engdstAddrs.GetClientTime();
+	g_engdstAddrs.GetClientTime();
 
 	return cl.time;
 }
@@ -701,8 +689,7 @@ void hudPlaybackEvent( int flags, const edict_t* pInvoker, unsigned short eventi
 
 void hudWeaponAnim( int iAnim, int body )
 {
-	//TODO: implement - Solokiller
-	//g_engdstAddrs.pfnWeaponAnim();
+	g_engdstAddrs.pfnWeaponAnim( &iAnim, &body );
 
 	cl.weaponstarttime = 0;
 	cl.weaponsequence = iAnim;
@@ -714,15 +701,14 @@ void hudWeaponAnim( int iAnim, int body )
 
 const char* hudGetGameDir()
 {
-	//TODO: implement - Solokiller
-	//g_engdstAddrs.pfnGetGameDirectory();
+	g_engdstAddrs.pfnGetGameDirectory();
+
 	return com_gamedir;
 }
 
 const char* hudGetLevelName()
 {
-	//TODO: implement - Solokiller
-	//g_engdstAddrs.pfnGetLevelName();
+	g_engdstAddrs.pfnGetLevelName();
 
 	if( cls.state < ca_connected )
 		return "";
@@ -732,40 +718,38 @@ const char* hudGetLevelName()
 
 void hudGetScreenFade( screenfade_t* fade )
 {
-	//TODO: implement - Solokiller
-	//g_engdstAddrs.pfnGetScreenFade();
+	g_engdstAddrs.pfnGetScreenFade( &fade );
 
 	*fade = cl.sf;
 }
 
 void hudSetScreenFade( screenfade_t* fade )
 {
-	//TODO: implement - Solokiller
-	//g_engdstAddrs.pfnSetScreenFade();
+	g_engdstAddrs.pfnSetScreenFade( &fade );
 
 	cl.sf = *fade;
 }
 
 char* COM_ParseFile( char* data, char* token )
 {
-	//TODO: implement - Solokiller
-	//g_engdstAddrs.COM_ParseFile();
+	g_engdstAddrs.COM_ParseFile( &data, &token );
+
 	char* pszResult = COM_Parse( data );
 	Q_strcpy( token, com_token );
+
 	return pszResult;
 }
 
 void COM_AddAppDirectoryToSearchPath( const char* pszBaseDir, const char* appName )
 {
-	//TODO: implement - Solokiller
-	//g_engdstAddrs.COM_AddAppDirectoryToSearchPath();
+	g_engdstAddrs.COM_AddAppDirectoryToSearchPath( &pszBaseDir, &appName );
+
 	COM_AddAppDirectory( pszBaseDir );
 }
 
 int ClientDLL_ExpandFileName( const char* fileName, char* nameOutBuffer, int nameOutBufferSize )
 {
-	//TODO: implement - Solokiller
-	//g_engdstAddrs.COM_ExpandFilename();
+	g_engdstAddrs.COM_ExpandFilename( &fileName, &nameOutBuffer, &nameOutBufferSize );
 
 	char buf[ 512 ];
 	Q_strncpy( buf, fileName, ARRAYSIZE( buf ) );
@@ -783,8 +767,7 @@ int ClientDLL_ExpandFileName( const char* fileName, char* nameOutBuffer, int nam
 
 const char* PlayerInfo_ValueForKey( int playerNum, const char* key )
 {
-	//TODO: implement - Solokiller
-	//g_engdstAddrs.PlayerInfo_ValueForKey();
+	g_engdstAddrs.PlayerInfo_ValueForKey( &playerNum, &key );
 
 	if( cl.maxclients >= playerNum && playerNum > 0 )
 	{
@@ -799,8 +782,7 @@ void PlayerInfo_SetValueForKey( const char* key, const char* value )
 {
 	if( strcmp( Info_ValueForKey( cls.userinfo, key ), value ) )
 	{
-		//TODO: implement - Solokiller
-		//g_engdstAddrs.PlayerInfo_SetValueForKey();
+		g_engdstAddrs.PlayerInfo_SetValueForKey( &key, &value );
 
 		Info_SetValueForStarKey( cls.userinfo, key, value, MAX_INFO_STRING );
 
@@ -817,8 +799,7 @@ void PlayerInfo_SetValueForKey( const char* key, const char* value )
 
 qboolean GetPlayerUniqueID( int iPlayer, char* playerID )
 {
-	//TODO: implement - Solokiller
-	//g_engdstAddrs.GetPlayerUniqueID();
+	g_engdstAddrs.GetPlayerUniqueID( &iPlayer, &playerID );
 
 	if( iPlayer >= 0 && iPlayer < cl.maxclients )
 	{
@@ -834,21 +815,21 @@ qboolean GetPlayerUniqueID( int iPlayer, char* playerID )
 
 int GetTrackerIDForPlayer( int playerSlot )
 {
-	//TODO: implement - Solokiller
-	//g_engdstAddrs.GetTrackerIDForPlayer();
+	g_engdstAddrs.GetTrackerIDForPlayer( &playerSlot );
+
 	return 0;
 }
 
 int GetPlayerForTrackerID( int trackerID )
 {
-	//g_engdstAddrs.GetPlayerForTrackerID();
+	g_engdstAddrs.GetPlayerForTrackerID( &trackerID );
+
 	return 0;
 }
 
 void SDL_GetMousePos( POINT* ppt )
 {
-	//TODO: implement - Solokiller
-	//g_engdstAddrs.pfnGetMousePos();
+	g_engdstAddrs.pfnGetMousePos( &ppt );
 
 	//TODO: this code is all over the place, consider refactoring - Solokiller
 
@@ -918,8 +899,7 @@ model_t* hudGetModelByIndex( const int index )
 
 const char* LocalPlayerInfo_ValueForKey( const char* key )
 {
-	//TODO: implement - Solokiller
-	//g_engdstAddrs.LocalPlayerInfo_ValueForKey();
+	g_engdstAddrs.LocalPlayerInfo_ValueForKey( &key );
 
 	return Info_ValueForKey( cls.userinfo, key );
 }

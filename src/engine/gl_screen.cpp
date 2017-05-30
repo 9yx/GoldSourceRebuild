@@ -372,11 +372,8 @@ void SCR_UpdateScreen()
 					*/
 				}
 
-				//TODO: implement - Solokiller
-				/*
 				if( g_modfuncs.m_pfnFrameRender1 )
 					g_modfuncs.m_pfnFrameRender1();
-					*/
 
 				//TODO: implement - Solokiller
 
@@ -440,11 +437,8 @@ void SCR_UpdateScreen()
 
 				GLFinishHud();
 
-				//TODO: implement - Solokiller
-				/*
 				if( g_modfuncs.m_pfnFrameRender2 )
 					g_modfuncs.m_pfnFrameRender2();
-				*/
 
 				GL_EndRendering();
 

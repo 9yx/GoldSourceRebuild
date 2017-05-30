@@ -24,6 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "quakedef.h"
 #include "bspfile.h"
+#include "cdll_int.h"
 #include "modinfo.h"
 
 char gpszProductString[ 32 ] = {};
@@ -698,7 +699,8 @@ static int loadsize = 0;
 
 byte* COM_LoadFile( const char* path, int usehunk, int* pLength )
 {
-	//g_engdstAddrs.COM_LoadFile();
+	g_engdstAddrs.COM_LoadFile( const_cast<char**>( &path ), &usehunk, &pLength );
+
 	if( pLength )
 		*pLength = 0;
 
@@ -765,7 +767,7 @@ byte* COM_LoadFile( const char* path, int usehunk, int* pLength )
 
 void COM_FreeFile( void *buffer )
 {
-	//g_engdstAddrs.COM_FreeFile();
+	g_engdstAddrs.COM_FreeFile( &buffer );
 
 	if( buffer )
 		Mem_Free( buffer );

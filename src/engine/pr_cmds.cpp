@@ -2,9 +2,7 @@
 #include <ctime>
 
 #include "quakedef.h"
-
-#include "tier0/platform.h"
-
+#include "cdll_int.h"
 #include "pr_cmds.h"
 
 static int32 idum = 0;
@@ -88,16 +86,14 @@ static double fran1()
 
 float RandomFloat( float flLow, float flHigh )
 {
-	//TODO: implement - Solokiller
-	//g_engdstAddrs.pfnRandomFloat();
+	g_engdstAddrs.pfnRandomFloat( &flLow, &flHigh );
 
 	return fran1() * ( flHigh - flLow ) + flLow;
 }
 
 int32 RandomLong( int32 lLow, int32 lHigh )
 {
-	//TODO: implement - Solokiller
-	//g_engdstAddrs.pfnRandomLong();
+	g_engdstAddrs.pfnRandomLong( &lLow, &lHigh );
 
 	int32 result = lLow;
 	const unsigned int uiRange = lHigh - lLow + 1;
@@ -120,8 +116,7 @@ int32 RandomLong( int32 lLow, int32 lHigh )
 
 int hudCheckParm( char* parm, char** ppnext )
 {
-	//TODO: implement - Solokiller
-	//g_engdstAddrs.CheckParm();
+	g_engdstAddrs.CheckParm( &parm, &ppnext );
 
 	auto result = COM_CheckParm( parm );
 

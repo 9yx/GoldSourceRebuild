@@ -163,8 +163,8 @@ void Con_DPrintf( const char* fmt, ... )
 
 int Con_IsVisible()
 {
-	//TODO: implement - Solokiller
-	//g_engdstAddrs.Con_IsVisible();
+	g_engdstAddrs.Con_IsVisible();
+
 	return static_cast<int>( scr_con_current );
 }
 
@@ -496,8 +496,7 @@ void Con_NPrintf( int idx, const char* fmt, ... )
 
 	va_start( va, fmt );
 
-	//TODO: implement - Solokiller
-	//g_engdstAddrs.Con_NPrintf();
+	g_engdstAddrs.Con_NPrintf( &idx, const_cast<char**>( &fmt ) );
 
 	if( 0 <= idx && idx < CON_MAX_DEBUG_AREAS )
 	{
@@ -518,8 +517,7 @@ void Con_NXPrintf( con_nprint_t* info, const char* fmt, ... )
 
 	va_start( va, fmt );
 
-	//TODO: implement - Solokiller
-	//g_engdstAddrs.Con_NXPrintf();
+	g_engdstAddrs.Con_NXPrintf( &info, const_cast<char**>( &fmt ) );
 
 	if( info )
 	{

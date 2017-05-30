@@ -588,7 +588,8 @@ Cmd_Argc
 */
 int Cmd_Argc()
 {
-	//g_engdstAddrs.Cmd_Argc();
+	g_engdstAddrs.Cmd_Argc();
+
 	return cmd_argc;
 }
 
@@ -599,7 +600,8 @@ Cmd_Argv
 */
 const char* Cmd_Argv( int arg )
 {
-	//g_engdstAddrs.Cmd_Argv)();
+	g_engdstAddrs.Cmd_Argv( &arg );
+
 	if( ( unsigned ) arg >= ( unsigned ) cmd_argc )
 		return cmd_null_string;
 	return cmd_argv[ arg ];
@@ -1028,8 +1030,6 @@ void Cmd_ExecuteString( const char* text, cmd_source_t src )
 {
 	cmd_source = src;
 	Cmd_TokenizeString( text );
-
-	//g_engdstAddrs.Cmd_Argc();
 
 	// execute the command line
 	if( !Cmd_Argc() )

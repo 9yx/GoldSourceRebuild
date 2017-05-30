@@ -815,8 +815,7 @@ void Key_WriteBindings( FileHandle_t f )
 
 const char* Key_NameForBinding( const char* pBinding )
 {
-	//TODO: implement - Solokiller
-	//g_engdstAddrs.Key_LookupBinding();
+	g_engdstAddrs.Key_LookupBinding( &pBinding );
 
 	const int iLength = Q_strlen( pBinding );
 
@@ -941,8 +940,11 @@ void Key_Event( int key, bool down )
 	if( key > 255 )
 		return;
 
-	//TODO: implement - Solokiller
-	//g_engdstAddrs.Key_Event();
+	{
+		int iDown = down;
+		g_engdstAddrs.Key_Event( &key, &iDown );
+		down = iDown != 0;
+	}
 
 	keydown[ key ] = down;
 

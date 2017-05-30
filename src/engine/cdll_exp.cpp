@@ -19,8 +19,7 @@
 
 int hudGetScreenInfo( SCREENINFO* pscrinfo )
 {
-	//TODO: implement - Solokiller
-	//g_engdstAddrs.pfnGetScreenInfo();
+	g_engdstAddrs.pfnGetScreenInfo( &pscrinfo );
 
 	if( pscrinfo && pscrinfo->iSize == sizeof( SCREENINFO ) )
 	{
@@ -36,8 +35,7 @@ int hudGetScreenInfo( SCREENINFO* pscrinfo )
 
 cvar_t* hudRegisterVariable( char* szName, char* szValue, int flags )
 {
-	//TODO: implement - Solokiller
-	//g_engdstAddrs.pfnRegisterVariable();
+	g_engdstAddrs.pfnRegisterVariable( &szName, &szValue, &flags );
 
 	auto pCVar = reinterpret_cast<cvar_t*>( Z_Malloc( sizeof( cvar_t ) ) );
 	pCVar->name = szName;
@@ -53,8 +51,7 @@ float hudGetCvarFloat( char* szName )
 {
 	if( szName )
 	{
-		//TODO: implement - Solokiller
-		//g_engdstAddrs.pfnGetCvarFloat();
+		g_engdstAddrs.pfnGetCvarFloat( &szName );
 		auto pCVar = Cvar_FindVar( szName );
 
 		if( pCVar )
@@ -68,8 +65,7 @@ char* hudGetCvarString( char* szName )
 {
 	if( szName )
 	{
-		//TODO: implement - Solokiller
-		//g_engdstAddrs.pfnGetCvarString ();
+		g_engdstAddrs.pfnGetCvarString( &szName );
 
 		auto pCVar = Cvar_FindVar( szName );
 
@@ -83,16 +79,14 @@ char* hudGetCvarString( char* szName )
 
 int hudAddCommand( char* cmd_name, void( *function )( ) )
 {
-	//TODO: implement - Solokiller
-	//g_engdstAddrs.pfnAddCommand();
+	g_engdstAddrs.pfnAddCommand( &cmd_name, &function );
 	Cmd_AddHUDCommand( cmd_name, function );
 	return true;
 }
 
 int hudHookUserMsg( char* szMsgName, pfnUserMsgHook pfn )
 {
-	//TODO: implement - Solokiller
-	//g_engdstAddrs.pfnHookUserMsg();
+	g_engdstAddrs.pfnHookUserMsg( &szMsgName, &pfn );
 	return HookServerMsg( szMsgName, pfn ) != nullptr;
 }
 
@@ -100,8 +94,7 @@ int hudServerCmd( char* pszCmdString )
 {
 	char buf[ 2048 ];
 
-	//TODO: implement - Solokiller
-	//g_engdstAddrs.pfnServerCmd();
+	g_engdstAddrs.pfnServerCmd( &pszCmdString );
 
 	snprintf( buf, ARRAYSIZE( buf ), "cmd %s", pszCmdString );
 	Cmd_TokenizeString( buf );
@@ -112,8 +105,7 @@ int hudServerCmd( char* pszCmdString )
 
 int hudClientCmd( char* pszCmdString )
 {
-	//TODO: implement - Solokiller
-	//g_engdstAddrs.pfnClientCmd();
+	g_engdstAddrs.pfnClientCmd( &pszCmdString );
 
 	if( pszCmdString )
 	{
@@ -127,8 +119,7 @@ int hudClientCmd( char* pszCmdString )
 
 void hudGetPlayerInfo( int ent_num, hud_player_info_t* pinfo )
 {
-	//TODO: implement - Solokiller
-	//g_engdstAddrs.pfnGetPlayerInfo();
+	g_engdstAddrs.pfnGetPlayerInfo( &ent_num, &pinfo );
 
 	if( cl.maxclients >= ent_num && ent_num > 0 && 
 		cl.players[ ent_num - 1 ].name[ 0 ] )
@@ -159,8 +150,7 @@ void hudGetPlayerInfo( int ent_num, hud_player_info_t* pinfo )
 
 void hudPlaySoundByName( char* szSound, float volume )
 {
-	//TODO: implement - Solokiller
-	//g_engdstAddrs.pfnPlaySoundByName();
+	g_engdstAddrs.pfnPlaySoundByName( &szSound, &volume );
 
 	volume = clamp( volume, 0.0f, 1.0f );
 
@@ -174,8 +164,7 @@ void hudPlaySoundByName( char* szSound, float volume )
 
 void hudPlaySoundByIndex( int iSound, float volume )
 {
-	//TODO: implement - Solokiller
-	//g_engdstAddrs.pfnPlaySoundByIndex();
+	g_engdstAddrs.pfnPlaySoundByIndex( &iSound, &volume );
 
 	volume = clamp( volume, 0.0f, 1.0f );
 
@@ -192,24 +181,23 @@ void hudPlaySoundByIndex( int iSound, float volume )
 
 void hudDrawConsoleStringLen( const char* string, int* width, int* height )
 {
-	//TODO: implement - Solokiller
-	//g_engdstAddrs.pfnDrawConsoleStringLen();
+	g_engdstAddrs.pfnDrawConsoleStringLen( &string, &width, &height );
+
 	*width = Draw_StringLen( string, VGUI2_GetConsoleFont() );
 	*height = VGUI2_GetFontTall( VGUI2_GetConsoleFont() );
 }
 
 void hudConsolePrint( const char* string )
 {
-	//TODO: implement - Solokiller
-	//g_engdstAddrs.pfnConsolePrint();
+	g_engdstAddrs.pfnConsolePrint( &string );
 
 	Con_Printf( "%s", string );
 }
 
 void hudCenterPrint( const char* string )
 {
-	//TODO: implement - Solokiller
-	//g_engdstAddrs.pfnConsolePrint();
+	g_engdstAddrs.pfnConsolePrint( &string );
+
 	SCR_CenterPrint( string );
 }
 
@@ -286,8 +274,8 @@ void hudKey_Event( int key, int down )
 
 void hudPlaySoundByNameAtLocation( char* szSound, float volume, float* origin )
 {
-	//TODO: implement - Solokiller
-	//g_engdstAddrs.pfnPlaySoundByNameAtLocation();
+	g_engdstAddrs.pfnPlaySoundByNameAtLocation( &szSound, &volume, &origin );
+
 	volume = clamp( volume, 0.0f, 1.0f );
 
 	auto pSound = CL_LookupSound( szSound );
@@ -310,8 +298,7 @@ int hudServerCmdUnreliable( char* pszCmdString )
 {
 	char buf[ 2048 ];
 
-	//TODO: implement - Solokiller
-	//g_engdstAddrs.pfnServerCmdUnreliable();
+	g_engdstAddrs.pfnServerCmdUnreliable( &pszCmdString );
 
 	snprintf( buf, ARRAYSIZE( buf ), "cmd %s", pszCmdString );
 	Cmd_TokenizeString( buf );
@@ -336,8 +323,7 @@ int hudVGuiWrap2_IsInCareerMatch()
 
 void hudPlaySoundVoiceByName( char* szSound, float volume, int pitch )
 {
-	//TODO: implement - Solokiller
-	//g_engdstAddrs.pfnPlaySoundVoiceByName();
+	g_engdstAddrs.pfnPlaySoundVoiceByName( &szSound, &volume );
 
 	volume = clamp( volume, 0.0f, 1.0f );
 
@@ -357,8 +343,7 @@ void hudPlaySoundVoiceByName( char* szSound, float volume, int pitch )
 
 void hudPlaySoundByNameAtPitch( char* szSound, float volume, int pitch )
 {
-	//TODO: implement - Solokiller
-	//g_engdstAddrs.pfnPlaySoundByName();
+	g_engdstAddrs.pfnPlaySoundByName( &szSound, &volume );
 
 	volume = clamp( volume, 0.0f, 1.0f );
 

@@ -541,11 +541,8 @@ void _Host_Frame( float time )
 
 	SystemWrapper_RunFrame( host_frametime );
 
-	//TODO: implement - Solokiller
-	/*
 	if( g_modfuncs.m_pfnFrameBegin )
 		g_modfuncs.m_pfnFrameBegin();
-		*/
 
 	rolling_fps = 0.6 + rolling_fps + 0.4 * host_frametime;
 
