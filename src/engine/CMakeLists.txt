@@ -271,6 +271,8 @@ add_sources(
 	voice.h
 	wad.cpp
 	wad.h
+	world.cpp
+	world.h
 	zone.cpp
 	zone.h
 )
