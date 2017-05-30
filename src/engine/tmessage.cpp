@@ -10,9 +10,29 @@ client_textmessage_t gMessageParms = {};
 client_textmessage_t* gMessageTable = nullptr;
 int gMessageTableCount = 0;
 
-const char* gNetworkMessageNames[ TMSG_MAX_MSGS ] = {};
-client_textmessage_t gNetworkTextMessage[ TMSG_MAX_MSGS ] = {};
+const char* gNetworkMessageNames[ TMSG_MAX_MSGS ] =
+{
+	"__NETMESSAGE__1",
+	"__NETMESSAGE__2",
+	"__NETMESSAGE__3",
+	"__NETMESSAGE__4"
+};
+
 char gNetworkTextMessageBuffer[ TMSG_MAX_MSGS ][ TMSG_MAX_MESSAGE_LENGTH ] = {};
+
+client_textmessage_t gNetworkTextMessage[ TMSG_MAX_MSGS ] =
+{
+	{
+		0,
+		255, 255, 255, 255,
+		255, 255, 255, 255,
+		-1, -1,
+		0, 0,
+		0, 0,
+		"__NETMESSAGE__1",
+		gNetworkTextMessageBuffer[ 0 ]
+	}
+};
 
 //From HL1 SDK
 char* memfgets( byte* pMemFile, int fileSize, int& filePos, char* pBuffer, int bufferSize )
@@ -476,14 +496,12 @@ client_textmessage_t* TextMessageGet( const char* pName )
 
 	if( !Q_stricmp( pName, "__DEMOMESSAGE__" ) )
 		return &tm_demomessage;
-	else if( !Q_stricmp( pName, "__NETMESSAGE__1" ) )
-		return &gNetworkTextMessage[ 0 ];
-	else if( !Q_stricmp( pName, "__NETMESSAGE__2" ) )
-		return &gNetworkTextMessage[ 1 ];
-	else if( !Q_stricmp( pName, "__NETMESSAGE__3" ) )
-		return &gNetworkTextMessage[ 2 ];
-	else if( !Q_stricmp( pName, "__NETMESSAGE__4" ) )
-		return &gNetworkTextMessage[ 3 ];
+
+	for( int i = 0; i < ARRAYSIZE( gNetworkMessageNames ); ++i )
+	{
+		if( !Q_stricmp( pName, gNetworkMessageNames[ i ] ) )
+			return &gNetworkTextMessage[ i ];
+	}
 
 	if( gMessageTable )
 	{
