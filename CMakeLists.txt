@@ -76,8 +76,10 @@ if( COPY_RESOURCES )
 		vgui.dll
 		vstdlib.dll
 		${GAME_NAME}/config.cfg
+		${GAME_NAME}/fonts.wad
 		${GAME_NAME}/game.ico
 		${GAME_NAME}/game.tga
+		${GAME_NAME}/gfx.wad
 		${GAME_NAME}/language.cfg
 		${GAME_NAME}/liblist.gam
 		${GAME_NAME}/settings.scr
