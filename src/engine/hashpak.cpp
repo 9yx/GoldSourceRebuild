@@ -15,3 +15,8 @@ void HPAK_CheckIntegrity( const char* pakname )
 {
 	//TODO: implement - Solokiller
 }
+
+void HPAK_AddLump( bool bUseQueue, const char* pakname, resource_t* pResource, void* pData, FileHandle_t fpSource )
+{
+	//TODO: implement - Solokiller
+}

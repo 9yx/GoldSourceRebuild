@@ -21,6 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define ENGINE_SERVER_H
 
 #include "entity_state.h"
+#include "eventapi.h"
 #include "progs.h"
 #include "protocol.h"
 #include "pm_defs.h"
@@ -63,9 +64,9 @@ struct server_t
 	char* model_precache[ 512 ];
 	model_t* models[ 512 ];
 	byte model_precache_flags[ 512 ];
-
-	event_s event_precache[ 256 ];
-
+	*/
+	event_t event_precache[ EVENT_MAX_EVENTS ];
+	/*
 	char* sound_precache[ 512 ];
 	short sound_precache_hashedlookup[ 1023 ];
 	bool sound_precache_hashedlookup_built;
@@ -75,11 +76,11 @@ struct server_t
 	int num_generic_names;
 
 	char* lightstyles[ 64 ];
-
+	*/
 	int num_edicts;
 	int max_edicts;
 	edict_t* edicts;
-
+	/*
 	entity_state_s* baselines;
 	extra_baselines_s* instance_baselines;
 

@@ -5,6 +5,8 @@
 #include "pm_defs.h"
 #include "pmtrace.h"
 
+const int EVENT_MAX_EVENTS = 256;
+
 struct event_t
 {
 	unsigned short index;

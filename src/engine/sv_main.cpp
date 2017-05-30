@@ -2,6 +2,7 @@
 
 #include "client.h"
 #include "modinfo.h"
+#include "pr_edict.h"
 #include "sv_main.h"
 #include "sv_phys.h"
 #include "server.h"
@@ -348,4 +349,31 @@ void SV_CountPlayers( int* clients )
 void SV_KickPlayer( int nPlayerSlot, int nReason )
 {
 	//TODO: implement - Solokiller
+}
+
+void SV_ClearEntities()
+{
+	for( int i = 0; i < sv.num_edicts; ++i )
+	{
+		if( !sv.edicts[ i ].free )
+		{
+			//TODO: need to increment the serial number so EHANDLE works properly - Solokiller
+			ReleaseEntityDLLFields( &sv.edicts[ i ] );
+		}
+	}
+}
+
+void SV_ClearCaches()
+{
+	for( int i = 1; i < ARRAYSIZE( sv.event_precache ) && sv.event_precache[ i ].filename; ++i )
+	{
+		auto& event = sv.event_precache[ i ];
+
+		event.filename = nullptr;
+
+		if( event.pszScript )
+			Mem_Free( const_cast<char*>( event.pszScript ) );
+
+		event.pszScript = nullptr;
+	}
 }

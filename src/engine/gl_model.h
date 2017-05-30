@@ -47,4 +47,6 @@ struct msprite_t
 	mspriteframedesc_t	frames[ 1 ];
 };
 
+void Mod_ClearAll();
+
 #endif //ENGINE_GL_MODEL_H

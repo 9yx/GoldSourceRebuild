@@ -45,4 +45,8 @@ void SV_CountPlayers( int* clients );
 
 void SV_KickPlayer( int nPlayerSlot, int nReason );
 
+void SV_ClearEntities();
+
+void SV_ClearCaches();
+
 #endif //ENGINE_SV_MAIN_H

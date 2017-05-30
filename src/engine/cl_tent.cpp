@@ -1,5 +1,27 @@
 #include "quakedef.h"
+#include "client.h"
 #include "cl_tent.h"
+
+static TEMPENTITY gTempEnts[ MAX_TEMP_ENTITIES ];
+
+static TEMPENTITY* gpTempEntActive = nullptr;
+static TEMPENTITY* gpTempEntFree = nullptr;
+
+void CL_TempEntInit()
+{
+	Q_memset( gTempEnts, 0, sizeof( gTempEnts ) );
+
+	//Fix up pointers
+	for( int i = 0;  i < ARRAYSIZE( gTempEnts ) - 1; ++i )
+	{
+		gTempEnts[ i ].next = &gTempEnts[ i + 1 ];
+	}
+
+	gTempEnts[ ARRAYSIZE( gTempEnts ) - 1 ].next = nullptr;
+
+	gpTempEntFree = gTempEnts;
+	gpTempEntActive = nullptr;
+}
 
 TEMPENTITY* CL_TempEntAlloc( vec_t* org, model_t* model )
 {

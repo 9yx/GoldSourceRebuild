@@ -4,6 +4,8 @@
 #include "pmtrace.h"
 #include "r_efx.h"
 
+void CL_TempEntInit();
+
 TEMPENTITY* CL_TempEntAlloc( vec_t* org, model_t* model );
 
 TEMPENTITY* CL_TempEntAllocNoModel( vec_t* org );

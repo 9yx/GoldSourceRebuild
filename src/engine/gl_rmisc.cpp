@@ -13,3 +13,8 @@ void R_Init()
 {
 	//TODO: implement - Solokiller
 }
+
+void D_FlushCaches()
+{
+	//Nothing
+}

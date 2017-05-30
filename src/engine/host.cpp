@@ -5,6 +5,7 @@
 #include "cdaudio.h"
 #include "cdll_int.h"
 #include "chase.h"
+#include "cl_main.h"
 #include "cl_parsefn.h"
 #include "client.h"
 #include "cmodel.h"
@@ -13,6 +14,8 @@
 #include "DemoPlayerWrapper.h"
 #include "dll_state.h"
 #include "gl_draw.h"
+#include "gl_model.h"
+#include "gl_rmisc.h"
 #include "gl_screen.h"
 #include "hashpak.h"
 #include "host.h"
@@ -23,6 +26,7 @@
 #include "server.h"
 #include "sound.h"
 #include "sv_main.h"
+#include "sv_upld.h"
 #include "SystemWrapper.h"
 #include "vgui_int.h"
 #include "view.h"
@@ -621,6 +625,11 @@ int Host_Frame( float time, int iState, int* stateInfo )
 	return giActive;
 }
 
+bool Host_IsServerActive()
+{
+	return sv.active;
+}
+
 bool Host_IsSinglePlayerGame()
 {
 	if( sv.active )
@@ -663,4 +672,58 @@ void Host_GetHostInfo( float* fps, int* nActive, int* unused, int* nMaxPlayers, 
 void SV_DropClient( client_t* cl, qboolean crash, const char* fmt, ... )
 {
 	//TODO: implement - Solokiller
+}
+
+//TODO: typo - Solokiller
+void Host_CheckDyanmicStructures()
+{
+	auto pClient = svs.clients;
+
+	for( int i = 0; i < svs.maxclientslimit; ++i, ++pClient )
+	{
+		if( pClient->frames )
+		{
+			SV_ClearFrames( &pClient->frames );
+		}
+	}
+}
+
+void SV_ClearClientStates()
+{
+	auto pClient = svs.clients;
+
+	for( int i = 0; i < svs.maxclients; ++i, ++pClient )
+	{
+		COM_ClearCustomizationList( &pClient->customdata, false );
+		SV_ClearResourceLists( pClient );
+	}
+}
+
+void Host_ClearMemory( bool bQuiet )
+{
+	CM_FreePAS();
+	SV_ClearEntities();
+
+	if( !bQuiet )
+		Con_DPrintf( "Clearing memory\n" );
+
+	D_FlushCaches();
+	Mod_ClearAll();
+
+	if( host_hunklevel )
+	{
+		Host_CheckDyanmicStructures();
+
+		Hunk_FreeToLowMark( host_hunklevel );
+	}
+
+	cls.signon = 0;
+
+	SV_ClearCaches();
+
+	Q_memset( &sv, 0, sizeof( sv ) );
+
+	CL_ClearClientState();
+
+	SV_ClearClientStates();
 }

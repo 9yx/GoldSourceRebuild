@@ -30,8 +30,19 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 class CSysModule;
 
-#define	MAX_DEMOS		32
-#define	MAX_DEMONAME	16
+#define	MAX_EFRAGS			640
+#define	MAX_DLIGHTS			32
+#define	MAX_ELIGHTS			64
+#define	MAX_TEMP_ENTITIES	500
+
+#define	MAX_DEMOS			32
+#define	MAX_DEMONAME		16
+
+struct lightstyle_t
+{
+	int		length;
+	char	map[ MAX_STYLESTRING ];
+};
 
 enum cactive_t
 {
@@ -234,7 +245,7 @@ struct client_state_t
 	int delta_sequence;
 	*/
 	int playernum;
-	event_t event_precache[ 256 ];
+	event_t event_precache[ EVENT_MAX_EVENTS ];
 
 	model_t* model_precache[ MAX_MODELS ];
 	int model_precache_count;

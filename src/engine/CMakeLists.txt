@@ -127,6 +127,8 @@ add_sources(
 	cmd.h
 	cmodel.cpp
 	cmodel.h
+	com_custom.cpp
+	com_custom.h
 	common.cpp
 	common.h
 	console.cpp
@@ -207,6 +209,8 @@ add_sources(
 	pmovetst.h
 	pr_cmds.cpp
 	pr_cmds.h
+	pr_edict.cpp
+	pr_edict.h
 	progdefs.h
 	progs.h
 	protocol.h
@@ -241,6 +245,8 @@ add_sources(
 	sv_secure.h
 	sv_steam3.cpp
 	sv_steam3.h
+	sv_upld.cpp
+	sv_upld.h
 	sys.h
 	sys_dll.cpp
 	sys_dll2.cpp
