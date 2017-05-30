@@ -256,6 +256,8 @@ add_sources(
 	sys_sdlwind.cpp
 	SystemWrapper.cpp
 	SystemWrapper.h
+	textures.cpp
+	textures.h
 	tmessage.cpp
 	tmessage.h
 	traceinit.cpp
