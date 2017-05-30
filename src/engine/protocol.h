@@ -62,6 +62,4 @@ struct packet_entities_t
 	entity_state_t* entities;
 };
 
-const auto i = sizeof( packet_entities_t );
-
 #endif //ENGINE_PROTOCOL_H
