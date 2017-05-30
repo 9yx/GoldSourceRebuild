@@ -20,68 +20,74 @@ struct TCoordRect
 	float t1;
 };
 
+float InterpTCoord( int val, int min, int max, float tMin, float tMax )
+{
+	return tMin + ( tMax - tMin ) * ( static_cast<float>( val - min ) / static_cast<float>( max - min ) );
+}
+
+bool IsRectEmpty( const Rect_t* rect )
+{
+	return rect->x == rect->width && rect->y == rect->height;
+}
+
+bool IntersectRect( Rect_t* dest, const Rect_t* src1, const Rect_t* src2 )
+{
+	if( !src1 || !dest || !src2 )
+		return false;
+
+	if( !IsRectEmpty( src1 ) && !IsRectEmpty( src2 ) &&
+		src2->width > src1->x &&
+		src2->x < src1->width &&
+		src2->height > src1->y &&
+		src2->y < src1->height )
+	{
+		dest->x = max( src1->x, src2->x );
+		dest->width = min( src1->width, src2->width );
+
+		dest->y = max( src1->y, src2->y );
+		dest->height = min( src1->height, src2->height );
+
+		return true;
+	}
+
+	dest->x = 0;
+	dest->y = 0;
+	dest->width = 0;
+	dest->height = 0;
+
+	return false;
+}
+
 bool ScissorRect_TCoords( int x0, int y0, int x1, int y1,
 						  float s0, float t0, float s1, float t1,
 						  Rect_t* pOut, TCoordRect* pTCoords )
 {
-	bool bResult = false;
-
 	if( g_bScissor )
 	{
 		if( pOut )
 		{
-			if( g_ScissorRect.x == g_ScissorRect.width &&
-				g_ScissorRect.y == g_ScissorRect.height ||
-				( x0 == x1 && y0 == y1 ) ||
-				x1 <= g_ScissorRect.x ||
-				x0 >= g_ScissorRect.width ||
-				y1 <= g_ScissorRect.y ||
-				y0 >= g_ScissorRect.height )
+			Rect_t in =
 			{
-				pOut->x = 0;
-				pOut->y = 0;
-				pOut->width = 0;
-				pOut->height = 0;
-			}
-			else
+				x0, y0, x1, y1
+			};
+
+			if( IntersectRect( pOut, &g_ScissorRect, &in ) )
 			{
-				pOut->x = g_ScissorRect.x;
-
-				if( x0 >= pOut->x )
-					pOut->x = x0;
-
-				pOut->width = g_ScissorRect.width;
-
-				if( x1 <= pOut->width )
-					pOut->width = x1;
-
-				pOut->y = g_ScissorRect.y;
-
-				if( y0 >= pOut->y )
-					pOut->y = y0;
-
-				pOut->height = g_ScissorRect.height;
-
-				if( y1 <= pOut->height )
-					pOut->height = y1;
-
 				if( pTCoords )
 				{
-					pTCoords->s0 = static_cast<double>( pOut->x - x0 ) / ( x1 - x0 ) * ( s1 - s0 ) + s0;
-					pTCoords->s1 = static_cast<double>( pOut->width - x0 ) / ( x1 - x0 ) * ( s1 - s0 ) + s0;
-				
-					pTCoords->t0 = static_cast<double>( pOut->y - y0 ) / ( y1 - y0 ) * ( t1 - t0 ) + t0;
-					pTCoords->t1 = static_cast<double>( pOut->height - y0 ) / ( y1 - y0 ) * ( t1 - t0 ) + t0;
+					pTCoords->s0 = InterpTCoord( pOut->x, x0, x1, s0, s1 );
+					pTCoords->s1 = InterpTCoord( pOut->width, x0, x1, s0, s1 );
+
+					pTCoords->t0 = InterpTCoord( pOut->y, y0, y1, t0, t1 );
+					pTCoords->t1 = InterpTCoord( pOut->height, y0, y1, t0, t1 );
 				}
 
-				bResult = true;
+				return true;
 			}
 		}
 	}
 	else
 	{
-		bResult = true;
-
 		pOut->x = x0;
 		pOut->width = x1;
 		pOut->y = y0;
@@ -94,9 +100,16 @@ bool ScissorRect_TCoords( int x0, int y0, int x1, int y1,
 			pTCoords->s1 = s1;
 			pTCoords->t1 = t1;
 		}
+
+		return true;
 	}
 
-	return bResult;
+	return false;
+}
+
+bool ScissorRect( int x0, int y0, int x1, int y1, Rect_t* pOut )
+{
+	return ScissorRect_TCoords( x0, y0, x1, y1, 0, 0, 0, 0, pOut, nullptr );
 }
 
 namespace
@@ -232,7 +245,7 @@ void EngineSurface::drawFilledRect( int x0, int y0, int x1, int y1 )
 	{
 		Rect_t rcOut;
 
-		if( ScissorRect_TCoords( x0, y0, x1, y1, 0, 0, 0, 0, &rcOut, nullptr ) )
+		if( ScissorRect( x0, y0, x1, y1, &rcOut ) )
 		{
 			qglDisable( GL_TEXTURE_2D );
 
