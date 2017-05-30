@@ -20,6 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "quakedef.h"
 #include "client.h"
 #include "cl_main.h"
+#include "pmove.h"
 #include "tmessage.h"
 
 client_static_t cls;
@@ -72,6 +73,15 @@ dlight_t* CL_AllocElight( int key )
 {
 	//TODO: implement - Solokiller
 	return nullptr;
+}
+
+void CL_GetPlayerHulls()
+{
+	for( int i = 0; i < 4; ++i )
+	{
+		if( !ClientDLL_GetHullBounds( i, player_mins[ i ], player_maxs[ i ] ) )
+			break;
+	}
 }
 
 bool UserIsConnectedOnLoopback()

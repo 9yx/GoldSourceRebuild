@@ -8,16 +8,19 @@
 #include "cl_demo.h"
 #include "cl_draw.h"
 #include "cl_main.h"
+#include "cl_parse.h"
 #include "cl_parsefn.h"
 #include "cl_spectator.h"
 #include "cdll_int.h"
 #include "cdll_exp.h"
 #include "eiface.h"
 #include "eventapi.h"
+#include "FilePaths.h"
 #include "gl_draw.h"
 #include "gl_screen.h"
 #include "gl_vidnt.h"
 #include "kbutton.h"
+#include "LoadBlob.h"
 #include "net_api_int.h"
 #include "pmovetst.h"
 #include "pr_cmds.h"
@@ -173,7 +176,9 @@ cl_enginefunc_t cl_enginefuncs =
 	&VguiWrap2_GetMouseDelta
 };
 
-cldll_func_t cl_funcs;
+cldll_func_t cl_funcs = {};
+
+cldll_func_dst_t g_cldstAddrs = k_cldstNull;
 
 char g_szfullClientName[ 512 ];
 
@@ -181,14 +186,147 @@ bool fClientLoaded = false;
 
 CSysModule* hClientDLL = nullptr;
 
+BlobFootprint_t g_blobfootprintClient = {};
+
+bool LoadSecureClient( const char* pszDllName )
+{
+	cl_funcs.pInitFunc = ( INITIALIZE_FUNC ) &g_modfuncs;
+	cl_funcs.pHudVidInitFunc = ( HUD_VIDINIT_FUNC ) &g_cldstAddrs;
+
+	auto pModule = reinterpret_cast<CSysModule*>( NLoadBlobFile( pszDllName, &g_blobfootprintClient, &cl_funcs, true ) );
+
+	if( pModule )
+	{
+		hClientDLL = pModule;
+		fClientLoaded = true;
+	}
+
+	return pModule != nullptr;
+}
+
+#define LOAD_IFACE_FUNC( func, pszName, bRequired )												\
+	func = reinterpret_cast<decltype( func )>( Sys_GetProcAddress( hClientDLL, pszName ) );		\
+																								\
+	if( bRequired && !cl_funcs.pInitFunc )														\
+		Sys_Error( "could not link client.dll function " pszName "\n" )
+
+void LoadInsecureClient( const char* pszFullPathClientDLLName )
+{
+	hClientDLL = FS_LoadLibrary( pszFullPathClientDLLName );
+
+	if( !hClientDLL )
+		Sys_Error( "could not load library %s", pszFullPathClientDLLName );
+
+	fClientLoaded = true;
+
+	LOAD_IFACE_FUNC( cl_funcs.pInitFunc, "Initialize", true );
+	LOAD_IFACE_FUNC( cl_funcs.pHudVidInitFunc, "HUD_VidInit", true );
+	LOAD_IFACE_FUNC( cl_funcs.pHudInitFunc, "HUD_Init", true );
+	LOAD_IFACE_FUNC( cl_funcs.pHudRedrawFunc, "HUD_Redraw", true );
+	LOAD_IFACE_FUNC( cl_funcs.pHudUpdateClientDataFunc, "HUD_UpdateClientData", true );
+	LOAD_IFACE_FUNC( cl_funcs.pHudResetFunc, "HUD_Reset", true );
+	LOAD_IFACE_FUNC( cl_funcs.pClientMove, "HUD_PlayerMove", true );
+	LOAD_IFACE_FUNC( cl_funcs.pClientMoveInit, "HUD_PlayerMoveInit", true );
+	LOAD_IFACE_FUNC( cl_funcs.pClientTextureType, "HUD_PlayerMoveTexture", true );
+	LOAD_IFACE_FUNC( cl_funcs.pIN_ActivateMouse, "IN_ActivateMouse", true );
+	LOAD_IFACE_FUNC( cl_funcs.pIN_DeactivateMouse, "IN_DeactivateMouse", true );
+	LOAD_IFACE_FUNC( cl_funcs.pIN_MouseEvent, "IN_MouseEvent", true );
+	LOAD_IFACE_FUNC( cl_funcs.pIN_ClearStates, "IN_ClearStates", true );
+	LOAD_IFACE_FUNC( cl_funcs.pIN_Accumulate, "IN_Accumulate", true );
+	LOAD_IFACE_FUNC( cl_funcs.pCL_CreateMove, "CL_CreateMove", true );
+	LOAD_IFACE_FUNC( cl_funcs.pCL_IsThirdPerson, "CL_IsThirdPerson", true );
+	LOAD_IFACE_FUNC( cl_funcs.pCL_GetCameraOffsets, "CL_CameraOffset", true );
+	LOAD_IFACE_FUNC( cl_funcs.pCamThink, "CAM_Think", true );
+	LOAD_IFACE_FUNC( cl_funcs.pFindKey, "KB_Find", true );
+	LOAD_IFACE_FUNC( cl_funcs.pCalcRefdef, "V_CalcRefdef", true );
+	LOAD_IFACE_FUNC( cl_funcs.pAddEntity, "HUD_AddEntity", true );
+	LOAD_IFACE_FUNC( cl_funcs.pCreateEntities, "HUD_CreateEntities", true );
+	LOAD_IFACE_FUNC( cl_funcs.pDrawNormalTriangles, "HUD_DrawNormalTriangles", true );
+	LOAD_IFACE_FUNC( cl_funcs.pDrawTransparentTriangles, "HUD_DrawTransparentTriangles", true );
+	LOAD_IFACE_FUNC( cl_funcs.pStudioEvent, "HUD_StudioEvent", true );
+	LOAD_IFACE_FUNC( cl_funcs.pShutdown, "HUD_Shutdown", true );
+	LOAD_IFACE_FUNC( cl_funcs.pTxferLocalOverrides, "HUD_TxferLocalOverrides", true );
+	LOAD_IFACE_FUNC( cl_funcs.pProcessPlayerState, "HUD_ProcessPlayerState", true );
+	LOAD_IFACE_FUNC( cl_funcs.pTxferPredictionData, "HUD_TxferPredictionData", true );
+	LOAD_IFACE_FUNC( cl_funcs.pReadDemoBuffer, "Demo_ReadBuffer", true );
+	LOAD_IFACE_FUNC( cl_funcs.pConnectionlessPacket, "HUD_ConnectionlessPacket", true );
+	LOAD_IFACE_FUNC( cl_funcs.pGetHullBounds, "HUD_GetHullBounds", true );
+	LOAD_IFACE_FUNC( cl_funcs.pHudFrame, "HUD_Frame", true );
+	LOAD_IFACE_FUNC( cl_funcs.pKeyEvent, "HUD_Key_Event", true );
+	LOAD_IFACE_FUNC( cl_funcs.pPostRunCmd, "HUD_PostRunCmd", true );
+	LOAD_IFACE_FUNC( cl_funcs.pTempEntUpdate, "HUD_TempEntUpdate", true );
+	LOAD_IFACE_FUNC( cl_funcs.pGetUserEntity, "HUD_GetUserEntity", true );
+	LOAD_IFACE_FUNC( cl_funcs.pVoiceStatus, "HUD_VoiceStatus", false );
+	LOAD_IFACE_FUNC( cl_funcs.pDirectorMessage, "HUD_DirectorMessage", false );
+	LOAD_IFACE_FUNC( cl_funcs.pStudioInterface, "HUD_GetStudioModelInterface", false );
+	LOAD_IFACE_FUNC( cl_funcs.pChatInputPosition, "HUD_ChatInputPosition", false );
+	LOAD_IFACE_FUNC( cl_funcs.pClientFactory, "ClientFactory", false );
+	LOAD_IFACE_FUNC( cl_funcs.pGetPlayerTeam, "HUD_GetPlayerTeam", false );
+}
+
 void ClientDLL_Init()
 {
-	//TODO: implement - Solokiller
+	char szDllName[ 512 ];
+	snprintf( szDllName, ARRAYSIZE( szDllName ), "cl_dlls/client" DEFAULT_SO_EXT );
+
+	ClientDLL_Shutdown();
+
+	COM_FixSlashes( szDllName );
+	strcpy( g_szfullClientName, szDllName );
+	COM_ExpandFilename( g_szfullClientName );
+	COM_FixSlashes( g_szfullClientName );
+
+	cls.fSecureClient = false;
+
+	if( !LoadSecureClient( g_szfullClientName ) && !fClientLoaded )
+	{
+		LoadInsecureClient( g_szfullClientName );
+	}
+
+	HookServerMsg( "ScreenShake", &V_ScreenShake );
+	HookServerMsg( "ScreenFade", &V_ScreenFade );
+
+	//TODO: can't init the client yet because it'll crash due to missing engine functions - Solokiller
+	/*
+	cl_funcs.pInitFunc( &cl_enginefuncs, CLDLL_INTERFACE_VERSION );
+
+	if( cl_funcs.pClientMoveInit )
+		cl_funcs.pClientMoveInit( &g_clmove );
+
+	CL_GetPlayerHulls();
+	*/
 }
 
 void ClientDLL_Shutdown()
 {
-	//TODO: implement - Solokiller
+	Net_APIShutDown();
+	SPR_Shutdown();
+
+	if( cl_funcs.pShutdown )
+		cl_funcs.pShutdown();
+
+	if( cls.fSecureClient )
+	{
+		FreeBlob( &g_blobfootprintClient );
+	}
+	else
+	{
+		Sys_UnloadModule( hClientDLL );
+		hClientDLL = nullptr;
+	}
+
+	Q_memset( &cl_funcs, 0, sizeof( cl_funcs ) );
+
+	Cvar_RemoveHudCvars();
+	Cmd_RemoveHudCmds();
+	CL_ShutDownUsrMessages();
+
+	fClientLoaded = false;
+
+	if( hClientDLL )
+		Sys_UnloadModule( hClientDLL );
+
+	hClientDLL = nullptr;
 }
 
 //Obsolete function used to call blob dummy functions

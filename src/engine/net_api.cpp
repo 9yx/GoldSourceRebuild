@@ -40,6 +40,11 @@ void Net_InitNetworking()
 	//TODO: implement - Solokiller
 }
 
+void Net_APIShutDown()
+{
+	//TODO: implement - Solokiller
+}
+
 void Net_Status( net_status_t* status )
 {
 	//TODO: implement - Solokiller

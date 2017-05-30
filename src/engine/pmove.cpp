@@ -20,6 +20,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "quakedef.h"
 #include "pmove.h"
 
+vec3_t player_mins[ 4 ];
+vec3_t player_maxs[ 4 ];
+
 void PM_Init( playermove_t* ppm )
 {
 	//TODO: implement - Solokiller

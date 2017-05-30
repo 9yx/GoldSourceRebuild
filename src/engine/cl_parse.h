@@ -3,6 +3,8 @@
 
 #include "cdll_int.h"
 
+void CL_ShutDownUsrMessages();
+
 pfnUserMsgHook HookServerMsg( const char* pszName, pfnUserMsgHook pfn );
 
 #endif //ENGINE_CL_PARSE_H

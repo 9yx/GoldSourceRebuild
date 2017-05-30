@@ -10,6 +10,8 @@ struct SPRITELIST
 
 void SPR_Init();
 
+void SPR_Shutdown();
+
 HSPRITE SPR_Load( const char* pTextureName );
 
 int SPR_Frames( HSPRITE hSprite );

@@ -22,6 +22,11 @@ void SPR_Init()
 	}
 }
 
+void SPR_Shutdown()
+{
+	//TODO: implement - Solokiller
+}
+
 HSPRITE SPR_Load( const char* pTextureName )
 {
 	//TODO: implement - Solokiller

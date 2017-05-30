@@ -15,6 +15,8 @@ dlight_t* CL_AllocDlight( int key );
 
 dlight_t* CL_AllocElight( int key );
 
+void CL_GetPlayerHulls();
+
 bool UserIsConnectedOnLoopback();
 
 #endif //ENGINE_CL_MAIN_H

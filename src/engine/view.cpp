@@ -41,3 +41,15 @@ void V_ApplyShake( float* origin, float* angles, float factor )
 {
 	//TODO: implement - Solokiller
 }
+
+int V_ScreenShake( const char* pszName, int iSize, void* pbuf )
+{
+	//TODO: implement - Solokiller
+	return 0;
+}
+
+int V_ScreenFade( const char* pszName, int iSize, void* pbuf )
+{
+	//TODO: implement - Solokiller
+	return 0;
+}
