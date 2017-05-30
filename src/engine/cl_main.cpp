@@ -77,6 +77,12 @@ dlight_t* CL_AllocElight( int key )
 	return nullptr;
 }
 
+model_t* CL_GetModelByIndex( int index )
+{
+	//TODO: implement - Solokiller
+	return nullptr;
+}
+
 void CL_GetPlayerHulls()
 {
 	for( int i = 0; i < 4; ++i )

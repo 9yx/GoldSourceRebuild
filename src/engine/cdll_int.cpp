@@ -806,13 +806,21 @@ int CL_CreateVisibleEntity( int type, cl_entity_t* ent )
 
 const model_t* hudGetSpritePointer( HSPRITE hSprite )
 {
-	//TODO: implement - Solokiller
-	return nullptr;
+	g_engdstAddrs.GetSpritePointer( &hSprite );
+
+	return SPR_GetModelPointer( hSprite );
 }
 
 unsigned short hudPrecacheEvent( int type, const char* psz )
 {
-	//TODO: implement - Solokiller
+	g_engdstAddrs.pfnPrecacheEvent( &type, &psz );
+
+	for( int i = 1; cl.event_precache[ i ].filename; ++i )
+	{
+		if( !Q_stricmp( cl.event_precache[ i ].filename, psz ) )
+			return i;
+	}
+
 	return 0;
 }
 
@@ -822,7 +830,46 @@ void hudPlaybackEvent( int flags, const edict_t* pInvoker, unsigned short eventi
 					   int iparam1, int iparam2,
 					   int bparam1, int bparam2 )
 {
-	//TODO: implement - Solokiller
+	g_engdstAddrs.pfnPlaybackEvent(
+		&flags, &pInvoker, &eventindex, &delay,
+		&origin, &angles,
+		&fparam1, &fparam2,
+		&iparam1, &iparam2,
+		&bparam1, &bparam2
+	);
+
+	if( !( flags & FEV_SERVER ) )
+	{
+		event_args_t eargs;
+		Q_memset( &eargs, 0, sizeof( eargs ) );
+
+		eargs.origin[ 0 ] = origin[ 0 ];
+		eargs.origin[ 1 ] = origin[ 1 ];
+		eargs.origin[ 2 ] = origin[ 2 ];
+
+		eargs.angles[ 0 ] = angles[ 0 ];
+		eargs.angles[ 1 ] = angles[ 1 ];
+		eargs.angles[ 2 ] = angles[ 2 ];
+
+		eargs.velocity[ 0 ] = cl.simvel[ 0 ];
+		eargs.velocity[ 1 ] = cl.simvel[ 1 ];
+		eargs.velocity[ 2 ] = cl.simvel[ 2 ];
+		eargs.fparam1 = fparam1;
+		eargs.fparam2 = fparam2;
+		eargs.iparam1 = iparam1;
+		eargs.iparam2 = iparam2;
+		eargs.bparam1 = bparam1;
+		eargs.bparam2 = bparam2;
+
+		eargs.entindex = cl.playernum + 1;
+		//TODO: define constant - Solokiller
+		eargs.ducking = cl.usehull == 1;
+
+		CL_QueueEvent( flags, eventindex, delay, &eargs );
+
+		if( cls.demorecording )
+			CL_DemoEvent( flags, eventindex, delay, &eargs );
+	}
 }
 
 void hudWeaponAnim( int iAnim, int body )
@@ -1031,8 +1078,7 @@ float hudGetServerGravityValue()
 
 model_t* hudGetModelByIndex( const int index )
 {
-	//TODO: implement - Solokiller
-	return nullptr;
+	return CL_GetModelByIndex( index );
 }
 
 const char* LocalPlayerInfo_ValueForKey( const char* key )

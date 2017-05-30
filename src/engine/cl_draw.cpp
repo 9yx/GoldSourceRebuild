@@ -135,7 +135,75 @@ void SPR_DrawGeneric( int frame, int x, int y, const wrect_t* prc, int src, int 
 
 client_sprite_t* SPR_GetList( char* psz, int* piCount )
 {
-	//TODO: implement - Solokiller
+	g_engdstAddrs.pfnSPR_GetList( &psz, &piCount );
+
+	auto pszData = reinterpret_cast<char*>( COM_LoadTempFile( psz, nullptr ) );
+
+	if( pszData )
+	{
+		pszData = COM_Parse( pszData );
+		const auto iNumSprites = atoi( com_token );
+
+		if( iNumSprites )
+		{
+			auto pList = reinterpret_cast<client_sprite_t*>( calloc( sizeof( client_sprite_t ) * iNumSprites, 1 ) );
+
+			if( pList )
+			{
+				auto pSprite = pList;
+
+				for( int i = 0; i < iNumSprites; ++i, ++pSprite )
+				{
+					pszData = COM_Parse( pszData );
+					Q_strncpy( pSprite->szName, com_token, ARRAYSIZE( pSprite->szName ) );
+
+					pszData = COM_Parse( pszData );
+					pSprite->iRes = atoi( com_token );
+
+					pszData = COM_Parse( pszData );
+					Q_strncpy( pSprite->szSprite, com_token, ARRAYSIZE( pSprite->szSprite ) );
+
+					pszData = COM_Parse( pszData );
+					pSprite->rc.left = atoi( com_token );
+
+					pszData = COM_Parse( pszData );
+					pSprite->rc.top = atoi( com_token );
+
+					pszData = COM_Parse( pszData );
+					pSprite->rc.right = pSprite->rc.left + atoi( com_token );
+
+					pszData = COM_Parse( pszData );
+					pSprite->rc.bottom = pSprite->rc.top + atoi( com_token );
+				}
+
+				if( piCount )
+					*piCount = iNumSprites;
+			}
+
+			return pList;
+		}
+	}
+
+	return nullptr;
+}
+
+SPRITELIST* SPR_Get( HSPRITE hSprite )
+{
+	const int iIndex = hSprite - 1;
+
+	if( iIndex >= 0 && iIndex < gSpriteCount )
+		return &gSpriteList[ iIndex ];
+
+	return nullptr;
+}
+
+model_t* SPR_GetModelPointer( HSPRITE hSprite )
+{
+	auto pList = SPR_Get( hSprite );
+
+	if( pList )
+		return pList->pSprite;
+
 	return nullptr;
 }
 

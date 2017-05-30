@@ -42,7 +42,9 @@ void SPR_DrawGeneric( int frame, int x, int y, const wrect_t* prc, int src, int 
 
 client_sprite_t* SPR_GetList( char* psz, int* piCount );
 
-void SetCrosshair( HSPRITE hspr, wrect_t rc, int r, int g, int b );
+SPRITELIST* SPR_Get( HSPRITE hSprite );
+
+model_t* SPR_GetModelPointer( HSPRITE hSprite );
 
 void SetFilterMode( int mode );
 

@@ -55,3 +55,8 @@ void CL_DemoAnim( int anim, int body )
 {
 	//TODO: implement - Solokiller
 }
+
+void CL_DemoEvent( int flags, int idx, float delay, event_args_t* pargs )
+{
+	//TODO: implement - Solokiller
+}

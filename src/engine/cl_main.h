@@ -15,6 +15,8 @@ dlight_t* CL_AllocDlight( int key );
 
 dlight_t* CL_AllocElight( int key );
 
+model_t* CL_GetModelByIndex( int index );
+
 void CL_GetPlayerHulls();
 
 bool UserIsConnectedOnLoopback();

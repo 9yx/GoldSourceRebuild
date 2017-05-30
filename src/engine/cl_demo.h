@@ -18,4 +18,6 @@ void CL_WriteDLLUpdate( client_data_t* cdat );
 
 void CL_DemoAnim( int anim, int body );
 
+void CL_DemoEvent( int flags, int idx, float delay, event_args_t* pargs );
+
 #endif //ENGINE_CL_DEMO_H
