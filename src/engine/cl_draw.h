@@ -8,9 +8,15 @@ struct SPRITELIST
 	int frameCount;
 };
 
+void SetCrosshair( HSPRITE hspr, wrect_t rc, int r, int g, int b );
+
+void DrawCrosshair( int x, int y );
+
 void SPR_Init();
 
 void SPR_Shutdown();
+
+void SPR_Shutdown_NoModelFree();
 
 HSPRITE SPR_Load( const char* pTextureName );
 

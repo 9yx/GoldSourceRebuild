@@ -6,10 +6,44 @@
 #define SPR_MAX_SPRITES 256
 
 HSPRITE ghCrosshair = 0;
+wrect_t gCrosshairRc = {};
+int gCrosshairR = 0;
+int gCrosshairG = 0;
+int gCrosshairB = 0;
+
 static msprite_t* gpSprite = nullptr;
 
 static int gSpriteCount = 0;
 static SPRITELIST* gSpriteList = nullptr;
+
+void SetCrosshair( HSPRITE hspr, wrect_t rc, int r, int g, int b )
+{
+	g_engdstAddrs.pfnSetCrosshair( &hspr, &rc, &r, &g, &b );
+
+	ghCrosshair = hspr;
+	gCrosshairRc.left = rc.left;
+	gCrosshairRc.right = rc.right;
+	gCrosshairRc.top = rc.top;
+	gCrosshairRc.bottom = rc.bottom;
+	gCrosshairR = r;
+	gCrosshairG = g;
+	gCrosshairB = b;
+}
+
+void DrawCrosshair( int x, int y )
+{
+	if( ghCrosshair )
+	{
+		SPR_Set( ghCrosshair, gCrosshairR, gCrosshairG, gCrosshairB );
+
+		SPR_DrawHoles(
+			0,
+			x - ( gCrosshairRc.right - gCrosshairRc.left ) / 2,
+			y - ( gCrosshairRc.bottom - gCrosshairRc.top ) / 2,
+			&gCrosshairRc
+		);
+	}
+}
 
 void SPR_Init()
 {
@@ -25,6 +59,19 @@ void SPR_Init()
 void SPR_Shutdown()
 {
 	//TODO: implement - Solokiller
+	gpSprite = nullptr;
+	gSpriteList = nullptr;
+	gSpriteCount = 0;
+	ghCrosshair = 0;
+}
+
+void SPR_Shutdown_NoModelFree()
+{
+	//TODO: implement - Solokiller
+	gpSprite = nullptr;
+	gSpriteList = nullptr;
+	gSpriteCount = 0;
+	ghCrosshair = 0;
 }
 
 HSPRITE SPR_Load( const char* pTextureName )
@@ -90,11 +137,6 @@ client_sprite_t* SPR_GetList( char* psz, int* piCount )
 {
 	//TODO: implement - Solokiller
 	return nullptr;
-}
-
-void SetCrosshair( HSPRITE hspr, wrect_t rc, int r, int g, int b )
-{
-	//TODO: implement - Solokiller
 }
 
 void SetFilterMode( int mode )
