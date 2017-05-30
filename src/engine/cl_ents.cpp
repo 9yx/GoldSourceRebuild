@@ -10,3 +10,8 @@ void CL_SetUpPlayerPrediction( bool dopred, bool bIncludeLocalClient )
 {
 	//TODO: implement - Solokiller
 }
+
+void CL_AddStateToEntlist( physent_t* pe, entity_state_t* state )
+{
+	//TODO: implement - Solokiller
+}

@@ -13,6 +13,8 @@ server_t sv;
 playermove_t g_svmove;
 globalvars_t gGlobalVariables = {};
 
+bool allow_cheats = false;
+
 cvar_t mapcyclefile = { "mapcyclefile", "mapcycle.txt" };
 cvar_t servercfgfile = { "servercfgfile", "server.cfg" };
 cvar_t max_queries_sec = { "max_queries_sec", "3.0", FCVAR_PROTECTED | FCVAR_SERVER };

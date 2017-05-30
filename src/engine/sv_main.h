@@ -5,6 +5,8 @@
 
 struct client_frame_t;
 
+extern bool allow_cheats;
+
 extern cvar_t mapcyclefile;
 extern cvar_t servercfgfile;
 

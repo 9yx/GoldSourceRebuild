@@ -21,6 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define ENGINE_PMOVE_H
 
 #include "pm_defs.h"
+#include "pm_movevars.h"
 
 extern vec3_t player_mins[ 4 ];
 extern vec3_t player_maxs[ 4 ];

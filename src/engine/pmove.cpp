@@ -25,6 +25,8 @@ vec3_t player_maxs[ 4 ];
 
 playermove_t* pmove = nullptr;
 
+movevars_t movevars = {};
+
 void PM_Init( playermove_t* ppm )
 {
 	//TODO: implement - Solokiller

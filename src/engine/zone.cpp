@@ -828,8 +828,7 @@ Throw everything out, so new data will be demand cached
 */
 void Cache_Flush( void )
 {
-	//TODO: implement - Solokiller
-	if( cl.maxclients <= 1 /*|| allow_cheats*/ )
+	if( cl.maxclients <= 1 || allow_cheats )
 	{
 		Cache_Force_Flush();
 	}
