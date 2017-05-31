@@ -155,6 +155,8 @@ add_sources(
 	filesystem_internal.cpp
 	gl_draw.cpp
 	gl_draw.h
+	gl_mesh.cpp
+	gl_mesh.h
 	gl_model.cpp
 	gl_model.h
 	gl_rmain.cpp
@@ -194,6 +196,7 @@ add_sources(
 	mathlib.h
 	mem.cpp
 	mem.h
+	modelgen.h
 	modinfo.h
 	module.cpp
 	module.h

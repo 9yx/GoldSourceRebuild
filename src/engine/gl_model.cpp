@@ -27,6 +27,26 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 #include "quakedef.h"
 #include "qgl.h"
+#include "gl_mesh.h"
+#include "gl_model.h"
+
+/*
+==============================================================================
+
+ALIAS MODELS
+
+==============================================================================
+*/
+
+aliashdr_t	*pheader;
+
+stvert_t	stverts[ MAXALIASVERTS ];
+mtriangle_t	triangles[ MAXALIASTRIS ];
+
+// a pose is a single set of vertexes.  a frame may be
+// an animating sequence of poses
+trivertx_t	*poseverts[ MAXALIASFRAMES ];
+int			posenum;
 
 char* wadpath = nullptr;
 
