@@ -16,6 +16,7 @@ globalvars_t gGlobalVariables = {};
 
 bool allow_cheats = false;
 
+cvar_t sv_allow_upload = { "sv_allowupload", "1", FCVAR_SERVER };
 cvar_t mapcyclefile = { "mapcyclefile", "mapcycle.txt" };
 cvar_t servercfgfile = { "servercfgfile", "server.cfg" };
 cvar_t max_queries_sec = { "max_queries_sec", "3.0", FCVAR_PROTECTED | FCVAR_SERVER };
@@ -250,6 +251,8 @@ void SV_Init()
 	//TODO: implement - Solokiller
 	Cvar_RegisterVariable( &sv_gravity );
 	//TODO: implement - Solokiller
+	Cvar_RegisterVariable( &sv_allow_upload );
+	//TODO: implement - Solokiller
 	Cvar_RegisterVariable( &mapcyclefile );
 	//TODO: implement - Solokiller
 	Cvar_RegisterVariable( &servercfgfile );
@@ -376,4 +379,9 @@ void SV_ClearCaches()
 
 		event.pszScript = nullptr;
 	}
+}
+
+void SV_PropagateCustomizations()
+{
+	//TODO: implement - Solokiller
 }

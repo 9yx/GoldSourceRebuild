@@ -7,6 +7,8 @@ struct client_frame_t;
 
 extern bool allow_cheats;
 
+extern cvar_t sv_allow_upload;
+
 extern cvar_t mapcyclefile;
 extern cvar_t servercfgfile;
 
@@ -48,5 +50,7 @@ void SV_KickPlayer( int nPlayerSlot, int nReason );
 void SV_ClearEntities();
 
 void SV_ClearCaches();
+
+void SV_PropagateCustomizations();
 
 #endif //ENGINE_SV_MAIN_H

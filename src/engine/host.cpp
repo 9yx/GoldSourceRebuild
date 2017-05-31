@@ -44,6 +44,8 @@ double oldrealtime = 0;
 double host_frametime = 0;
 double rolling_fps = 0;
 
+client_t* host_client = nullptr;
+
 cvar_t console = { "console", "0.0", FCVAR_ARCHIVE };
 
 static cvar_t host_profile = { "host_profile", "0" };

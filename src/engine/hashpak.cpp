@@ -20,3 +20,9 @@ void HPAK_AddLump( bool bUseQueue, const char* pakname, resource_t* pResource, v
 {
 	//TODO: implement - Solokiller
 }
+
+int HPAK_ResourceForHash( const char* pakname, byte* hash, resource_t* pResourceEntry )
+{
+	//TODO: implement - Solokiller
+	return 0;
+}
